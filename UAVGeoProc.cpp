@@ -32,7 +32,7 @@ using namespace Eigen;
 #include <vector>
 #include <map>
 
-
+static  UAVXYZToLatLonWGS84 CooridinateTrans;
 /**
 * @brief 图像校正坐标转换结构体
 */
