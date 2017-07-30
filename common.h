@@ -31,11 +31,12 @@ typedef struct __GLOBAL__INFO_
     double _g_focal_y;
     double _g_ppx;
     double _g_ppy;
+    double _g_ccdsize;
 
 } GLOBAL_INFO ;
 
 //全局的文件夹变量
-static GLOBAL_INFO _info_;
+extern GLOBAL_INFO _info_;
 
 
 

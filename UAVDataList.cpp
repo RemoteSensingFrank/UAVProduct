@@ -23,8 +23,6 @@ using namespace openMVG::sfm;
 using namespace openMVG::image;
 using namespace openMVG::exif;
 
-
-
 static int get_file_size(const char* file) {
     struct stat tbuf;
     stat(file, &tbuf);
@@ -49,6 +47,7 @@ pair<Vec3,Vec3> UAVPosRead::ReadPOS(fstream *ifs) {
 float UAVDataList::UAVList_CreateSFMList()
 {
     //影像文件夹(判断是否存在)
+    printf("%s\n",_info_._g_image_dir_.c_str());
     if ( !stlplus::folder_exists( _info_._g_image_dir_ ) )
     {
         std::cerr << "\nThe input directory doesn't exist" << std::endl;
@@ -59,6 +58,15 @@ float UAVDataList::UAVList_CreateSFMList()
     if ( !stlplus::folder_exists( _info_._g_feature_dir_ ) )
     {
         if ( !stlplus::folder_create(  _info_._g_feature_dir_ ))
+        {
+            std::cerr << "\nCannot create output directory" << std::endl;
+            return EXIT_FAILURE;
+        }
+    }
+    //特征点文件夹
+    if ( !stlplus::folder_exists( _info_._g_match_dir_ ) )
+    {
+        if ( !stlplus::folder_create(  _info_._g_match_dir_ ))
         {
             std::cerr << "\nCannot create output directory" << std::endl;
             return EXIT_FAILURE;
@@ -135,7 +143,8 @@ float UAVDataList::UAVList_CreateSFMList()
         _info_._g_ppx=_info_._g_ppy= width = height= focal = -1;
         const std::string sImageFilename = stlplus::create_filespec(  _info_._g_image_dir_, *iter_image );
         const std::string sImFilenamePart = stlplus::filename_part(sImageFilename);
-        files_size+=float(get_file_size(iter_image->c_str()))/1024.0f;
+        files_size+=float(get_file_size(sImageFilename.c_str()))/1024.0f;
+        //printf("%s %d\n",iter_image->c_str(),files_size);
 
         ImageHeader imgHeader;
         if (!openMVG::image::ReadImageHeader(sImageFilename.c_str(), &imgHeader))
@@ -148,9 +157,13 @@ float UAVDataList::UAVList_CreateSFMList()
 
         std::unique_ptr<Exif_IO> exifReader(new Exif_IO_EasyExif);
         exifReader->open( sImageFilename );
+        if(_info_._g_focal_x == -1||_info_._g_focal_y==-1)
+            focal = std::max ( width, height ) * exifReader->getFocal() / _info_._g_ccdsize;
+        else
+            focal = std::max(_info_._g_focal_x,_info_._g_focal_y);
 
         std::shared_ptr<IntrinsicBase> intrinsic(NULL);
-        if(_info_._g_focal_x>0&&_info_._g_focal_y>0&&
+        if(focal>0&&_info_._g_focal_y>0&&
                 _info_._g_ppx>0&&_info_._g_ppy&&height>0&&width>0)
         {
             //initial intrinsic

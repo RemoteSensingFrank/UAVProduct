@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
+set(CMAKE_BUILD_TYPE Debug CACHE STRING "set build type to debug")
 project(UAVProduct)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -21,7 +22,7 @@ include_directories(${OPENMVG_INCLUDE_DIRS})
 include_directories(${GDAL_INCLUDE})
 include_directories(${OpenMVS_INCLUDE_DIRS})
 
-set(SOURCE_FILES UAVMain.cpp common.h UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVFeatureExteact.cpp)
+set(SOURCE_FILES UAVMain.cpp common.h UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVFeatureExteact.cpp UAVAuxiliary.h UAVAuxiliary.cpp common.cpp)
 
 add_executable(UAVProcess ${SOURCE_FILES})
 
