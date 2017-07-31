@@ -5,7 +5,7 @@
 
 #include "gtest/gtest.h"
 #include "common.h"
-void InitialUAVInfo()
+void InitialUAVInfo1()
 {
 	_info_._g_image_dir_="/home/wuwei/Data/UAVData/small_test/Img/";
 	_info_._g_SFM_data="/home/wuwei/Data/UAVData/small_test/SFM_Data.json";
@@ -27,7 +27,7 @@ int main(int argc,char* argv[])
 {
 	//测试环境的初始化
 	::testing::InitGoogleTest(&argc,argv);
-	InitialUAVInfo();
+	InitialUAVInfo1();
 	UAVDataList _datalist_;
 	float file_size = _datalist_.UAVList_CreateSFMList();
     printf("process total image size:%lf\n",file_size);
