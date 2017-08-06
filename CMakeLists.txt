@@ -27,7 +27,7 @@ include_directories(${OpenMVS_INCLUDE_DIRS})
 ADD_SUBDIRECTORY(SiftGPU)
 LINK_DIRECTORIES(SiftGPU)
 
-set(SOURCE_FILES ${SIFTLIST} UAVMain.cpp common.h UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVFeatureExteact.cpp UAVAuxiliary.h UAVAuxiliary.cpp common.cpp UAVBundle.cpp UAVBundle.h)
+set(SOURCE_FILES ${SIFTLIST} UAVMain.cpp common.h UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVAuxiliary.h UAVAuxiliary.cpp common.cpp UAVBundle.cpp UAVBundle.h UAVFeatureExtract.cpp)
 
 add_executable(UAVProcess ${SOURCE_FILES})
 

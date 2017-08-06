@@ -6,6 +6,7 @@
 #define UAVPRODUCT_UAVFEATUREEXTRACT_H
 
 #include "common.h"
+#include "SiftGPU/SiftGPU.h"
 
 //特征点解算的基类
 //解析特征点
@@ -41,6 +42,15 @@ class UAVFeatsSIFTGpu:public UAVFeatureExtract
 public:
     bool UAVFeatsExtract();
     bool UAVMatchesExtract();
+private:
+    /**
+     * 将特征点和特征描述导出到文件中
+     * @param path  :文件输出路径
+     * @param feats :特征点
+     * @param desc  :特征描述
+     * @return
+     */
+    bool UAVExportFeatsToFile(string path,vector<SiftGPU::SiftKeypoint> feats,vector<float> desc);
 };
 
 #endif

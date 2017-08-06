@@ -771,24 +771,3 @@ bool UAVFeatsSIFT::UAVMatchesExtract() {
     }
     return true;
 }
-
-bool UAVFeatsSIFTGpu::UAVFeatsExtract()
-{
-    //siftGPU必须转换为openMVG的格式
-
-
-
-
-    return true;
-}
-
-bool UAVFeatsSIFTGpu::UAVMatchesExtract()
-{
-    //同样也需要转换为openMVG格式
-
-
-
-
-
-    return true;
-}
