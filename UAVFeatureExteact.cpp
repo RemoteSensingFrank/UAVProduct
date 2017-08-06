@@ -428,7 +428,7 @@ bool UAVFeatsSIFT::UAVMatchesExtract() {
 
     std::string sSfM_Data_Filename=_info_._g_SFM_data;
     std::string sMatchesDirectory = _info_._g_match_dir_;
-    std::string sGeometricModel = "f";
+    std::string sGeometricModel = "e";
     float fDistRatio = 0.6f;
     int iMatchingVideoMode = -1;
     std::string sPredefinedPairList = stlplus::create_filespec(_info_._g_auxiliary_dir,"MatchNeighbor.txt");

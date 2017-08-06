@@ -144,7 +144,6 @@ float UAVDataList::UAVList_CreateSFMList()
         const std::string sImageFilename = stlplus::create_filespec(  _info_._g_image_dir_, *iter_image );
         const std::string sImFilenamePart = stlplus::filename_part(sImageFilename);
         files_size+=float(get_file_size(sImageFilename.c_str()))/1024.0f;
-        //printf("%s %d\n",iter_image->c_str(),files_size);
 
         ImageHeader imgHeader;
         if (!openMVG::image::ReadImageHeader(sImageFilename.c_str(), &imgHeader))
@@ -162,6 +161,7 @@ float UAVDataList::UAVList_CreateSFMList()
         else
             focal = std::max(_info_._g_focal_x,_info_._g_focal_y);
 
+        _info_._g_focal_x=_info_._g_focal_y=focal;
         std::shared_ptr<IntrinsicBase> intrinsic(NULL);
         if(focal>0&&_info_._g_focal_y>0&&
                 _info_._g_ppx>0&&_info_._g_ppy&&height>0&&width>0)
@@ -174,6 +174,7 @@ float UAVDataList::UAVList_CreateSFMList()
         //POS data from Exif
         if(pos_file)
         {
+            _info_._g_Has_Pos = true;
             pair<Vec3,Vec3> trans_rot =readPOS.ReadPOS(ifs);
             // Add ECEF XYZ position to the GPS position array
             val.first = true;
@@ -203,6 +204,7 @@ float UAVDataList::UAVList_CreateSFMList()
             views[v.id_view] = std::make_shared<ViewPriors>(v);
         } else if ( exifReader->open( sImageFilename ) && exifReader->doesHaveExifInfo() ) {
             // Try to parse EXIF metada & check existence of EXIF data
+            _info_._g_Has_Pos = true;
             double latitude, longitude, altitude;
             if ( exifReader->GPSLatitude( &latitude ) &&
                  exifReader->GPSLongitude( &longitude ) &&
@@ -227,14 +229,13 @@ float UAVDataList::UAVList_CreateSFMList()
                     // Add the defined intrinsic to the sfm_container
                     intrinsics[v.id_intrinsic] = intrinsic;
                 }
-
                 v.b_use_pose_center_ = true;
                 v.pose_center_ = val.second;
                 views[v.id_view] = std::make_shared<ViewPriors>(v);
             }
         } else{
+            _info_._g_Has_Pos = false;
             View v(*iter_image, views.size(), views.size(), views.size(), width, height);
-
             if (intrinsic == NULL)
             {
                 //Since the view have invalid intrinsic data

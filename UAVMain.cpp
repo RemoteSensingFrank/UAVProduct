@@ -1,11 +1,12 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include "UAVDataList.h"
+#include "UAVBundle.h"
 #include "UAVFeatureExtract.h"
 
+
 #include "gtest/gtest.h"
-#include "common.h"
-void InitialUAVInfo1()
+void InitialUAVInfo1UAV1()
 {
 	_info_._g_image_dir_="/home/wuwei/Data/UAVData/small_test/Img/";
 	_info_._g_SFM_data="/home/wuwei/Data/UAVData/small_test/SFM_Data.json";
@@ -19,6 +20,17 @@ void InitialUAVInfo1()
 	_info_._g_mosaic_path = "/home/wuwei/Data/UAVData/small_test/mosaic.tif";
 	_info_._g_focal_x = _info_._g_focal_y = -1;
 	_info_._g_ccdsize = 6.16;
+
+
+    UAVDataList _datalist_;
+    float file_size = _datalist_.UAVList_CreateSFMList();
+    printf("process total image size:%lf\n",file_size);
+    UAVFeatsSIFT featureSift;
+    featureSift.UAVFeatsExtract();
+    featureSift.UAVMatchesList(8);
+    featureSift.UAVMatchesExtract();
+    UAVBundle bundler;
+    bundler.UAVBundleGlobal();
 }
 
 
@@ -27,15 +39,7 @@ int main(int argc,char* argv[])
 {
 	//测试环境的初始化
 	::testing::InitGoogleTest(&argc,argv);
-	InitialUAVInfo1();
-	UAVDataList _datalist_;
-	float file_size = _datalist_.UAVList_CreateSFMList();
-    printf("process total image size:%lf\n",file_size);
-
-    UAVFeatsSIFT featureSift;
-    featureSift.UAVFeatsExtract();
-    featureSift.UAVMatchesList(8);
-    featureSift.UAVMatchesExtract();
+    InitialUAVInfo1UAV1();
 
 	return RUN_ALL_TESTS();
 }

@@ -15,9 +15,10 @@ using namespace std;
 
 typedef struct __GLOBAL__INFO_
 {
-    string _g_image_dir_;
-    string _g_Pos_data;
-    int _g_Pos_bias;
+    string  _g_image_dir_;
+    string  _g_Pos_data;
+    int     _g_Pos_bias;
+    bool    _g_Has_Pos;
 
     string _g_auxiliary_dir;    //辅助数据文件夹
     string _g_match_dir_;
