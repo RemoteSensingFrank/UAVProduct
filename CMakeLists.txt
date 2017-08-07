@@ -24,7 +24,7 @@ include_directories(${OPENMVG_INCLUDE_DIRS})
 include_directories(${GDAL_INCLUDE})
 include_directories(${OpenMVS_INCLUDE_DIRS})
 
-set(SOURCE_FILES UAVMain.cpp common.h UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVAuxiliary.h UAVAuxiliary.cpp common.cpp UAVBundle.cpp UAVBundle.h UAVFeatureExtract.cpp)
+set(SOURCE_FILES UAVMain.cpp common.h UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVAuxiliary.h UAVAuxiliary.cpp common.cpp UAVBundle.cpp UAVBundle.h UAVFeatureExtract.cpp UAVDMatch.h UAVDenseProcess.cpp UAVDenseProcess.h)
 
 add_executable(UAVProcess ${SOURCE_FILES})
 
