@@ -2,9 +2,9 @@
 // Created by wuwei on 17-7-29.
 //
 #include "UAVFeatureExtract.h"
-#include "common.h"
+#include "UAVCommon.h"
 #include "UAVAuxiliary.h"
-
+#include "UAVXYZToLatLonWGS84.h"
 #include "openMVG/sfm/sfm.hpp"
 #include "openMVG/matching_image_collection/Matcher_Regions_AllInMemory.hpp"
 #include "openMVG/matching_image_collection/Cascade_Hashing_Matcher_Regions_AllInMemory.hpp"

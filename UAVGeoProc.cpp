@@ -13,7 +13,7 @@
 #include "openMVG/sfm/sfm_data_io.hpp"
 #include "openMVG/sfm/pipelines/sfm_engine.hpp"
 #include "openMVG/sfm/pipelines/sfm_features_provider.hpp"
-
+#include "UAVXYZToLatLonWGS84.h"
 /// Generic Image Collection image matching
 #include "openMVG/matching/indMatch_utils.hpp"
 #include "openMVG/stl/stl.hpp"
@@ -26,7 +26,7 @@ using namespace Eigen;
 
 #include "third_party/progress/progress.hpp"
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
-#include "common.h"
+#include "UAVCommon.h"
 
 #include <omp.h>
 #include <vector>

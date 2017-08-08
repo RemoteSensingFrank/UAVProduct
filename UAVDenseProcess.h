@@ -23,11 +23,6 @@ private:
      * 初始化
      * */
     void UAVDP_MVSProcInitialize();
-
-    /**
-     * 清理数据
-     */
-    void UAVDP_MVSProcFinialize();
 };
 
 

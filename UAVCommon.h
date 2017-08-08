@@ -1,11 +1,10 @@
 //
-// Created by wuwei on 17-7-26.
+// Created by wuwei on 17-8-8.
 //
-//存放全局变量，虽然现在还没有想好有什么全局变量需要存放先随便写几个
-#ifndef UAVPRODUCT_COMMON_H
-#define UAVPRODUCT_COMMON_H
 
-#include "UAVXYZToLatLonWGS84.h"
+#ifndef UAVPRODUCT_UAVCOMMON_H
+#define UAVPRODUCT_UAVCOMMON_H
+
 #include <string>
 using namespace std;
 
@@ -40,5 +39,4 @@ typedef struct __GLOBAL__INFO_
 extern GLOBAL_INFO _info_;
 
 
-
-#endif //UAVPRODUCT_COMMON_H
+#endif //UAVPRODUCT_UAVCOMMON_H

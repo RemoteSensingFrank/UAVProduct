@@ -5,7 +5,7 @@
 #ifndef UAVPRODUCT_UAVFEATUREEXTRACT_H
 #define UAVPRODUCT_UAVFEATUREEXTRACT_H
 
-#include "common.h"
+#include "UAVCommon.h"
 
 //特征点解算的基类
 //解析特征点

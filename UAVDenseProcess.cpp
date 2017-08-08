@@ -2,28 +2,29 @@
 // Created by wuwei on 17-8-7.
 //
 #define _USE_EIGEN
+#include "UAVDMatch.h"
 
 #include "UAVDenseProcess.h"
-#include "common.h"
-#include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
-#include "UAVDMatch.h"
+
+#include "UAVCommon.h"
 #include "openMVG/image/image.hpp"
 #include "openMVG/sfm/sfm.hpp"
-
-
-#include "OpenMVS/MVS.h"
-#include <boost/program_options.hpp>
 
 using namespace openMVG::image;
 using namespace openMVG::sfm;
 using namespace openMVG::cameras;
 using namespace openMVG;
-using namespace MVS;
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <cmath>
+#include <iterator>
+#include <iomanip>
 #include <string>
 using namespace std;
 
 void UAVDenseProcess::UAVDP_ExportMVS() {
+
     //输出文件的路径
     string export_mvs = stlplus::create_filespec(_info_._g_point_cloud_dir,"trans",".mvs");
     string sfm_data_path = stlplus::create_filespec(_info_._g_point_cloud_dir,"sfm_data",".bin");
@@ -197,4 +198,3 @@ void UAVDenseProcess::UAVDP_ExportMVS() {
             << "\t" << scene.vertices.size() << " Landmarks\n";
     return ;
 }
-

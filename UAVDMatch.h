@@ -5,8 +5,9 @@
 #ifndef UAVPRODUCT_UAVDMATCH_H
 #define UAVPRODUCT_UAVDMATCH_H
 
-
 // I N C L U D E S /////////////////////////////////////////////////
+#include"numeric/numeric.h"
+using namespace std;
 
 #include <fstream>
 #include <vector>
@@ -38,13 +39,13 @@ namespace cv {
         inline Matx() {}
 #ifdef _USE_EIGEN
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF_VECTORIZABLE_FIXED_SIZE(Type,m*n)
-	typedef Eigen::Matrix<Type,m,n,(n>1?Eigen::RowMajor : Eigen::ColMajor)> EMat;
-	typedef Eigen::Map<const EMat> CEMatMap;
-	typedef Eigen::Map<EMat> EMatMap;
-	inline Matx(const EMat& rhs) { operator EMatMap () = rhs; }
-	inline Matx& operator = (const EMat& rhs) { operator EMatMap () = rhs; return *this; }
-	inline operator CEMatMap() const { return CEMatMap((const Type*)val); }
-	inline operator EMatMap () { return EMatMap((Type*)val); }
+        typedef Eigen::Matrix<Type,m,n,(n>1?Eigen::RowMajor : Eigen::ColMajor)> EMat;
+        typedef Eigen::Map<const EMat> CEMatMap;
+        typedef Eigen::Map<EMat> EMatMap;
+        inline Matx(const EMat& rhs) { operator EMatMap () = rhs; }
+        inline Matx& operator = (const EMat& rhs) { operator EMatMap () = rhs; return *this; }
+        inline operator CEMatMap() const { return CEMatMap((const Type*)val); }
+        inline operator EMatMap () { return EMatMap((Type*)val); }
 #endif
         Type operator()(int r, int c) const { return val[r*n+c]; }
         Type& operator()(int r, int c) { return val[r*n+c]; }
@@ -61,12 +62,12 @@ namespace cv {
         inline Point3_() {}
 #ifdef _USE_EIGEN
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF_VECTORIZABLE_FIXED_SIZE(Type,3)
-	typedef Eigen::Matrix<Type,3,1> EVec;
-	typedef Eigen::Map<EVec> EVecMap;
-	inline Point3_(const EVec& rhs) { operator EVecMap () = rhs; }
-	inline Point3_& operator = (const EVec& rhs) { operator EVecMap () = rhs; return *this; }
-	inline operator const EVecMap () const { return EVecMap((Type*)this); }
-	inline operator EVecMap () { return EVecMap((Type*)this); }
+        typedef Eigen::Matrix<Type,3,1> EVec;
+        typedef Eigen::Map<EVec> EVecMap;
+        inline Point3_(const EVec& rhs) { operator EVecMap () = rhs; }
+        inline Point3_& operator = (const EVec& rhs) { operator EVecMap () = rhs; return *this; }
+        inline operator const EVecMap () const { return EVecMap((Type*)this); }
+        inline operator EVecMap () { return EVecMap((Type*)this); }
 #endif
     public:
         _Tp x, y, z;

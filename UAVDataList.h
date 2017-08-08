@@ -5,7 +5,8 @@
 #ifndef UAVPRODUCT_UAVDATALIST_H
 #define UAVPRODUCT_UAVDATALIST_H
 
-#include "common.h"
+#include "UAVCommon.h"
+#include "UAVXYZToLatLonWGS84.h"
 #include <string>
 #include <fstream>
 

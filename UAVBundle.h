@@ -8,7 +8,7 @@
 #include <string>
 #include <cstdlib>
 
-#include "common.h"
+#include "UAVCommon.h"
 #include "openMVG/sfm/sfm.hpp"
 #include "openMVG/image/image.hpp"
 #include "openMVG/features/features.hpp"
