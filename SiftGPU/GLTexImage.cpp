@@ -42,7 +42,6 @@ using namespace std;
 
 
 //#define SIFTGPU_NO_DEVIL
-
 #ifndef SIFTGPU_NO_DEVIL
     #include "IL/il.h"
     #if  defined(_WIN64)
@@ -1126,6 +1125,7 @@ int GLTexInput::LoadImageFile(char *imagepath, int &w, int &h )
 
 	return done;
 #else
+
 	FILE * file = fopen(imagepath, "rb"); if (file ==NULL) return 0;
 
 	char buf[8];	int  width, height, cn, g, done = 1; 
@@ -1186,6 +1186,7 @@ int GLTexInput::LoadImageFile(char *imagepath, int &w, int &h )
     delete data; 
     if(GlobalUtil::_verbose && done) std::cout<< "Image loaded :\t" << imagepath << "\n";
 	return 1;
+
 #endif
 }
 

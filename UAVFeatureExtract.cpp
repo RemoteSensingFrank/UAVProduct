@@ -421,7 +421,7 @@ bool UAVFeatsSIFT::UAVFeatsExtract() {
         }
         std::cout << "Task done in (s): " << timer.elapsed() << std::endl;
     }
-    return false;
+    return true;
 }
 
 bool UAVFeatsSIFT::UAVMatchesExtract() {

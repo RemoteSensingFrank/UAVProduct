@@ -24,13 +24,17 @@ void InitialUAVInfo1UAV1()
 
     UAVDataList _datalist_;
     float file_size = _datalist_.UAVList_CreateSFMList();
-    printf("process total image size:%lf\n",file_size);
+	UAVFeatsSIFTGpu featGpu;
+	featGpu.UAVFeatsExtract();
+
+	/*printf("process total image size:%lf\n",file_size);
     UAVFeatsSIFT featureSift;
     featureSift.UAVFeatsExtract();
     featureSift.UAVMatchesList(8);
     featureSift.UAVMatchesExtract();
     UAVBundle bundler;
     bundler.UAVBundleGlobal();
+	*/
 }
 
 

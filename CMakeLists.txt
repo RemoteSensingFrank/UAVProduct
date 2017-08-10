@@ -18,22 +18,27 @@ set(GTest_LIBRARY "/usr/local/lib/libgtest.a")
 find_package(OpenMVG REQUIRED)
 find_package(OpenMVS REQUIRED)
 find_package(GTest REQUIRED)
+find_package(DevIL REQUIRED)
 
 include_directories(${GTEST_INCLUDE_DIRS})
 include_directories(${OPENMVG_INCLUDE_DIRS})
 include_directories(${GDAL_INCLUDE})
 include_directories(${OpenMVS_INCLUDE_DIRS})
+#include_directories(${IL_INCLUDE_DIRS})
 
 ADD_SUBDIRECTORY(SiftGPU)
 LINK_DIRECTORIES(SiftGPU)
 
-set(SOURCE_FILES ${SIFTLIST} UAVMain.cpp common.h UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVAuxiliary.h UAVAuxiliary.cpp common.cpp UAVBundle.cpp UAVBundle.h UAVFeatureExtract.cpp)
+set(SOURCE_FILES ${SIFTLIST} UAVMain.cpp common.h UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVAuxiliary.h UAVAuxiliary.cpp common.cpp UAVBundle.cpp UAVBundle.h UAVFeatureExtract.cpp UAVFeatureExtractGpu.cpp)
 
 add_executable(UAVProcess ${SOURCE_FILES})
 
 target_link_libraries(UAVProcess ${OPENMVG_LIBRARIES})
 target_link_libraries(UAVProcess ${OpenMVS_LIBRARIES})
 target_link_libraries(UAVProcess ${GTEST_LIBRARIES})
+#target_link_libraries(UAVProcess ${IL_LIBRARIES})
+#target_link_libraries(UAVProcess ${ILU_LIBRARIES})
+#target_link_libraries(UAVProcess ${ILUT_LIBRARIES})
 
 target_link_libraries(UAVProcess siftgpu)
 target_link_libraries(UAVProcess ${GDAL_LIBRARY})
