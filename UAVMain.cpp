@@ -3,7 +3,7 @@
 #include "UAVDataList.h"
 #include "UAVBundle.h"
 #include "UAVFeatureExtract.h"
-
+#include "UAVDenseProcess.h"
 
 #include "gtest/gtest.h"
 void InitialUAVInfo1UAV1()
@@ -22,7 +22,7 @@ void InitialUAVInfo1UAV1()
 	_info_._g_ccdsize = 6.16;
 
 
-    UAVDataList _datalist_;
+    /*UAVDataList _datalist_;
     float file_size = _datalist_.UAVList_CreateSFMList();
     printf("process total image size:%lf\n",file_size);
     UAVFeatsSIFT featureSift;
@@ -31,6 +31,10 @@ void InitialUAVInfo1UAV1()
     featureSift.UAVMatchesExtract();
     UAVBundle bundler;
     bundler.UAVBundleGlobal();
+
+    UAVDenseProcess denseProc;
+    //denseProc.UAVDP_ExportMVS();
+    denseProc.UAVDP_MVSProc();*/
 }
 
 
