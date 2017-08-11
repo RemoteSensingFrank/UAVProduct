@@ -1,5 +1,7 @@
 #include<stdlib.h>
 #include<stdio.h>
+#include<GL/glut.h>
+
 #include "UAVDataList.h"
 #include "UAVBundle.h"
 #include "UAVFeatureExtract.h"
@@ -23,6 +25,7 @@ void InitialUAVInfo1UAV1()
 
 
     UAVDataList _datalist_;
+
     float file_size = _datalist_.UAVList_CreateSFMList();
 	UAVFeatsSIFTGpu featGpu;
 	featGpu.UAVFeatsExtract();
@@ -43,7 +46,8 @@ int main(int argc,char* argv[])
 {
 	//测试环境的初始化
 	::testing::InitGoogleTest(&argc,argv);
+
     InitialUAVInfo1UAV1();
 
-	return RUN_ALL_TESTS();
+	//return RUN_ALL_TESTS();
 }

@@ -58,15 +58,43 @@ bool UAVExportFeatsToFile(string pathfeats,string pathdesc, vector<SiftGPU::Sift
     return true;
 }
 
-bool UAVExportMatchesToFile(string base)
+bool UAVImportFeatsToFile(string pathdesc, vector<float> &desc)
 {
+    ifstream ifs(pathdesc,ios_base::binary|ios_base::in);
+    if(!ifs.is_open())
+        return false;
+
+    int num;
+    ifs.read((char*)&num,sizeof(int));
+    try
+    {
+        float* descf=new float[128*num];
+        ifs.read((char*)descf,sizeof(float)*num*128);
+
+        desc.resize(128*num);
+        memcpy(desc,descf,sizeof(float)*num*128);
+
+        delete[]descf;descf=NULL;
+    }catch (std::bad_alloc e)
+    {
+        printf(e.what());
+        return false;
+    }
+}
+
+bool UAVExportMatchesToFile(string path,int matchnum,int (*matches)[2])
+{
+    ofstream ofs(path,ios_base::app);
+    ofs<<matchnum<<endl;
+    for(int i=0;i<matchnum;++i){
+        ofs<<matches[i][0]
+    }
     return true;
 }
 
 
 
 bool UAVFeatsSIFTGpu::UAVFeatsExtract() {
-
     std::string sOutDir = _info_._g_feature_dir_;
     SiftGPU *sift = new SiftGPU;
     if (sift->CreateContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
@@ -141,6 +169,7 @@ bool UAVFeatsSIFTGpu::UAVMatchesExtract() {
     system::Timer timer;
     {
         Pair_Set pairs;
+        Pair_Set pairs_filter;
         switch (ePairmode)
         {
             case PAIR_EXHAUSTIVE: pairs = exhaustivePairs(sfm_data.GetViews().size()); break;
@@ -159,6 +188,28 @@ bool UAVFeatsSIFTGpu::UAVMatchesExtract() {
                 img2 = cur_pair.second;
 
             //load feats and describes;
+            string name1 = sfm_data.GetViews().at(img1)->s_Img_path;
+            string name2 = sfm_data.GetViews().at(img2)->s_Img_path;
+
+            vector<float> desc1,desc2;
+            if(!UAVImportFeatsToFile(name1,desc1)||!UAVImportFeatsToFile(name2,desc2));
+            {
+                continue;
+            }
+            int num1 = desc1.size()/128;
+            int num2 = desc2.size()/128;
+            //matches
+            matcher->SetDescriptors(0, num1, &desc1[0]); //image 1
+            matcher->SetDescriptors(1, num2, &desc2[0]); //image 2
+            int (*match_buf)[2] = new int[num1][2];
+            int num_match = matcher->GetSiftMatch(num1, match_buf);
+            for(int i  = 0; i < num_match; ++i)
+            {
+                //How to get the feature matches:
+                //SiftGPU::SiftKeypoint & key1 = keys1[match_buf[i][0]];
+                //SiftGPU::SiftKeypoint & key2 = keys2[match_buf[i][1]];
+                //key1 in the first image matches with key2 in the second image
+            }
 
         }
 

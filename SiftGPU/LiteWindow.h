@@ -17,7 +17,15 @@ class LiteWindow
 public:
     LiteWindow()            {  glut_id = 0;         }
     int IsValid()           {  return glut_id > 0; }        
-    virtual ~LiteWindow()   {  if(glut_id > 0) glutDestroyWindow(glut_id);  }
+    virtual ~LiteWindow()   {
+		if(glut_id > 0)
+		{
+			int argc = 0;
+			char** argv;
+			glutInit(&argc, argv);
+			glutDestroyWindow(glut_id);
+		}
+	}
     void MakeCurrent()      {  glutSetWindow(glut_id);    }
     void Create(int x = -1, int y = -1, const char* display = NULL)
     {
