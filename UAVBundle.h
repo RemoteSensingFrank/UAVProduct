@@ -35,6 +35,7 @@ public:
      * 得到全局的旋转和平移矩阵
      */
     void UAVBundleGlobal();
+    void UAVBundleGlobalGpu();  //对采用GPU解算得到的特征点和特征描述采用全局算法进行光束法解算
 };
 
 
