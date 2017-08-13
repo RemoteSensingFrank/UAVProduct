@@ -6,6 +6,7 @@
 #define UAVPRODUCT_UAVFEATUREEXTRACT_H
 
 #include "UAVCommon.h"
+#include "SiftGPU/SiftGPU.h"
 
 //特征点解算的基类
 //解析特征点

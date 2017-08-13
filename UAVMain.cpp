@@ -1,5 +1,7 @@
 #include<stdlib.h>
 #include<stdio.h>
+#include<GL/glut.h>
+
 #include "UAVDataList.h"
 #include "UAVBundle.h"
 #include "UAVFeatureExtract.h"
@@ -22,9 +24,14 @@ void InitialUAVInfo1UAV1()
 	_info_._g_ccdsize = 6.16;
 
 
-    /*UAVDataList _datalist_;
+
+    UAVDataList _datalist_;
     float file_size = _datalist_.UAVList_CreateSFMList();
-    printf("process total image size:%lf\n",file_size);
+	UAVFeatsSIFTGpu featGpu;
+	//featGpu.UAVFeatsExtract();
+	featGpu.UAVMatchesExtract();
+
+	/*printf("process total image size:%lf\n",file_size);
     UAVFeatsSIFT featureSift;
     featureSift.UAVFeatsExtract();
     featureSift.UAVMatchesList(8);
@@ -35,6 +42,7 @@ void InitialUAVInfo1UAV1()
     UAVDenseProcess denseProc;
     //denseProc.UAVDP_ExportMVS();
     denseProc.UAVDP_MVSProc();*/
+
 }
 
 
@@ -43,7 +51,8 @@ int main(int argc,char* argv[])
 {
 	//测试环境的初始化
 	::testing::InitGoogleTest(&argc,argv);
+
     InitialUAVInfo1UAV1();
 
-	return RUN_ALL_TESTS();
+	//return RUN_ALL_TESTS();
 }
