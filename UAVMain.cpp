@@ -28,7 +28,8 @@ void InitialUAVInfo1UAV1()
 
     float file_size = _datalist_.UAVList_CreateSFMList();
 	UAVFeatsSIFTGpu featGpu;
-	featGpu.UAVFeatsExtract();
+	//featGpu.UAVFeatsExtract();
+	featGpu.UAVMatchesExtract();
 
 	/*printf("process total image size:%lf\n",file_size);
     UAVFeatsSIFT featureSift;

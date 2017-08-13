@@ -16,6 +16,8 @@
 #include <stdlib.h>
 #include <vector>
 #include <iostream>
+#include <stl/stl.hpp>
+
 using std::vector;
 using std::iostream;
 using namespace openMVG;
@@ -27,6 +29,55 @@ enum EPairMode
     PAIR_CONTIGUOUS = 1,
     PAIR_FROM_FILE  = 2
 };
+
+/// Display pair wises matches as an Adjacency matrix in svg format
+void PairMatchingToAdjacencyMatrixSVG
+        (
+                const size_t NbImages,
+                const Pair_Set & map_Matches,
+                const std::string & sOutName
+        )
+{
+    if ( !map_Matches.empty())
+    {
+        const float scaleFactor = 5.0f;
+        svg::svgDrawer svgStream((NbImages+3)*5, (NbImages+3)*5);
+        // Go along all possible pair
+        for (size_t I = 0; I < NbImages; ++I) {
+            for (size_t J = 0; J < NbImages; ++J) {
+                // If the pair have matches display a blue boxes at I,J position.
+                auto iterSearch = map_Matches.find(std::make_pair(I,J));
+                if (iterSearch != map_Matches.end())
+                {
+                    // Display as a tooltip: (IndexI, IndexJ NbMatches)
+                    std::ostringstream os;
+                    svgStream.drawSquare(J*scaleFactor, I*scaleFactor, scaleFactor/2.0f,
+                                         svg::svgStyle().fill("blue").noStroke());
+                } // HINT : THINK ABOUT OPACITY [0.4 -> 1.0] TO EXPRESS MATCH COUNT
+            }
+        }
+        // Display axes with 0 -> NbImages annotation : _|
+        std::ostringstream osNbImages;
+        osNbImages << NbImages;
+        svgStream.drawText((NbImages+1)*scaleFactor, scaleFactor, scaleFactor, "0", "black");
+        svgStream.drawText((NbImages+1)*scaleFactor,
+                           (NbImages)*scaleFactor - scaleFactor, scaleFactor, osNbImages.str(), "black");
+        svgStream.drawLine((NbImages+1)*scaleFactor, 2*scaleFactor,
+                           (NbImages+1)*scaleFactor, (NbImages)*scaleFactor - 2*scaleFactor,
+                           svg::svgStyle().stroke("black", 1.0));
+
+        svgStream.drawText(scaleFactor, (NbImages+1)*scaleFactor, scaleFactor, "0", "black");
+        svgStream.drawText((NbImages)*scaleFactor - scaleFactor,
+                           (NbImages+1)*scaleFactor, scaleFactor, osNbImages.str(), "black");
+        svgStream.drawLine(2*scaleFactor, (NbImages+1)*scaleFactor,
+                           (NbImages)*scaleFactor - 2*scaleFactor, (NbImages+1)*scaleFactor,
+                           svg::svgStyle().stroke("black", 1.0));
+
+        std::ofstream svgFileStream( sOutName.c_str());
+        svgFileStream << svgStream.closeSvgFile().str();
+    }
+}
+
 
 bool UAVExportFeatsToFile(string pathfeats,string pathdesc, vector<SiftGPU::SiftKeypoint> feats, vector<float> desc) {
 
@@ -51,7 +102,7 @@ bool UAVExportFeatsToFile(string pathfeats,string pathdesc, vector<SiftGPU::Sift
         }
         ofs_feats.write((const char*)&x,sizeof(float));
         ofs_feats.write((const char*)&y,sizeof(float));
-        ofs_feats.write((const char*)descf,sizeof(float)*128);
+        ofs_descs.write((const char*)descf,sizeof(float)*128);
     }
     ofs_feats.close();
     ofs_descs.close();
@@ -72,9 +123,11 @@ bool UAVImportFeatsToFile(string pathdesc, vector<float> &desc)
         ifs.read((char*)descf,sizeof(float)*num*128);
 
         desc.resize(128*num);
-        memcpy(desc,descf,sizeof(float)*num*128);
-
+        for (int i = 0; i <128*num ; ++i) {
+            desc[i]=descf[i];
+        }
         delete[]descf;descf=NULL;
+        return true;
     }catch (std::bad_alloc e)
     {
         printf(e.what());
@@ -82,12 +135,13 @@ bool UAVImportFeatsToFile(string pathdesc, vector<float> &desc)
     }
 }
 
-bool UAVExportMatchesToFile(string path,int matchnum,int (*matches)[2])
+bool UAVExportMatchesToFile(string path,int srcImg,int desImg,int matchnum,int (*matches)[2])
 {
     ofstream ofs(path,ios_base::app);
     ofs<<matchnum<<endl;
+    ofs<<srcImg<<"  "<<desImg<<endl;
     for(int i=0;i<matchnum;++i){
-        ofs<<matches[i][0]
+        ofs<<matches[i][0]<<"  "<<matches[i][1]<<endl;
     }
     return true;
 }
@@ -148,6 +202,9 @@ bool UAVFeatsSIFTGpu::UAVMatchesExtract() {
     std::string match_path = _info_._g_match_dir_;
 
     SiftMatchGPU *matcher = new SiftMatchGPU(4096);
+    SiftGPU *sift = new SiftGPU;
+    if (sift->CreateContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
+        return false;
     matcher->VerifyContextGL();
 
     //通过GPU进行解析
@@ -181,18 +238,24 @@ bool UAVFeatsSIFTGpu::UAVMatchesExtract() {
                 }
                 break;
         }
+
         int matchpairs=pairs.size();
+        C_Progress_display my_progress_bar( matchpairs,
+                                            std::cout, "\n- EXTRACT Matches -\n" );
         for ( const auto & cur_pair : pairs )
         {
             int img1 = cur_pair.first,
                 img2 = cur_pair.second;
 
             //load feats and describes;
-            string name1 = sfm_data.GetViews().at(img1)->s_Img_path;
-            string name2 = sfm_data.GetViews().at(img2)->s_Img_path;
+            const std::string
+                    sView_filename1 = stlplus::create_filespec(sfm_data.s_root_path, sfm_data.GetViews().at(img1)->s_Img_path),
+                    sDesc1 = stlplus::create_filespec(feature_path, stlplus::basename_part(sView_filename1), "gpudesc"),
+                    sView_filename2 = stlplus::create_filespec(sfm_data.s_root_path, sfm_data.GetViews().at(img2)->s_Img_path),
+                    sDesc2 = stlplus::create_filespec(feature_path, stlplus::basename_part(sView_filename2), "gpudesc");
 
             vector<float> desc1,desc2;
-            if(!UAVImportFeatsToFile(name1,desc1)||!UAVImportFeatsToFile(name2,desc2));
+            if(!UAVImportFeatsToFile(sDesc1,desc1)||!UAVImportFeatsToFile(sDesc2,desc2))
             {
                 continue;
             }
@@ -203,17 +266,28 @@ bool UAVFeatsSIFTGpu::UAVMatchesExtract() {
             matcher->SetDescriptors(1, num2, &desc2[0]); //image 2
             int (*match_buf)[2] = new int[num1][2];
             int num_match = matcher->GetSiftMatch(num1, match_buf);
-            for(int i  = 0; i < num_match; ++i)
+            if(num_match>30)
             {
-                //How to get the feature matches:
-                //SiftGPU::SiftKeypoint & key1 = keys1[match_buf[i][0]];
-                //SiftGPU::SiftKeypoint & key2 = keys2[match_buf[i][1]];
-                //key1 in the first image matches with key2 in the second image
+                UAVExportMatchesToFile(stlplus::create_filespec(match_path,"matches.e.txt"),img1,img2,num_match,match_buf);
+                pairs_filter.insert(std::make_pair(img1,img2));
             }
-
+            ++my_progress_bar;
         }
+        PairMatchingToAdjacencyMatrixSVG(sfm_data.GetViews().size(),
+                                         pairs_filter,
+                                         stlplus::create_filespec(_info_._g_auxiliary_dir, "GeometricAdjacencyMatrix", "svg"));
 
 
+        //-- export view pair graph once geometric filter have been done
+        {
+            std::set<IndexT> set_ViewIds;
+            std::transform(sfm_data.GetViews().begin(), sfm_data.GetViews().end(),
+                           std::inserter(set_ViewIds, set_ViewIds.begin()), stl::RetrieveKey());
+            graph::indexedGraph putativeGraph(set_ViewIds, pairs_filter);
+            graph::exportToGraphvizData(
+                    stlplus::create_filespec(_info_._g_auxiliary_dir, "GeometricAdjacencyMatrix"),
+                    putativeGraph);
+        }
     }
 
 
