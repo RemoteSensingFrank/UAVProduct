@@ -35,7 +35,7 @@ struct Features_Provider_Gpu:public Features_Provider
 
             const std::string sImageName = stlplus::create_filespec(sfm_data.s_root_path, iter->second.get()->s_Img_path);
             const std::string basename = stlplus::basename_part(sImageName);
-            const std::string featFile = stlplus::create_filespec(feat_directory, basename, ".gpufeat");
+            const std::string featFile = stlplus::create_filespec(feat_directory, basename, ".gpufeats");
 
             //导入特征点
             //通过读取二进制文件的方式导入

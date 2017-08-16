@@ -138,8 +138,7 @@ bool UAVImportFeatsToFile(string pathdesc, vector<float> &desc)
 bool UAVExportMatchesToFile(string path,int srcImg,int desImg,int matchnum,int (*matches)[2])
 {
     ofstream ofs(path,ios_base::app);
-    ofs<<matchnum<<endl;
-    ofs<<srcImg<<"  "<<desImg<<endl;
+    ofs<<srcImg<<"  "<<desImg<<"  "<<matchnum<<endl;
     for(int i=0;i<matchnum;++i){
         ofs<<matches[i][0]<<"  "<<matches[i][1]<<endl;
     }

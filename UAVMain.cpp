@@ -22,23 +22,24 @@ void InitialUAVInfo1UAV1()
 	_info_._g_mosaic_path = "/home/wuwei/Data/UAVData/small_test/mosaic.tif";
 	_info_._g_focal_x = _info_._g_focal_y = -1;
 	_info_._g_ccdsize = 6.16;
-
+    _info_._g_Has_Pos = true;
 
 
     UAVDataList _datalist_;
-    float file_size = _datalist_.UAVList_CreateSFMList();
+    //float file_size = _datalist_.UAVList_CreateSFMList();
 	UAVFeatsSIFTGpu featGpu;
 	//featGpu.UAVFeatsExtract();
-	featGpu.UAVMatchesExtract();
+	//featGpu.UAVMatchesExtract();
 
 	/*printf("process total image size:%lf\n",file_size);
     UAVFeatsSIFT featureSift;
     featureSift.UAVFeatsExtract();
     featureSift.UAVMatchesList(8);
     featureSift.UAVMatchesExtract();
+    */
     UAVBundle bundler;
-    bundler.UAVBundleGlobal();
-
+    bundler.UAVBundleGlobalGpu();
+    /*
     UAVDenseProcess denseProc;
     //denseProc.UAVDP_ExportMVS();
     denseProc.UAVDP_MVSProc();*/
