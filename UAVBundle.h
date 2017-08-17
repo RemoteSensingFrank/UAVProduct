@@ -29,13 +29,19 @@ public:
      * 得到任意两个view之间的相对变换关系并将其输出到文件中
      * @param 输出文件,自定义文件格式并写工具进行处理
      */
-    void UAVBundleTwoViewExtract(string pathRotMat);
+    bool UAVBundleTwoViewExtract(string pathRotMat);
 
     /**
      * 得到全局的旋转和平移矩阵
      */
-    void UAVBundleGlobal();
-    void UAVBundleGlobalGpu();  //对采用GPU解算得到的特征点和特征描述采用全局算法进行光束法解算
+    bool UAVBundleGlobal();
+    bool UAVBundleGlobalGpu();  //对采用GPU解算得到的特征点和特征描述采用全局算法进行光束法解算
+
+    /**
+     * 采用序列算法进行求解
+     */
+    bool UAVBundleSequence();
+    bool UAVBundleSequenceGpu();
 };
 
 

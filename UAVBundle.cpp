@@ -3,6 +3,7 @@
 //
 
 #include "UAVBundle.h"
+#include "openMVG/cameras/Cameras_Common_command_line_helper.hpp"
 
 using namespace openMVG;
 using namespace openMVG::sfm;
@@ -63,12 +64,12 @@ struct Features_Provider_Gpu:public Features_Provider
 };
 
 
-void UAVBundle::UAVBundleTwoViewExtract(string pathRotMat) {
+bool UAVBundle::UAVBundleTwoViewExtract(string pathRotMat) {
     SfM_Data sfm_data;
     if (!Load(sfm_data, _info_._g_SFM_data, ESfM_Data(VIEWS|INTRINSICS))) {
         std::cerr << std::endl
                   << "The input SfM_Data file \""<<  _info_._g_SFM_data << "\" cannot be read." << std::endl;
-        return ;
+        return false;
     }
 
     using namespace openMVG::features;
@@ -78,7 +79,7 @@ void UAVBundle::UAVBundleTwoViewExtract(string pathRotMat) {
     {
         std::cerr << "Invalid: "
                   << sImage_describer << " regions type file." << std::endl;
-        return ;
+        return false;
     }
 
     // Features reading
@@ -86,7 +87,7 @@ void UAVBundle::UAVBundleTwoViewExtract(string pathRotMat) {
     if (!feats_provider->load(sfm_data, _info_._g_feature_dir_, regions_type)) {
         std::cerr << std::endl
                   << "Invalid features." << std::endl;
-        return ;
+        return false;
     }
     // Matches reading
     PairWiseMatches map_PutativesMatches;
@@ -98,7 +99,7 @@ void UAVBundle::UAVBundleTwoViewExtract(string pathRotMat) {
     {
         std::cerr << std::endl
                   << "Invalid matches file." << std::endl;
-        return ;
+        return false;
     }
 
     //K
@@ -148,7 +149,7 @@ void UAVBundle::UAVBundleTwoViewExtract(string pathRotMat) {
         {
             std::cerr << " /!\\ Robust relative pose estimation failure."
                       << std::endl;
-            return ;
+            return false;
         }
 
         std::cout << "\nFound an Essential matrix:\n"
@@ -193,9 +194,10 @@ void UAVBundle::UAVBundleTwoViewExtract(string pathRotMat) {
     fseek(file,0,SEEK_SET);
     fwrite(&totalPairs,sizeof(int),1,file);
     fclose(file);
+    return true;
 }
 
-void UAVBundle::UAVBundleGlobal() {
+bool UAVBundle::UAVBundleGlobal() {
     //method
     int iRotationAveragingMethod = int (ROTATION_AVERAGING_L2);
     int iTranslationAveragingMethod = int (TRANSLATION_AVERAGING_SOFTL1);
@@ -204,7 +206,7 @@ void UAVBundle::UAVBundleGlobal() {
     if (iRotationAveragingMethod < ROTATION_AVERAGING_L1 ||
         iRotationAveragingMethod > ROTATION_AVERAGING_L2 )  {
         std::cerr << "\n Rotation averaging method is invalid" << std::endl;
-        return;
+        return false;
     }
 
     //cameras::Intrinsic_Parameter_Type;
@@ -214,14 +216,14 @@ void UAVBundle::UAVBundleGlobal() {
     if (iTranslationAveragingMethod < TRANSLATION_AVERAGING_L1 ||
         iTranslationAveragingMethod > TRANSLATION_AVERAGING_SOFTL1 )  {
         std::cerr << "\n Translation averaging method is invalid" << std::endl;
-        return;
+        return false;
     }
 
     SfM_Data sfm_data;
     if (!Load(sfm_data,_info_._g_SFM_data, ESfM_Data(VIEWS|INTRINSICS))) {
         std::cerr << std::endl
                   << "The input SfM_Data file \""<< _info_._g_SFM_data << "\" cannot be read." << std::endl;
-        return ;
+        return false;
     }
 
     //features and matches
@@ -232,7 +234,7 @@ void UAVBundle::UAVBundleGlobal() {
     {
         std::cerr << "Invalid: "
                   << sImage_describer << " regions type file." << std::endl;
-        return ;
+        return false;
     }
 
     // Features reading
@@ -240,7 +242,7 @@ void UAVBundle::UAVBundleGlobal() {
     if (!feats_provider->load(sfm_data, _info_._g_feature_dir_, regions_type)) {
         std::cerr << std::endl
                   << "Invalid features." << std::endl;
-        return ;
+        return false;
     }
     // Matches reading
     std::shared_ptr<Matches_Provider> matches_provider = std::make_shared<Matches_Provider>();
@@ -252,13 +254,13 @@ void UAVBundle::UAVBundleGlobal() {
     {
         std::cerr << std::endl
                   << "Invalid matches file." << std::endl;
-        return ;
+        return false;
     }
 
 
     if (_info_._g_point_cloud_dir.empty())  {
         std::cerr << "\nIt is an invalid output directory" << std::endl;
-        return ;
+        return false;
     }
 
     if (!stlplus::folder_exists(_info_._g_point_cloud_dir))
@@ -313,12 +315,12 @@ void UAVBundle::UAVBundleGlobal() {
              stlplus::create_filespec(_info_._g_point_cloud_dir, "cloud_and_poses", ".ply"),
              ESfM_Data(ALL));
 
-        return ;
+        return false;
     }
-    return ;
+    return true;
 }
 
-void UAVBundle::UAVBundleGlobalGpu() {
+bool UAVBundle::UAVBundleGlobalGpu() {
     //method
     int iRotationAveragingMethod = int (ROTATION_AVERAGING_L2);
     int iTranslationAveragingMethod = int (TRANSLATION_AVERAGING_SOFTL1);
@@ -327,7 +329,7 @@ void UAVBundle::UAVBundleGlobalGpu() {
     if (iRotationAveragingMethod < ROTATION_AVERAGING_L1 ||
         iRotationAveragingMethod > ROTATION_AVERAGING_L2 )  {
         std::cerr << "\n Rotation averaging method is invalid" << std::endl;
-        return;
+        return false;
     }
 
     //cameras::Intrinsic_Parameter_Type;
@@ -337,14 +339,14 @@ void UAVBundle::UAVBundleGlobalGpu() {
     if (iTranslationAveragingMethod < TRANSLATION_AVERAGING_L1 ||
         iTranslationAveragingMethod > TRANSLATION_AVERAGING_SOFTL1 )  {
         std::cerr << "\n Translation averaging method is invalid" << std::endl;
-        return;
+        return false;
     }
 
     SfM_Data sfm_data;
     if (!Load(sfm_data,_info_._g_SFM_data, ESfM_Data(VIEWS|INTRINSICS))) {
         std::cerr << std::endl
                   << "The input SfM_Data file \""<< _info_._g_SFM_data << "\" cannot be read." << std::endl;
-        return ;
+        return false;
     }
 
     // Features reading
@@ -352,7 +354,7 @@ void UAVBundle::UAVBundleGlobalGpu() {
     if (!feats_provider->load(sfm_data, _info_._g_feature_dir_)) {
         std::cerr << std::endl
                   << "Invalid features." << std::endl;
-        return ;
+        return false;
     }
     // Matches reading
     std::shared_ptr<Matches_Provider> matches_provider = std::make_shared<Matches_Provider>();
@@ -364,13 +366,13 @@ void UAVBundle::UAVBundleGlobalGpu() {
     {
         std::cerr << std::endl
                   << "Invalid matches file." << std::endl;
-        return ;
+        return false;
     }
 
 
     if (_info_._g_point_cloud_dir.empty())  {
         std::cerr << "\nIt is an invalid output directory" << std::endl;
-        return ;
+        return false;
     }
 
     if (!stlplus::folder_exists(_info_._g_point_cloud_dir))
@@ -425,7 +427,196 @@ void UAVBundle::UAVBundleGlobalGpu() {
              stlplus::create_filespec(_info_._g_point_cloud_dir, "cloud_and_poses", ".ply"),
              ESfM_Data(ALL));
 
-        return ;
+        return false;
     }
-    return ;
+    return true;
+}
+
+bool UAVBundle::UAVBundleSequence() {
+    // Load input SfM_Data scene
+    SfM_Data sfm_data;
+    if (!Load(sfm_data, _info_._g_SFM_data, ESfM_Data(VIEWS|INTRINSICS))) {
+        std::cerr << std::endl
+                  << "The input SfM_Data file \""<< _info_._g_SFM_data << "\" cannot be read." << std::endl;
+        return false;
+    }
+
+    // Init the regions_type from the image describer file (used for image regions extraction)
+    using namespace openMVG::features;
+    const std::string sImage_describer = stlplus::create_filespec(_info_._g_feature_dir_, "image_describer", "json");
+    std::unique_ptr<Regions> regions_type = Init_region_type_from_file(sImage_describer);
+    if (!regions_type)
+    {
+        std::cerr << "Invalid: "
+                  << sImage_describer << " regions type file." << std::endl;
+        return false;
+    }
+    // Features reading
+    std::shared_ptr<Features_Provider> feats_provider = std::make_shared<Features_Provider>();
+    if (!feats_provider->load(sfm_data, _info_._g_feature_dir_, regions_type)) {
+        std::cerr << std::endl
+                  << "Invalid features." << std::endl;
+        return EXIT_FAILURE;
+    }
+    // Matches reading
+    std::shared_ptr<Matches_Provider> matches_provider = std::make_shared<Matches_Provider>();
+    if // Try to read the two matches file formats
+            (
+            !(matches_provider->load(sfm_data, stlplus::create_filespec(_info_._g_match_dir_, "matches.f.txt")) ||
+              matches_provider->load(sfm_data, stlplus::create_filespec(_info_._g_match_dir_, "matches.f.bin")))
+            )
+    {
+        std::cerr << std::endl
+                  << "Invalid matches file." << std::endl;
+        return false;
+    }
+
+
+    if (_info_._g_point_cloud_dir.empty())  {
+        std::cerr << "\nIt is an invalid output directory" << std::endl;
+        return false;
+    }
+
+    if (!stlplus::folder_exists(_info_._g_point_cloud_dir))
+    {
+        if (!stlplus::folder_create(_info_._g_point_cloud_dir))
+        {
+            std::cerr << "\nCannot create the output directory" << std::endl;
+            return false;
+        }
+    }
+
+    //---------------------------------------
+    // Sequential reconstruction process
+    //---------------------------------------
+    openMVG::system::Timer timer;
+    SequentialSfMReconstructionEngine sfmEngine(
+            sfm_data,
+            _info_._g_point_cloud_dir,
+            stlplus::create_filespec(_info_._g_point_cloud_dir, "Reconstruction_Report.html"));
+
+    // Configure the features_provider & the matches_provider
+    sfmEngine.SetFeaturesProvider(feats_provider.get());
+    sfmEngine.SetMatchesProvider(matches_provider.get());
+
+    // Configure reconstruction parameters
+    const cameras::Intrinsic_Parameter_Type intrinsic_refinement_options =Intrinsic_Parameter_Type::ADJUST_ALL;
+    sfmEngine.Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
+    sfmEngine.SetUnknownCameraType(EINTRINSIC(PINHOLE_CAMERA_RADIAL3));
+    bool b_use_motion_priors = _info_._g_Has_Pos;
+    sfmEngine.Set_Use_Motion_Prior(b_use_motion_priors);
+
+    // Handle Initial pair parameter
+    //不设初始匹配对，通过程序解算初始匹配对
+    if (sfmEngine.Process())
+    {
+        std::cout << std::endl << " Total Ac-Sfm took (s): " << timer.elapsed() << std::endl;
+
+        std::cout << "...Generating SfM_Report.html" << std::endl;
+        Generate_SfM_Report(sfmEngine.Get_SfM_Data(),
+                            stlplus::create_filespec(_info_._g_point_cloud_dir, "SfMReconstruction_Report.html"));
+
+        //-- Export to disk computed scene (data & visualizable results)
+        std::cout << "...Export SfM_Data to disk." << std::endl;
+        Save(sfmEngine.Get_SfM_Data(),
+             stlplus::create_filespec(_info_._g_point_cloud_dir, "sfm_data", ".bin"),
+             ESfM_Data(ALL));
+
+        Save(sfmEngine.Get_SfM_Data(),
+             stlplus::create_filespec(_info_._g_point_cloud_dir, "cloud_and_poses", ".ply"),
+             ESfM_Data(ALL));
+
+        return true;
+    }
+    return false;
+}
+bool UAVBundle::UAVBundleSequenceGpu() {
+    // Load input SfM_Data scene
+    SfM_Data sfm_data;
+    if (!Load(sfm_data, _info_._g_SFM_data, ESfM_Data(VIEWS|INTRINSICS))) {
+        std::cerr << std::endl
+                  << "The input SfM_Data file \""<< _info_._g_SFM_data << "\" cannot be read." << std::endl;
+        return false;
+    }
+
+    // Init the regions_type from the image describer file (used for image regions extraction)
+    using namespace openMVG::features;
+    // Features reading
+    std::shared_ptr<Features_Provider_Gpu> feats_provider = std::make_shared<Features_Provider_Gpu>();
+    if (!feats_provider->load(sfm_data, _info_._g_feature_dir_)) {
+        std::cerr << std::endl
+                  << "Invalid features." << std::endl;
+        return EXIT_FAILURE;
+    }
+    // Matches reading
+    std::shared_ptr<Matches_Provider> matches_provider = std::make_shared<Matches_Provider>();
+    if // Try to read the two matches file formats
+            (
+            !(matches_provider->load(sfm_data, stlplus::create_filespec(_info_._g_match_dir_, "matches.e.txt")) ||
+              matches_provider->load(sfm_data, stlplus::create_filespec(_info_._g_match_dir_, "matches.e.bin")))
+            )
+    {
+        std::cerr << std::endl
+                  << "Invalid matches file." << std::endl;
+        return false;
+    }
+
+
+    if (_info_._g_point_cloud_dir.empty())  {
+        std::cerr << "\nIt is an invalid output directory" << std::endl;
+        return false;
+    }
+
+    if (!stlplus::folder_exists(_info_._g_point_cloud_dir))
+    {
+        if (!stlplus::folder_create(_info_._g_point_cloud_dir))
+        {
+            std::cerr << "\nCannot create the output directory" << std::endl;
+            return false;
+        }
+    }
+
+    //---------------------------------------
+    // Sequential reconstruction process
+    //---------------------------------------
+    openMVG::system::Timer timer;
+    SequentialSfMReconstructionEngine sfmEngine(
+            sfm_data,
+            _info_._g_point_cloud_dir,
+            stlplus::create_filespec(_info_._g_point_cloud_dir, "Reconstruction_Report.html"));
+
+    // Configure the features_provider & the matches_provider
+    sfmEngine.SetFeaturesProvider(feats_provider.get());
+    sfmEngine.SetMatchesProvider(matches_provider.get());
+
+    // Configure reconstruction parameters
+    const cameras::Intrinsic_Parameter_Type intrinsic_refinement_options =Intrinsic_Parameter_Type::ADJUST_ALL;
+    sfmEngine.Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
+    sfmEngine.SetUnknownCameraType(EINTRINSIC(PINHOLE_CAMERA_RADIAL3));
+    bool b_use_motion_priors = _info_._g_Has_Pos;
+    sfmEngine.Set_Use_Motion_Prior(b_use_motion_priors);
+
+    // Handle Initial pair parameter
+    //不设初始匹配对，通过程序解算初始匹配对
+    if (sfmEngine.Process())
+    {
+        std::cout << std::endl << " Total Ac-Sfm took (s): " << timer.elapsed() << std::endl;
+
+        std::cout << "...Generating SfM_Report.html" << std::endl;
+        Generate_SfM_Report(sfmEngine.Get_SfM_Data(),
+                            stlplus::create_filespec(_info_._g_point_cloud_dir, "SfMReconstruction_Report.html"));
+
+        //-- Export to disk computed scene (data & visualizable results)
+        std::cout << "...Export SfM_Data to disk." << std::endl;
+        Save(sfmEngine.Get_SfM_Data(),
+             stlplus::create_filespec(_info_._g_point_cloud_dir, "sfm_data", ".bin"),
+             ESfM_Data(ALL));
+
+        Save(sfmEngine.Get_SfM_Data(),
+             stlplus::create_filespec(_info_._g_point_cloud_dir, "cloud_and_poses", ".ply"),
+             ESfM_Data(ALL));
+
+        return true;
+    }
+    return false;
 }

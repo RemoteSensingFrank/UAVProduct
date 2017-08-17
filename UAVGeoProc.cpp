@@ -263,6 +263,7 @@ void UAVGeoProc::UAVGeoProc_GeoCorrection(string image,double* gcps,int gcpNum,d
     return ;
 }
 
+
 void UAVGeoProc::UAVGetProc_GeoCoordiTrans(double* gcps,int num,double dL,double dB)
 {
     MatrixXd dEMMatrix(3,3), dPt(3,1),dModelPt(3,1);
@@ -304,7 +305,8 @@ void UAVGeoProc::UAVGetProc_GeoCoordiTrans(double* gcps,int num,double dL,double
     }
 }
 
-void UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dL,double dB)
+
+void UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGroundSize,double dL,double dB)
 {
     //output directory
     SfM_Data sfm_data;
@@ -336,6 +338,8 @@ void UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dL,d
     }
 
     const Landmarks & landmarks = sfm_data.GetLandmarks();
+
+#pragma omp parallel for
     for(size_t k=0;k<image_list.size();++k)
     {
         vector<Vec3> groundPnts;
@@ -376,12 +380,13 @@ void UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dL,d
             }
             //UAVGetProc_GeoCoordiTrans(gcps,size,dL,dB);
             string dst=stlplus::create_filespec(pathDstDir, stlplus::basename_part(image_list[k]), "tif");
-            UAVGeoProc_GeoCorrection(image_list[k],gcps,size,0,dL,dB,dst);
+            UAVGeoProc_GeoCorrection(image_list[k],gcps,size,dGroundSize,dL,dB,dst);
             delete[]gcps;gcps=NULL;
         }
 
     }
 }
+
 
 void UAVGeoProc::UAVGeoProc_GetCameraInfo(string pathSFM, string cameraInfo,float focalpix,float scale) {
     //load sfm data
@@ -410,9 +415,6 @@ void UAVGeoProc::UAVGeoProc_GetCameraInfo(string pathSFM, string cameraInfo,floa
         int h = m_views.at(i)->ui_height;
         Mat3 R = pose.rotation();
         Vec3 t = pose.center();
-
-
-
 
         MatrixXd p(3,5);
         p(0,0) = 0;  p(0,1) = -w/2; p(0,2) = -w/2; p(0,3) = w/2; p(0,4) = w/2;

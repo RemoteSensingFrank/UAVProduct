@@ -28,6 +28,12 @@ public:
      */
     float UAVList_CreateSFMList();
 
+    /***
+     * 根据POS数据初步获取飞行点的位置和大致范围
+     * @return 返回预计计算的拼接后影像大小的估计
+     */
+    float UAVList_CreateImageRange(double dGroundSize);
+
 
 };
 

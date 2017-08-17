@@ -38,7 +38,7 @@ void InitialUAVInfo1UAV1()
     featureSift.UAVMatchesExtract();
     */
     UAVBundle bundler;
-    bundler.UAVBundleGlobalGpu();
+    bundler.UAVBundleSequenceGpu();
     /*
     UAVDenseProcess denseProc;
     //denseProc.UAVDP_ExportMVS();
