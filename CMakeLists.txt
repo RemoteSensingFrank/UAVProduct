@@ -32,21 +32,21 @@ include_directories(${GTEST_INCLUDE_DIRS})
 include_directories(${OPENMVG_INCLUDE_DIRS})
 include_directories(${GDAL_INCLUDE})
 include_directories(${OpenMVS_INCLUDE_DIRS})
-include_directories(${LibKML_INCLUDE_DIRS})
+include_directories(${LIBKML_INCLUDE_DIRS})
 #include_directories(${IL_INCLUDE_DIRS})
 
 
 ADD_SUBDIRECTORY(SiftGPU)
 LINK_DIRECTORIES(SiftGPU)
 
-set(SOURCE_FILES ${SIFTLIST} UAVMain.cpp UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVAuxiliary.h UAVAuxiliary.cpp UAVBundle.cpp UAVBundle.h UAVFeatureExtract.cpp UAVDMatch.h UAVDenseProcess.cpp UAVDenseProcess.h UAVDenseExtract.cpp UAVCommon.h UAVCommon.cpp UAVFeatureExtractGpu.cpp)
+set(SOURCE_FILES ${SIFTLIST} UAVMain.cpp UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVAuxiliary.h UAVAuxiliary.cpp UAVBundle.cpp UAVBundle.h UAVFeatureExtract.cpp UAVDMatch.h UAVDenseProcess.cpp UAVDenseProcess.h UAVDenseExtract.cpp UAVCommon.h UAVCommon.cpp UAVFeatureExtractGpu.cpp UAVTest.cpp UAVTest.h)
 
 add_executable(UAVProcess ${SOURCE_FILES})
 
 target_link_libraries(UAVProcess ${OPENMVG_LIBRARIES})
 target_link_libraries(UAVProcess ${OpenMVS_LIBRARIES})
 target_link_libraries(UAVProcess ${GTEST_LIBRARIES})
-target_link_libraries(UAVProcess ${LibKML_LIBRARIES})
+target_link_libraries(UAVProcess ${LIBKML_LIBRARIES})
 #target_link_libraries(UAVProcess ${IL_LIBRARIES})
 #target_link_libraries(UAVProcess ${ILU_LIBRARIES})
 #target_link_libraries(UAVProcess ${ILUT_LIBRARIES})

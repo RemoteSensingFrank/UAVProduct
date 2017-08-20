@@ -6,15 +6,19 @@
 
 #include "openMVG/stl/split.hpp"
 #include "openMVG/sfm/sfm.hpp"
+#include "openMVG/exif/exif_IO_EasyExif.hpp"
 #include "third_party/cmdLine/cmdLine.h"
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
-#include "openMVG/exif/exif_IO_EasyExif.hpp"
+#include "UAVXYZToLatLonWGS84.h"
 
 #include <string>
 #include <vector>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+#include <kml/dom.h>
+#include <kml/engine.h>
 
 static  UAVXYZToLatLonWGS84 CooridinateTrans;
 using namespace openMVG;
@@ -212,7 +216,7 @@ float UAVDataList::UAVList_CreateSFMList()
             {
                 // Add ECEF XYZ position to the GPS position array
                 val.first = true;
-                val.second = CooridinateTrans.LatLonToUTM( latitude, longitude, altitude );
+                val.second = CooridinateTrans.LatLonToXYZ( latitude, longitude, altitude );
 
                 //使用影像内置的POS数据
                 ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
@@ -259,4 +263,89 @@ float UAVDataList::UAVList_CreateSFMList()
         return EXIT_FAILURE;
     }
     return files_size/1024.0f;
+}
+
+float UAVDataList::UAVList_CreateImageRange(double dGroundSize)
+{
+    using kmldom::FolderPtr;
+    using kmldom::KmlPtr;
+    using kmldom::KmlFactory;
+    using kmldom::PlacemarkPtr;
+    using kmldom::LineStringPtr;
+    using kmldom::CoordinatesPtr;
+    using kmldom::DocumentPtr;
+
+    UAVXYZToLatLonWGS84 coordiTrans;
+
+    double size=0;
+    if(_info_._g_Has_Pos)
+    {
+       SfM_Data sfm_data;
+        if (!Load(sfm_data, _info_._g_SFM_data, ESfM_Data(ALL)))
+        {
+            std::cerr << std::endl
+                      << "The input SfM_Data file \"" << _info_._g_SFM_data << "\" cannot be read." << std::endl;
+            return -1;
+        }
+
+        vector<Vec3> points_range;
+        for (const auto & viewIter : sfm_data.GetViews())
+        {
+            const sfm::ViewPriors * prior = dynamic_cast<sfm::ViewPriors*>(viewIter.second.get());
+            //中心点的坐标
+            Vec3 position=prior->pose_center_;
+            //Vec3 utmPosition = coordiTrans.LatLonToUTM(position(0),position(1),0);
+
+            double focalx = _info_._g_focal_x;
+            double focaly = _info_._g_focal_y;
+            //计算范围
+            Vec3 pnt0=coordiTrans.XYZToLatLon(position(0),position(1),position(2));
+            double xrange = pnt0(2)*(prior->ui_width) /focalx;
+            double yrange = pnt0(2)*(prior->ui_height)/focaly;
+
+
+            Vec3 pnt1=coordiTrans.XYZToLatLon(position(0)-xrange/2,position(1)-yrange/2,position(2));
+            Vec3 pnt2=coordiTrans.XYZToLatLon(position(0)-xrange/2,position(1)+yrange/2,position(2));
+            Vec3 pnt3=coordiTrans.XYZToLatLon(position(0)+xrange/2,position(1)+yrange/2,position(2));
+            Vec3 pnt4=coordiTrans.XYZToLatLon(position(0)+xrange/2,position(1)-yrange/2,position(2));
+
+            points_range.push_back(pnt1);
+            points_range.push_back(pnt2);
+            points_range.push_back(pnt3);
+            points_range.push_back(pnt4);
+            size=size+(xrange/dGroundSize)*(yrange/dGroundSize)*3.0/1024.0/1024.0;
+        }
+
+        int num = points_range.size()/4;
+        KmlFactory* factory(KmlFactory::GetFactory());
+        DocumentPtr document = factory->CreateDocument();
+
+        for(int i=0;i<num;++i)
+        {
+            PlacemarkPtr placemark  = factory->CreatePlacemark();
+            LineStringPtr linerstring = factory->CreateLineString();
+            CoordinatesPtr coordinate = factory->CreateCoordinates();
+
+            for(int j=0;j<4;++j)
+            {
+                coordinate->add_latlng(points_range[j+4*i](0),points_range[j+4*i](1));
+            }
+            coordinate->add_latlng(points_range[4*i](0),points_range[4*i](1));
+            linerstring->set_coordinates(coordinate);
+            placemark->set_geometry(linerstring);
+            document->add_feature(placemark);
+        }
+        KmlPtr kml = factory->CreateKml();
+        kml->set_feature(document);
+
+        string pathRange = stlplus::create_filespec(_info_._g_auxiliary_dir,"range.kml");
+        ofstream ofs(pathRange.c_str(),ios::out);
+        ofs << kmldom::SerializePretty(kml);
+        ofs.close();
+
+        return size;
+
+    }
+    else
+        return 0;
 }

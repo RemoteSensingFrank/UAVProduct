@@ -306,14 +306,14 @@ void UAVGeoProc::UAVGetProc_GeoCoordiTrans(double* gcps,int num,double dL,double
 }
 
 
-void UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGroundSize,double dL,double dB)
+bool UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGroundSize,double dL,double dB)
 {
     //output directory
     SfM_Data sfm_data;
     if (!Load(sfm_data, pathSFM, ESfM_Data(ALL))) {
         std::cerr << std::endl
                   << "The input SfM_Data file \""<< pathSFM << "\" cannot be read." << std::endl;
-        return ;
+        return false;
     }
 
     if ( !stlplus::folder_exists( pathDstDir ) )
@@ -321,7 +321,7 @@ void UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGro
         if ( !stlplus::folder_create( pathDstDir ))
         {
             std::cerr << "\nCannot create output directory" << std::endl;
-            return ;
+            return false;
         }
     }
 
@@ -385,6 +385,8 @@ void UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGro
         }
 
     }
+
+    return true;
 }
 
 

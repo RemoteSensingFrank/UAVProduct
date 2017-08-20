@@ -1,14 +1,10 @@
 #include<stdlib.h>
 #include<stdio.h>
-#include<GL/glut.h>
-
-#include "UAVDataList.h"
-#include "UAVBundle.h"
-#include "UAVFeatureExtract.h"
-#include "UAVDenseProcess.h"
-
 #include "gtest/gtest.h"
-void InitialUAVInfo1UAV1()
+#include "UAVCommon.h"
+#include "UAVDataList.h"
+
+void InitialData1()
 {
 	_info_._g_image_dir_="/home/wuwei/Data/UAVData/small_test/Img/";
 	_info_._g_SFM_data="/home/wuwei/Data/UAVData/small_test/SFM_Data.json";
@@ -22,38 +18,16 @@ void InitialUAVInfo1UAV1()
 	_info_._g_mosaic_path = "/home/wuwei/Data/UAVData/small_test/mosaic.tif";
 	_info_._g_focal_x = _info_._g_focal_y = -1;
 	_info_._g_ccdsize = 6.16;
-    _info_._g_Has_Pos = true;
-
-
-    UAVDataList _datalist_;
-    //float file_size = _datalist_.UAVList_CreateSFMList();
-	UAVFeatsSIFTGpu featGpu;
-	//featGpu.UAVFeatsExtract();
-	//featGpu.UAVMatchesExtract();
-
-	/*printf("process total image size:%lf\n",file_size);
-    UAVFeatsSIFT featureSift;
-    featureSift.UAVFeatsExtract();
-    featureSift.UAVMatchesList(8);
-    featureSift.UAVMatchesExtract();
-    */
-    UAVBundle bundler;
-    bundler.UAVBundleSequenceGpu();
-    /*
-    UAVDenseProcess denseProc;
-    //denseProc.UAVDP_ExportMVS();
-    denseProc.UAVDP_MVSProc();*/
-
+	_info_._g_Has_Pos = true;
 }
-
 
 
 int main(int argc,char* argv[])
 {
 	//测试环境的初始化
-	::testing::InitGoogleTest(&argc,argv);
-
-    InitialUAVInfo1UAV1();
-
-	//return RUN_ALL_TESTS();
+	InitialData1();
+    UAVDataList   _datalist_;
+    testing::GTEST_FLAG(output) = "xml:TestReport.xml";
+	testing::InitGoogleTest(&argc,argv);
+	return RUN_ALL_TESTS();
 }

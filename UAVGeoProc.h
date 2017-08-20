@@ -33,7 +33,7 @@ public:
      * @param dL ：中心经度
      * @param dB ：中心纬度
      */
-    void UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGroundSize,double dL,double dB);
+    bool UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGroundSize,double dL,double dB);
 
     /***
      * 将地心直角坐标系转换为UTM坐标系

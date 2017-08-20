@@ -90,6 +90,18 @@ Vec3 UAVXYZToLatLonWGS84::LatLonToUTM(double lat, double lon, double alt ,double
     return Vec3(E * 1000, N * 1000, alt);
 }
 
+/**
+ ** Convert UTM data to WGS84 lon,lat,alt data(Universal Transverse Mercator)
+ **/
+Vec3 UAVXYZToLatLonWGS84::UTMToLatLon(double x, double y, double z)
+{
+    double xt = x/20037508.34*180;
+    double yt = y/20037508.34*180;
+    yt= 180/M_PI*(2*atan(exp(yt*M_PI/180))-M_PI/2);
+    Vec3 latlon;
+    latlon(0)=xt;latlon(1)=yt;latlon(2)=z;
+    return latlon;
+}
 
 /**
  ** Convert ECEF (XYZ) to lon,lat,alt values for the WGS84 ellipsoid
