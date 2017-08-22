@@ -27,6 +27,11 @@ using namespace std;
 class UAVGeoProc {
 public:
     /***
+     * 根据光束法平差结果直接进行几何校正
+     */
+    bool UAVGeoProc_GeoProc(double dGroundSize,double dL,double dB);
+
+    /***
      * 根据影像控制点进行几何校正
      * @param pathSFM ：SFM数据路径
      * @param pathDstDir ：几何校正结果输出路径
@@ -55,15 +60,6 @@ public:
      * @param geoImage ：校正后的影像
      */
     void UAVGeoProc_GeoCorrection(string image,double* gcps,int gcpNum,double dGroundSize,double dL,double dB,string geoImage);
-
-    /***
-     * 成像区域点的输出
-     * @param pathSFM ：SFM文件路径
-     * @param cameraInfo ：输出相机的位置
-     * @param focalpix ：焦距（按像素记）
-     * @param scale ：缩放尺寸
-     */
-    void UAVGeoProc_GetCameraInfo(string pathSFM,string cameraInfo,float focalpix,float scale);
 };
 
 #endif //UAVPRODUCT_UAVGEOPROC_H

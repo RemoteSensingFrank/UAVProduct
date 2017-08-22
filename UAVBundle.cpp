@@ -427,9 +427,9 @@ bool UAVBundle::UAVBundleGlobalGpu() {
              stlplus::create_filespec(_info_._g_point_cloud_dir, "cloud_and_poses", ".ply"),
              ESfM_Data(ALL));
 
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool UAVBundle::UAVBundleSequence() {

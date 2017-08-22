@@ -2,7 +2,10 @@
 #include<stdio.h>
 #include "gtest/gtest.h"
 #include "UAVCommon.h"
+#include "UAVGeoProc.h"
 #include "UAVDataList.h"
+#include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
+#include "UAVGeoMosaic.h"
 
 void InitialData1()
 {
@@ -26,8 +29,8 @@ int main(int argc,char* argv[])
 {
 	//测试环境的初始化
 	InitialData1();
-    UAVDataList   _datalist_;
+
     testing::GTEST_FLAG(output) = "xml:TestReport.xml";
 	testing::InitGoogleTest(&argc,argv);
-	return RUN_ALL_TESTS();
+    return RUN_ALL_TESTS();
 }

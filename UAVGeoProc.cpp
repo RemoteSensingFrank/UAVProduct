@@ -389,53 +389,13 @@ bool UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGro
     return true;
 }
 
-
-void UAVGeoProc::UAVGeoProc_GetCameraInfo(string pathSFM, string cameraInfo,float focalpix,float scale) {
-    //load sfm data
-    //load SFM data
-    SfM_Data sfm_data;
-    if (!Load(sfm_data, pathSFM, ESfM_Data(VIEWS|INTRINSICS|EXTRINSICS))) {
-        std::cerr << std::endl
-                  << "The input SfM_Data file \""<< pathSFM << "\" cannot be read." << std::endl;
-        return;
+bool UAVGeoProc::UAVGeoProc_GeoProc(double dGroundSize,double dL,double dB)
+{
+    string sfm=stlplus::create_filespec(_info_._g_point_cloud_dir, "sfm_data", ".bin");
+    if(!stlplus::file_exists(sfm))
+    {
+        return false;
+    } else{
+        return UAVGeoProc_GeoProc(sfm,_info_._g_geocorrect_dir_,dGroundSize,dL,dB);
     }
-
-    const Poses m_poses = sfm_data.GetPoses();
-    const Views m_views = sfm_data.GetViews();
-
-    int num_poses = m_poses.size();
-    int num_views = m_views.size();
-
-    ofstream ofs;
-    ofs.open(cameraInfo,ios::out);
-
-    for (int i = 0; i <num_views ; ++i) {
-        int poseid=m_views.at(i)->id_pose;
-        Pose3 pose = m_poses.at(poseid);
-
-        int w = m_views.at(i)->ui_width;
-        int h = m_views.at(i)->ui_height;
-        Mat3 R = pose.rotation();
-        Vec3 t = pose.center();
-
-        MatrixXd p(3,5);
-        p(0,0) = 0;  p(0,1) = -w/2; p(0,2) = -w/2; p(0,3) = w/2; p(0,4) = w/2;
-        p(1,0) = 0;  p(1,1) = -h/2; p(1,2) = h/2; p(1,3) = -h/2; p(1,4) = h/2;
-        p(2,0) = 0;  p(2,1) = focalpix; p(2,2) = focalpix; p(2,3) = focalpix; p(2,4) = focalpix;
-
-        MatrixXd sp = p*scale;
-        MatrixXd campos = R.transpose()*sp;
-        for(int j=0;j<3;++j)
-            for(int k=0;k<5;++k)
-                campos(j,k)+=t(j);
-
-        //Vec3 lla = ecef_to_lla(t(0),t(1),t(2));
-        //Vec3 utm = lla_to_utm(lla(0),lla(1),0);
-
-        ofs << std::fixed;
-        ofs.precision(4);
-        for(int j=0;j<5;++j)
-            ofs<<setw(20)<<campos(0,j)<<setw(20)<<campos(1,j)<<setw(20)<<campos(2,j)<<endl;
-    }
-    ofs.close();
 }
