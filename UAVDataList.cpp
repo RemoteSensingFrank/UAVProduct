@@ -35,13 +35,13 @@ static int get_file_size(const char* file) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-pair<Vec3,Vec3> UAVPosRead::ReadPOS(fstream *ifs) {
+pair<Vec3f,Vec3f> UAVPosRead::ReadPOS(fstream &ifs) {
     double x,y,z,r,p,h;
     char line[1024];
-    ifs->get(line,1024);
+    ifs.getline(line,1024);
     sscanf(line,"%lf%lf%lf%lf%lf%lf",&x,&y,&z,&r,&p,&h);
-    Vec3 trans(x,y,z);
-    Vec3 rots(r,p,h);
+    Vec3f trans(x,y,z);
+    Vec3f rots(r,p,h);
 
     return make_pair(trans,rots);
 }
@@ -118,19 +118,21 @@ float UAVDataList::UAVList_CreateSFMList()
 
     //POS Data
     bool pos_file = false;
-    fstream *ifs = NULL;
+    fstream ifs;
     UAVPosRead readPOS;
     if(_info_._g_Pos_data!="")
     {
         //POS from file
         pos_file = true;
-        ifs->open(_info_._g_Pos_data);
-        if(!ifs->is_open())
+        ifs.open(_info_._g_Pos_data);
+        if(!ifs.is_open())
             pos_file = false;
 
         for(int i=0;i<_info_._g_Pos_bias;++i){
-            pair<Vec3,Vec3> trans_rot =readPOS.ReadPOS(ifs);
+            char line[1024];
+            ifs.getline(line,1024);
         }
+
     }
 
     //计算文件大小的参数
@@ -179,10 +181,11 @@ float UAVDataList::UAVList_CreateSFMList()
         if(pos_file)
         {
             _info_._g_Has_Pos = true;
-            pair<Vec3,Vec3> trans_rot =readPOS.ReadPOS(ifs);
+
             // Add ECEF XYZ position to the GPS position array
+            pair<Vec3f ,Vec3f> trans_rot = readPOS.ReadPOS(ifs);
             val.first = true;
-            val.second = CooridinateTrans.LatLonToUTM( trans_rot.first(0), trans_rot.first(1),trans_rot.first(2));
+            val.second = CooridinateTrans.LatLonToUTM(trans_rot.first(0),trans_rot.first(1),trans_rot.first(2));
 
             //使用影像内置的POS数据
             ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
@@ -262,6 +265,8 @@ float UAVDataList::UAVList_CreateSFMList()
     {
         return EXIT_FAILURE;
     }
+    if(ifs.is_open())
+        ifs.close();
     return files_size/1024.0f;
 }
 

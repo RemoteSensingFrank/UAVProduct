@@ -22,7 +22,6 @@
 
 using namespace std;
 
-//TODO:序列影像的处理方法
 class UAVBundle {
 public:
     /**
