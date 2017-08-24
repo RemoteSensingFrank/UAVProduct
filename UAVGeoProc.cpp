@@ -380,7 +380,10 @@ bool UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGro
             }
             //UAVGetProc_GeoCoordiTrans(gcps,size,dL,dB);
             string dst=stlplus::create_filespec(pathDstDir, stlplus::basename_part(image_list[k]), "tif");
-            UAVGeoProc_GeoCorrection(image_list[k],gcps,size,dGroundSize,dL,dB,dst);
+            if(_info_._g_Has_Pos)
+                UAVGeoProc_GeoCorrection(image_list[k],gcps,size,dGroundSize,dL,dB,dst);
+            else
+                UAVGeoProc_GeoCorrection(image_list[k],gcps,size,0,dL,dB,dst);  //适应一下没有POS的校正。实际上有没有POS关系不大
             delete[]gcps;gcps=NULL;
         }
 

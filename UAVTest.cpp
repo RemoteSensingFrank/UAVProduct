@@ -90,10 +90,10 @@ TEST(DataSet2GPUFlowTest,GPUTest)
     EXPECT_EQ(true,_sift_features_gpu_.UAVMatchesExtract());
     UAVBundle _bundler_;
     EXPECT_EQ(true,_bundler_.UAVBundleGlobalGpu());
-    //UAVGeoProc  geoProc;
-    //EXPECT_EQ(true,geoProc.UAVGeoProc_GeoProc(1,6,46));
-    //EXPECT_EQ(true,_bundler_.UAVBundleSequenceGpu());
-    //EXPECT_EQ(true,geoProc.UAVGeoProc_GeoProc(1,6,46));
+    UAVGeoProc  geoProc;
+    EXPECT_EQ(true,geoProc.UAVGeoProc_GeoProc(1,6,46));
+    EXPECT_EQ(true,_bundler_.UAVBundleSequenceGpu());
+    EXPECT_EQ(true,geoProc.UAVGeoProc_GeoProc(1,6,46));
 }
 
 TEST(DataSet2CPUFlowTest,CPUTest)
