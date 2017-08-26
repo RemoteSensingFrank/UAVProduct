@@ -392,6 +392,92 @@ bool UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGro
     return true;
 }
 
+bool UAVGeoProc::UAVGeoProc_GeoProcWMT(string pathSFM,string pathDstDir,double dGroundSize,double dL,double dB)
+{
+    //output directory
+    SfM_Data sfm_data;
+    if (!Load(sfm_data, pathSFM, ESfM_Data(ALL))) {
+        std::cerr << std::endl
+                  << "The input SfM_Data file \""<< pathSFM << "\" cannot be read." << std::endl;
+        return false;
+    }
+
+    if ( !stlplus::folder_exists( pathDstDir ) )
+    {
+        if ( !stlplus::folder_create( pathDstDir ))
+        {
+            std::cerr << "\nCannot create output directory" << std::endl;
+            return false;
+        }
+    }
+
+    std::vector<string> image_list;
+    string sView_filename ;
+    for (Views::const_iterator iter = sfm_data.GetViews().begin();
+         iter != sfm_data.GetViews().end();
+         ++iter)
+    {
+        const View * v = iter->second.get();
+        image_list.push_back(stlplus::create_filespec(sfm_data.s_root_path,
+                                                      v->s_Img_path));
+        sView_filename = stlplus::create_filespec(sfm_data.s_root_path, v->s_Img_path);
+    }
+
+    const Landmarks & landmarks = sfm_data.GetLandmarks();
+
+#pragma omp parallel for
+    for(size_t k=0;k<image_list.size();++k)
+    {
+        vector<Vec3> groundPnts;
+        vector<Vec2> featurePnts;
+        for ( const auto & iterLandmarks : landmarks )
+        {
+            if(iterLandmarks.second.obs.find(k)!=iterLandmarks.second.obs.end())
+            {
+                groundPnts.push_back(iterLandmarks.second.X);
+                featurePnts.push_back(iterLandmarks.second.obs.at(k).x);
+            }
+        }
+
+        if(groundPnts.size()!=featurePnts.size()||groundPnts.size()<3)
+        {
+            cerr<<"error feature points and ground points\n";
+            continue ;
+        }
+        else {
+            int size = groundPnts.size();
+            double *gcps = new double[5*size];
+            for (int i = 0; i < size; ++i)
+            {
+                gcps[5*i+0]=featurePnts[i](0);
+                gcps[5*i+1]=featurePnts[i](1);
+
+                double x=gcps[5*i+2]=groundPnts[i](0);
+                double y=gcps[5*i+3]=groundPnts[i](1);
+                double z=gcps[5*i+4]=groundPnts[i](2);
+                Vec3 lla;
+                lla=CooridinateTrans.XYZToLatLon(x,y,z);
+                Vec3 utm;
+                utm=CooridinateTrans.LatLonToUTMWMT(lla(0),lla(1),lla(2));
+                gcps[5*i+2]=utm(0);
+                gcps[5*i+3]=utm(1);
+                gcps[5*i+4]=utm(2);
+
+            }
+            //UAVGetProc_GeoCoordiTrans(gcps,size,dL,dB);
+            string dst=stlplus::create_filespec(pathDstDir, stlplus::basename_part(image_list[k]), "tif");
+            if(_info_._g_Has_Pos)
+                UAVGeoProc_GeoCorrection(image_list[k],gcps,size,dGroundSize,dL,dB,dst);
+            else
+                UAVGeoProc_GeoCorrection(image_list[k],gcps,size,0,dL,dB,dst);  //适应一下没有POS的校正。实际上有没有POS关系不大
+            delete[]gcps;gcps=NULL;
+        }
+
+    }
+
+    return true;
+}
+
 bool UAVGeoProc::UAVGeoProc_GeoProc(double dGroundSize,double dL,double dB)
 {
     string sfm=stlplus::create_filespec(_info_._g_point_cloud_dir, "sfm_data", ".bin");
@@ -400,5 +486,17 @@ bool UAVGeoProc::UAVGeoProc_GeoProc(double dGroundSize,double dL,double dB)
         return false;
     } else{
         return UAVGeoProc_GeoProc(sfm,_info_._g_geocorrect_dir_,dGroundSize,dL,dB);
+    }
+}
+
+
+bool UAVGeoProc::UAVGeoProc_GeoProcWMT(double dGroundSize,double dL,double dB)
+{
+    string sfm=stlplus::create_filespec(_info_._g_point_cloud_dir, "sfm_data", ".bin");
+    if(!stlplus::file_exists(sfm))
+    {
+        return false;
+    } else{
+        return UAVGeoProc_GeoProcWMT(sfm,_info_._g_geocorrect_dir_,dGroundSize,dL,dB);
     }
 }

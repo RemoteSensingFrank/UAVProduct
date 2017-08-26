@@ -30,15 +30,20 @@ public:
                      double a=WGS84_A,
                      double b=WGS84_B);
 
-    //
-    Vec3 UTMToLatLon(double x,
-                     double y,
-                     double z);
-
     //trans from XYZ to lat&lon&altitude coordinate in WGS84
     Vec3 XYZToLatLon(double x,
                      double y,
                      double z);
+
+
+    //web Mector
+    Vec3 UTMToLatLonWMT(double x,
+                        double y,
+                        double z);
+
+    Vec3 LatLonToUTMWMT(double lat,
+                        double lon,
+                        double alt);
 };
 
 

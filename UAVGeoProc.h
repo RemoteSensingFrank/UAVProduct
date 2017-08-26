@@ -31,6 +31,11 @@ public:
      */
     bool UAVGeoProc_GeoProc(double dGroundSize,double dL,double dB);
 
+    /*
+     * 根据光束法平差结果直接进行几何校正,校正到web 摩卡托坐标系
+     * */
+    bool UAVGeoProc_GeoProcWMT(double dGroundSize,double dL,double dB);
+
     /***
      * 根据影像控制点进行几何校正
      * @param pathSFM ：SFM数据路径
@@ -39,7 +44,7 @@ public:
      * @param dB ：中心纬度
      */
     bool UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGroundSize,double dL,double dB);
-
+    bool UAVGeoProc_GeoProcWMT(string pathSFM,string pathDstDir,double dGroundSize,double dL,double dB);
     /***
      * 将地心直角坐标系转换为UTM坐标系
      * @param gcps ：控制点（输入-输出）
@@ -60,6 +65,8 @@ public:
      * @param geoImage ：校正后的影像
      */
     void UAVGeoProc_GeoCorrection(string image,double* gcps,int gcpNum,double dGroundSize,double dL,double dB,string geoImage);
+
+
 };
 
 #endif //UAVPRODUCT_UAVGEOPROC_H
