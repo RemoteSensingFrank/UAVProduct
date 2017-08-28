@@ -127,8 +127,8 @@ Vec3 UAVXYZToLatLonWGS84::UTMToLatLonWMT(double x, double y, double z)
 
 Vec3 UAVXYZToLatLonWGS84::LatLonToUTMWMT(double lat,double lon, double alt)
 {
-    double x = lat *20037508.34/180;
-    double y = log(tan((90+lon)*M_PI/360))/(M_PI/180);
+    double x = lon *20037508.34/180;
+    double y = log(tan((90+lat)*M_PI/360))/(M_PI/180);
     y = y *20037508.34/180;
     Vec3 wmt;
     wmt(0) = x;

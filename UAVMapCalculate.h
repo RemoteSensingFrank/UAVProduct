@@ -45,7 +45,7 @@ class UAVMapCalculateGoogle:public UAVMapCalculate
 {
 public:
     UAVMapCalculateGoogle(){
-        Google_URL="http://mt2.google.cn/vt/lyrs=s&v=w2.11&hl=zh-CN&gl=CN";
+        Google_URL="http://mt3.google.cn/vt/lyrs=s@110&hl=zh-CN&gl=cn&src=app&";
     }
 
     //直接根据全局变量得到影像对应的瓦片地图

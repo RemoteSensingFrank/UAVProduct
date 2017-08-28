@@ -2,38 +2,39 @@
 #include "gdal_priv.h"
 #include "UAVCommon.h"
 #include "openMVG/sfm/sfm.hpp"
-#include "openMVG/exif/exif_IO_EasyExif.hpp"
-#include "third_party/cmdLine/cmdLine.h"
-#include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 #include "Python.h"
 #include "UAVXYZToLatLonWGS84.h"
+
 #include <stdio.h>
 using namespace openMVG;
 using namespace openMVG::cameras;
 using namespace openMVG::sfm;
 using namespace openMVG::image;
-using namespace openMVG::exif;
 
 static  UAVXYZToLatLonWGS84 CooridinateTrans;
 
+
+
 vector<MapUnit> UAVMapCalculate::UAVMapCalculateUnit(double centerUTMx,double centerUTMy,double width,double height,int level)
 {
-  int left = (centerUTMx-width/2-MINXBound)/(Lods[level][2])/MAPUNITSIZE;
-  int top  = (centerUTMy-height/2-MINYBound)/(Lods[level][2])/MAPUNITSIZE;
+    Vec3 latlon1 = CooridinateTrans.UTMToLatLonWMT(centerUTMx-width/2,centerUTMy-height/2,0);
+    Vec3 latlon2 = CooridinateTrans.UTMToLatLonWMT(centerUTMx+width/2,centerUTMy+height/2,0);
 
-  int right  = (centerUTMx+width/2-MINXBound)/Lods[level][2]/MAPUNITSIZE;
-  int bottom = (centerUTMy+height/2-MINYBound)/Lods[level][2]/MAPUNITSIZE;
-
-  vector<MapUnit> vec_mapUnits;
-  for(int i=left;i<=right;++i){
-    for(int j=top;j<=bottom;++j){
-      MapUnit unit;
-      unit.row=i;
-      unit.col=j;
-      unit.level=level;
-      vec_mapUnits.push_back(unit);
+    int left, top;
+    toTile(level,latlon1(0),latlon1(1),left,top);
+    int right,bottom;
+    toTile(level,latlon2(0),latlon2(1),right,bottom);
+    vector<MapUnit> vec_mapUnits;
+    for(int i=left;i<=right;++i){
+      for(int j=bottom;j<=top;++j){
+        MapUnit unit;
+        unit.row=i;
+        unit.col=j;
+        unit.level=level;
+        vec_mapUnits.push_back(unit);
+      }
     }
-  }
+    return vec_mapUnits;
 }
 
 bool UAVMapCalculate::UAVMapUnitCorner(MapUnit unitMap,double &cornerx,double &cornery)
@@ -56,9 +57,9 @@ bool UAVMapCalculate::UAVMapUnitCombie(vector<MapUnit> units,string dest)
     for(int i=0;i<units.size();++i)
     {
       minx=min(minx,units[i].row);
-      maxx=min(maxx,units[i].row);
+      maxx=max(maxx,units[i].row);
       miny=min(miny,units[i].col);
-      maxy=min(maxy,units[i].col);
+      maxy=max(maxy,units[i].col);
     }
 
     int width = (maxx-minx)*MAPUNITSIZE;
@@ -77,17 +78,17 @@ bool UAVMapCalculate::UAVMapUnitCombie(vector<MapUnit> units,string dest)
     double adfGeoTransform[6];
     GDALDatasetH m_dataset = GDALCreate(GDALGetDriverByName("GTiff"),dest.c_str(),width, height, 3, GDT_Byte, NULL);
 
-    adfGeoTransform[0] = MINXBound+Lods[units[0].level][2]*units[0].row*MAPUNITSIZE;
+    adfGeoTransform[0] = MINXBound+Lods[units[0].level][1]*units[0].row*MAPUNITSIZE;
     adfGeoTransform[1] = Lods[units[0].level][1];
     adfGeoTransform[2] = 0;
-    adfGeoTransform[3] = MINYBound+Lods[units[0].level][2]*units[0].col*MAPUNITSIZE;
+    adfGeoTransform[3] = MINYBound+Lods[units[0].level][1]*units[0].col*MAPUNITSIZE;
     adfGeoTransform[4] = 0;
     adfGeoTransform[5] = Lods[units[0].level][1];
 
     for (int k = 0; k <3 ; ++k) {
 
       for (int j = 0; j < units.size(); ++j) {
-        GDALDatasetH m_datasrc = GDALOpen(dest.c_str(),GA_ReadOnly);
+        GDALDatasetH m_datasrc = GDALOpen(units[j].unit_save.c_str(),GA_ReadOnly);
         //数据不大 不用做内存申请检查
         int widthsc  = GDALGetRasterXSize(m_datasrc);
         int heightsc = GDALGetRasterYSize(m_datasrc);
@@ -120,38 +121,37 @@ bool UAVMapCalculateGoogle::UAVMapUnitURL(vector<MapUnit> &units)
     char tile_url[256];
     sprintf(tile_url,"&x=%d&y=%d&z=%d",units[i].row,units[i].col,units[i].level);
     units[i].unit_url = Google_URL+string(tile_url);
-    sprintf(tile_url,"./UAVProduct/Map/&x=%d&y=%d&z=%d.jpg",units[i].row,units[i].col,units[i].level);
-    units[i].unit_save = Google_URL+string(tile_url);
-    return true;
+    sprintf(tile_url,"./UAVProduct/Map/%d%d%d.jpg",units[i].row,units[i].col,units[i].level);
+    units[i].unit_save = string(tile_url);
   }
+    return true;
 
 }
 
 bool UAVMapCalculateGoogle::UAVMapUnitData(vector<MapUnit> units)
 {
-    Py_Initialize();
-    //PyRun_SimpleString("print 'hello'");
-    PyRun_SimpleString("import sys");
-    PyRun_SimpleString("sys.path.append('./UAVProduct/')");
-
-    //导入模块
-    PyObject *pModule = PyImport_ImportModule("GoogleMap");
-    if (pModule==NULL)
-    {
-        printf("Python get module failed.\n");
-        return 0;
-    }
-
-    //获取Insert模块内_add函数
-    PyObject* pv = PyObject_GetAttrString(pModule, "GetImageForGoogleUrl");
-    if (!pv || !PyCallable_Check(pv))
-    {
-        printf("Python get func failed.\n");
-        return 0;
-    }
-
     for(int i=0;i<units.size();++i)
     {
+        Py_Initialize();
+        //PyRun_SimpleString("print 'hello'");
+        PyRun_SimpleString("import sys");
+        PyRun_SimpleString("sys.path.append('./UAVProduct/')");
+
+        //导入模块
+        PyObject *pModule = PyImport_ImportModule("GoogleMap");
+        if (pModule==NULL)
+        {
+            printf("Python get module failed.\n");
+            return 0;
+        }
+
+        //获取Insert模块内_add函数
+        PyObject* pv = PyObject_GetAttrString(pModule, "GetImageForGoogleUrl");
+        if (!pv || !PyCallable_Check(pv))
+        {
+            printf("Python get func failed.\n");
+            return 0;
+        }
         //初始化要传入的参数，args配置成传入两个参数的模式
         PyObject* args = PyTuple_New(2);
         //将Long型数据转换成Python可接收的类型
@@ -165,8 +165,10 @@ bool UAVMapCalculateGoogle::UAVMapUnitData(vector<MapUnit> units)
 
         //传入参数调用函数，并获取返回值
         PyObject_CallObject(pv,args);
+
+        Py_Finalize();
     }
-    Py_Finalize();
+
 
     return true;
 }
