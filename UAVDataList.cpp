@@ -185,7 +185,7 @@ float UAVDataList::UAVList_CreateSFMList()
             // Add ECEF XYZ position to the GPS position array
             pair<Vec3f ,Vec3f> trans_rot = readPOS.ReadPOS(ifs);
             val.first = true;
-            val.second = CooridinateTrans.LatLonToUTM(trans_rot.first(0),trans_rot.first(1),trans_rot.first(2));
+            val.second = CooridinateTrans.LatLonToXYZ(trans_rot.first(0),trans_rot.first(1),trans_rot.first(2));
 
             //使用影像内置的POS数据
             ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);

@@ -4,7 +4,7 @@
 
 #ifndef UAVPRODUCT_UAVCOMMON_H
 #define UAVPRODUCT_UAVCOMMON_H
-
+#include <math.h>
 #include <string>
 using namespace std;
 
@@ -62,6 +62,10 @@ typedef struct __GLOBAL__INFO_
     double _g_ccdsize;
 
 } GLOBAL_INFO ;
+
+void toTile(int zoom,double Lng,double lat,int &x,int &y) ;
+
+void toLnglat(int zoom,double &lng,double &lat,int x,int y) ;
 
 //全局的文件夹变量
 extern GLOBAL_INFO _info_;
