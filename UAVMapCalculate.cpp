@@ -17,8 +17,8 @@ static  UAVXYZToLatLonWGS84 CooridinateTrans;
 
 vector<MapUnit> UAVMapCalculate::UAVMapCalculateUnit(double centerUTMx,double centerUTMy,double width,double height,int level)
 {
-    Vec3 latlon1 = CooridinateTrans.UTMToLatLonWMT(centerUTMx-width/2,centerUTMy-height/2,0);
-    Vec3 latlon2 = CooridinateTrans.UTMToLatLonWMT(centerUTMx+width/2,centerUTMy+height/2,0);
+    Vec3 latlon1 = CooridinateTrans.UTMToLatLonWMT(centerUTMx-width/2-100,centerUTMy-height/2-100,0);
+    Vec3 latlon2 = CooridinateTrans.UTMToLatLonWMT(centerUTMx+width/2+100,centerUTMy+height/2+100,0);
 
     int left, top;
     toTile(level,latlon1(0),latlon1(1),left,top);
@@ -62,8 +62,8 @@ bool UAVMapCalculate::UAVMapUnitCombie(vector<MapUnit> units,string dest)
       maxy=max(maxy,units[i].col);
     }
 
-    int width = (maxx-minx)*MAPUNITSIZE;
-    int height= (maxy-miny)*MAPUNITSIZE;
+    int width = (maxx-minx+1)*MAPUNITSIZE;
+    int height= (maxy-miny+1)*MAPUNITSIZE;
     unsigned char* dstData = NULL;
     try {
       dstData= new unsigned char[width*height];
@@ -103,13 +103,18 @@ bool UAVMapCalculate::UAVMapUnitCombie(vector<MapUnit> units,string dest)
             dstData[(oriy+n)*width+orix+l]=data[n*widthsc+l];
           }
         }
-        data=NULL;data=NULL;
+        delete[]data;data=NULL;
+          GDALClose(m_datasrc);
       }
       GDALRasterIO(GDALGetRasterBand(m_dataset,k+1),GF_Write,0,0,width,height,dstData,width,height,GDT_Byte,NULL,NULL);
     }
-
     GDALSetGeoTransform(m_dataset,adfGeoTransform);
     GDALClose(m_dataset);
+    if(dstData!=NULL)
+    {
+        delete []dstData;
+        dstData=NULL;
+    }
     return true;
 }
 
@@ -214,7 +219,7 @@ bool UAVMapCalculateGoogle::UAVMapGoogleRun()
                 continue;
             if(!UAVMapUnitData(vec_mapUnits))
                 continue;
-            if(!UAVMapUnitCombie(vec_mapUnits,_info_._g_Map_dir+prior->s_Img_path))
+            if(!UAVMapUnitCombie(vec_mapUnits,_info_._g_Map_dir+prior->s_Img_path+string(".tif")))
                 continue;
         }
     }
