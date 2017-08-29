@@ -137,6 +137,9 @@ bool UAVMapCalculateGoogle::UAVMapUnitData(vector<MapUnit> units)
 {
     for(int i=0;i<units.size();++i)
     {
+        if(stlplus::file_exists(units[i].unit_save))
+            continue;
+
         Py_Initialize();
         //PyRun_SimpleString("print 'hello'");
         PyRun_SimpleString("import sys");
@@ -173,8 +176,6 @@ bool UAVMapCalculateGoogle::UAVMapUnitData(vector<MapUnit> units)
 
         Py_Finalize();
     }
-
-
     return true;
 }
 
