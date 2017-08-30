@@ -14,7 +14,6 @@ static const double WGS84_B = 6356752.314245; // minor axis
 static const double WGS84_E = 0.0818191908;   // first eccentricity
 
 using namespace openMVG;
-
 class UAVXYZToLatLonWGS84 {
 
 public:
@@ -35,7 +34,6 @@ public:
                      double y,
                      double z);
 
-
     //web Mector
     Vec3 UTMToLatLonWMT(double x,
                         double y,
@@ -44,6 +42,14 @@ public:
     Vec3 LatLonToUTMWMT(double lat,
                         double lon,
                         double alt);
+
+    //GCJ01
+    bool OutOfChina(double lat, double lon);
+
+    void WGSLatLonToGCJ(double wgLon,
+                        double wgLat,
+                        double &mgLon,
+                        double &mgLat);
 };
 
 
