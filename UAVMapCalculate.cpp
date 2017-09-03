@@ -16,7 +16,7 @@ static  UAVXYZToLatLonWGS84 CooridinateTrans;
 vector<MapUnit> UAVMapCalculate::UAVMapCalculateUnit(double centerUTMx,double centerUTMy,double width,double height,int level)
 {
       int left, top;
-      Vec3 latlonwgs1 = CooridinateTrans.UTMToLatLonWMT(centerUTMx-width/2-100,centerUTMy-height/2-100,0);
+      Vec3 latlonwgs1 = CooridinateTrans.UTMToLatLonWMT(centerUTMx-width/2,centerUTMy-height/2,0);
       if(!CooridinateTrans.OutOfChina(latlonwgs1(1),latlonwgs1(0)))
       {
         double lat,lon;
@@ -28,7 +28,7 @@ vector<MapUnit> UAVMapCalculate::UAVMapCalculateUnit(double centerUTMx,double ce
       }
 
       int right,bottom;
-      Vec3 latlonwgs2 = CooridinateTrans.UTMToLatLonWMT(centerUTMx+width/2+100,centerUTMy+height/2+100,0);
+      Vec3 latlonwgs2 = CooridinateTrans.UTMToLatLonWMT(centerUTMx+width/2,centerUTMy+height/2,0);
       if(!CooridinateTrans.OutOfChina(latlonwgs2(1),latlonwgs2(0)))
       {
         double lat,lon;
@@ -225,7 +225,7 @@ bool UAVMapCalculateGoogle::UAVMapGoogleRun()
           double xrange = pnt0(2)*(prior->ui_width) /focalx;
           double yrange = pnt0(2)*(prior->ui_height)/focaly;
           vector<MapUnit> vec_mapUnits;
-          vec_mapUnits = UAVMapCalculateUnit(wmt0(0),wmt0(1),xrange,yrange,17);
+          vec_mapUnits = UAVMapCalculateUnit(wmt0(0),wmt0(1),xrange,yrange,19);
 
           if(vec_mapUnits.empty())
               continue;

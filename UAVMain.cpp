@@ -4,7 +4,7 @@
 #include "UAVMapCalculate.h"
 #include "UAVCommon.h"
 #include "UAVDataList.h"
-
+#include "UAVICPProc.h"
 void InitialData5()
 {
     _info_._g_image_dir_="/home/wuwei/Data/UAVData/1/Img/";
@@ -35,4 +35,8 @@ int main(int argc,char* argv[])
     dataList.UAVList_CreateSFMList();
     dataList.UAVList_CreateImageRange(0.5);
     mapCalculte.UAVMapGoogleRun();
+
+    UAVICPExtract m_icp;
+
+    m_icp.UAVICPExtractMatchesEnvi("/home/wuwei/Data/UAVData/1/Img/DSC01683.JPG","/home/wuwei/Data/UAVData/1/Map/DSC01683.JPG.tif","/home/wuwei/Data/UAVData/1/match.pts",EXTRACT_GPU);
 }

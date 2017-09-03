@@ -5,6 +5,9 @@
 #ifndef __UAVICPProc_H
 #define __UAVICPProc_H
 
+#include <string>
+using namespace std;
+
 //解算的类型
 enum EXTRACT_TYPE {
   EXTRACT_CPU,    //CPU计算
@@ -12,7 +15,7 @@ enum EXTRACT_TYPE {
 };
 //根据Google瓦片数据解算相控点
 class UAVICPExtract{
-public：
+public:
     /*
       解算匹配并以ENVI的格式输出，以ENVI的格式输出主要是方便查看是否正确
       string img1：影像1的路径
@@ -32,8 +35,8 @@ public：
     bool UAVICPExtractICPs(string img1,string img2,string  icps,EXTRACT_TYPE type=EXTRACT_CPU);
 
     //导入相控点
-    bool UAVICPImportICPs()；
-}
+    bool UAVICPImportICPs();
+};
 
 
 
