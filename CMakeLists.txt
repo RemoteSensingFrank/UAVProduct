@@ -44,7 +44,10 @@ include_directories(${PYTHON_INCLUDE})
 ADD_SUBDIRECTORY(SiftGPU)
 LINK_DIRECTORIES(SiftGPU)
 
-set(SOURCE_FILES ${SIFTLIST} UAVMain.cpp UAVICPProc.h UAVMapCalculate.cpp UAVMapCalculate.h UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVAuxiliary.h UAVAuxiliary.cpp UAVBundle.cpp UAVBundle.h UAVFeatureExtract.cpp UAVDMatch.h UAVDenseProcess.cpp UAVDenseProcess.h UAVDenseExtract.cpp UAVCommon.h UAVCommon.cpp UAVFeatureExtractGpu.cpp UAVTest.cpp UAVICPProc.cpp)
+ADD_SUBDIRECTORY(event)
+LINK_DIRECTORIES(event)
+
+set(SOURCE_FILES ${EVENTLIST} ${SIFTLIST} UAVMain.cpp UAVICPProc.h UAVMapCalculate.cpp UAVMapCalculate.h UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVAuxiliary.h UAVAuxiliary.cpp UAVBundle.cpp UAVBundle.h UAVFeatureExtract.cpp UAVDMatch.h UAVDenseProcess.cpp UAVDenseProcess.h UAVDenseExtract.cpp UAVCommon.h UAVCommon.cpp UAVFeatureExtractGpu.cpp UAVTest.cpp UAVICPProc.cpp)
 
 add_executable(UAVProcess ${SOURCE_FILES})
 
@@ -58,6 +61,7 @@ target_link_libraries(UAVProcess ${LIBKML_LIBRARIES})
 #target_link_libraries(UAVProcess ${ILUT_LIBRARIES})
 
 target_link_libraries(UAVProcess siftgpu)
+target_link_libraries(UAVProcess eventlib)
 target_link_libraries(UAVProcess ${GDAL_LIBRARY})
 target_link_libraries(UAVProcess ${SIFT_LIBRARY})
 target_link_libraries(UAVProcess ${EXIF_LIBRARY})
