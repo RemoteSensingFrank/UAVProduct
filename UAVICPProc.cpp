@@ -155,3 +155,10 @@ bool UAVICPExtract::UAVICPExtractMatchesEnvi(string img1,string img2,string  mat
     }
 
 }
+
+bool UAVICPImportICPs(string pathICPs,string pathSFM)
+{
+    //自定义像控点格式：观测影像ID号 像控点个数：int 像控点　int ximg yimg double xgcp ygcp
+    //像控点以二进制方式存储
+
+}

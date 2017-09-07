@@ -26,17 +26,7 @@ void InitialData5()
 int main(int argc,char* argv[])
 {
 	//测试环境的初始化
-    //testing::GTEST_FLAG(output) = "xml:TestReport.xml";
-	//testing::InitGoogleTest(&argc,argv);
-    //return RUN_ALL_TESTS();
-    InitialData5();
-    UAVMapCalculateGoogle mapCalculte;
-    UAVDataList dataList;
-    dataList.UAVList_CreateSFMList();
-    dataList.UAVList_CreateImageRange(0.5);
-    mapCalculte.UAVMapGoogleRun();
-
-    UAVICPExtract m_icp;
-
-    m_icp.UAVICPExtractMatchesEnvi("/home/wuwei/Data/UAVData/1/Img/DSC01683.JPG","/home/wuwei/Data/UAVData/1/Map/DSC01683.JPG.tif","/home/wuwei/Data/UAVData/1/match.pts",EXTRACT_GPU);
+    testing::GTEST_FLAG(output) = "xml:TestReport.xml";
+	testing::InitGoogleTest(&argc,argv);
+    return RUN_ALL_TESTS();
 }

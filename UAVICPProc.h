@@ -36,6 +36,15 @@ public:
 
     //导入相控点
     bool UAVICPImportICPs();
+
+private:
+    /**
+     * 从文件中导入像控点
+     * @param pathICPs:像控点文件
+     * @param pathSFM :SFM文件
+     * @return
+     */
+    bool UAVICPImportICPs(string pathICPs,string pathSFM);
 };
 
 
