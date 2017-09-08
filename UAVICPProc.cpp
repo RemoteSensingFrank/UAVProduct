@@ -158,7 +158,60 @@ bool UAVICPExtract::UAVICPExtractMatchesEnvi(string img1,string img2,string  mat
 
 bool UAVICPImportICPs(string pathICPs,string pathSFM)
 {
-    //自定义像控点格式：观测影像ID号 像控点个数：int 像控点　int ximg yimg double xgcp ygcp
+    //读取SFM数据，无控制点的
+    //通过GPU进行解析
+    SfM_Data sfm_data;
+    if (!Load(sfm_data,pathSFM, ESfM_Data(VIEWS | INTRINSICS))) {
+        std::cerr << std::endl
+                  << "The input SfM_Data file \"" << pathSFM << "\" cannot be read." << std::endl;
+        return false;
+    }
+
+    //自定义像控点格式
     //像控点以二进制方式存储
+    //首先读取像控点
+    FILE* fs=fopen(pathICPs.c_str(),"rb+");
+    if(fs==NULL)
+        return false;
+    //获取像控点数目
+    int gcps ;
+    fread(&gcps,sizeof(int),1,fs);
+    vector<Vec3f> ground_control_points;
+    Views views = sfm_data.GetViews();
+    Landmarks control_points = sfm_data.GetControl_Points();
+
+    for(int i=0;i<gcps;++i)
+    {
+        double xyz[3];
+        fread(xyz,sizeof(double),3,fs);
+        Vec3f pnt(xyz[0],xyz[1],xyz[2]);
+        ground_control_points.push_back(pnt);
+        control_points[i].X << xyz[0], xyz[1], xyz[2];
+    }
+
+
+    int count_views=-1;
+    for(int i=0;i<gcps;++i)
+    {
+        fread(&count_views,sizeof(int),1,fs);
+        for(int j=0;i<count_views;++j)
+        {
+            int imgst[3];
+            fread(imgst,sizeof(int),3,fs);
+            const View * view = views[imgst[0]].get();
+            //Vec2f pntimg = Vec2f((float)imgst[1],(float)imgst[2]);
+            control_points[i].obs[j].x<<imgst[1],imgst[2];
+            control_points[i].obs[j].id_feat=j;
+        }
+    }
+    if (!Save(
+            sfm_data,
+            pathSFM.c_str(),
+            ESfM_Data(ALL)))
+    {
+        return false;
+    }
+
+    return true;
 
 }

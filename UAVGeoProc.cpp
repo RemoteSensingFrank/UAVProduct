@@ -315,7 +315,6 @@ bool UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGro
                   << "The input SfM_Data file \""<< pathSFM << "\" cannot be read." << std::endl;
         return false;
     }
-    sfm_data.GetLandmarks()
     if ( !stlplus::folder_exists( pathDstDir ) )
     {
         if ( !stlplus::folder_create( pathDstDir ))
