@@ -39,7 +39,6 @@ const double Lods[20][3]={
         {18,0.59716428355981721,2256.994353},
         {19,0.298582142,1128.4971765}};
 
-
 typedef struct __GLOBAL__INFO_
 {
     string  _g_image_dir_;
@@ -54,13 +53,17 @@ typedef struct __GLOBAL__INFO_
     string _g_mosaic_path;
     string _g_point_cloud_dir;
     string _g_SFM_data;
-    string _g_Map_dir;
+    string _g_Map_dir;          //下载的瓦片地图路径
+    string _g_GCP_path;         //控制点文件路径
 
     double _g_focal_x;
     double _g_focal_y;
     double _g_ppx;
     double _g_ppy;
     double _g_ccdsize;
+
+    //全局启动函数
+    void _g_run(string Type_P,string Type_B);
 
 } GLOBAL_INFO ;
 
@@ -69,7 +72,7 @@ void toTile(int zoom,double Lng,double lat,int &x,int &y) ;
 void toLnglat(int zoom,double &lng,double &lat,int x,int y) ;
 
 //全局的文件夹变量
+//extern GLOBAL_INFO _info_;
 extern GLOBAL_INFO _info_;
-
 
 #endif //UAVPRODUCT_UAVCOMMON_H

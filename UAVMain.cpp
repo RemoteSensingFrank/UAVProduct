@@ -26,7 +26,9 @@ void InitialData5()
 int main(int argc,char* argv[])
 {
 	//测试环境的初始化
-    testing::GTEST_FLAG(output) = "xml:TestReport.xml";
-	testing::InitGoogleTest(&argc,argv);
-    return RUN_ALL_TESTS();
+    //testing::GTEST_FLAG(output) = "xml:TestReport.xml";
+	//testing::InitGoogleTest(&argc,argv);
+    //return RUN_ALL_TESTS();
+
+    return 0;
 }
