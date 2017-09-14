@@ -63,7 +63,14 @@ typedef struct __GLOBAL__INFO_
     double _g_ccdsize;
 
     //全局启动函数
-    void _g_run(string Type_P,string Type_B);
+    /**
+     * 全局的ｒｕｎ函数
+     * @param Type_P 特征点解算类型ＣＰＵ／ＧＰＵ
+     * @param Type_B 光束法平差类型　Ｇｌｏｂａｌ／Ｓｅｑｕｅｎｃｅ
+     * @param dL    成像区域中心经度（差不多就行了，用来计算投影带）
+     * @param dB 　　成像区域中心纬度（差不多就行了，用来计算投影带）
+     */
+    void _g_run(string Type_P,string Type_B,double dL,double dB);
 
 } GLOBAL_INFO ;
 

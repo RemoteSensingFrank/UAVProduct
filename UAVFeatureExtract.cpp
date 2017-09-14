@@ -234,10 +234,10 @@ bool UAVFeatureExtract::UAVMatchesList(int neighbor_count) {
         std::cout << "Exported " << view_pair.size() << " view pairs\n"
                   <<"from a view graph that have " << pose_pairs.size()
                   << " relative pose pairs." << std::endl;
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 features::EDESCRIBER_PRESET stringToEnum(const std::string & sPreset)

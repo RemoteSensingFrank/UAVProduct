@@ -9,7 +9,7 @@
 //影像处理全流程测试
 #include "UAVCommon.h"
 #include "gtest/gtest.h"
-
+/*
 void InitialData1()
 {
     _info_._g_image_dir_="/home/wuwei/Data/UAVData/small_test/Img/";
@@ -112,3 +112,4 @@ TEST(DataSet2CPUFlowTest,CPUTest)
     EXPECT_EQ(true,_bundler_.UAVBundleSequence());
     EXPECT_EQ(true,geoProc.UAVGeoProc_GeoProc(1,6,46));
 }
+*/
