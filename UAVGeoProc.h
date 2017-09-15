@@ -60,6 +60,18 @@ public:
      * @param geoImage ：校正后的影像
      */
     void UAVGeoProc_GeoCorrection(string image,double* gcps,int gcpNum,double dGroundSize,double dL,double dB,string geoImage);
+
+    /***
+     *首先通过控制点解算出外方位元素，在获取外方位元素的基础上使用DEM数据进行几何精校正
+     *string image：输入影像
+     *double* gcps：控制点文件
+     *int gcpNum：控制点个数
+     *double dGroundSize地面分辨率
+     *double dL,double dB 经纬度
+     *string imageDem DEM影像数据
+     *string geoImageAccur 几何精校正数据
+    */
+    void UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int gcpNum,double dGroundSize,double dL,double dB,string imageDem,string geoImageAccur);
 };
 
 #endif //UAVPRODUCT_UAVGEOPROC_H
