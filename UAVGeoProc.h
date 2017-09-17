@@ -72,6 +72,8 @@ public:
      *string geoImageAccur 几何精校正数据
     */
     void UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int gcpNum,double dGroundSize,double dL,double dB,string imageDem,string geoImageAccur);
+
+
 };
 
 #endif //UAVPRODUCT_UAVGEOPROC_H
