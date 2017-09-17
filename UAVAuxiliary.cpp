@@ -2,6 +2,13 @@
 // Created by wuwei on 17-7-30.
 //
 #include "UAVAuxiliary.h"
+#include "ceres/ceres.h"
+
+using ceres::AutoDiffCostFunction;
+using ceres::CostFunction;
+using ceres::Problem;
+using ceres::Solver;
+using ceres::Solve;
 
 void AdjacencyMatrixToSVG
         (
@@ -99,7 +106,28 @@ private:
     const double _f;
 };
 
-void Resection(double* gcps,int gcpnum,double* param)
+void Resection(double* gcps,int gcpnum,double fLen,double Xs,double Ys,double Zs,double* param)
 {
-    
+    //通过控制点进行后方交会得到外方位元素
+    double dBackCrossParameters[6] = {0};   //初值
+    dBackCrossParameters[0]=Xs;
+    dBackCrossParameters[1]=Ys;
+    dBackCrossParameters[2]=Zs;
+
+    Problem problem;
+    for (int i = 0; i < gcpnum;++i)
+    {
+        double* pPoint = gcps+ 5*i;
+
+        ResectionResidual*pResidualX =new ResectionResidual(pPoint[2],pPoint[3], pPoint[4],pPoint[0], pPoint[1],fLen);
+        problem.AddResidualBlock(new AutoDiffCostFunction<ResectionResidual, 2, 6>(pResidualX), NULL,dBackCrossParameters);
+    }
+
+    Solver::Options m_options;
+    Solver::Summary m_summary;
+    m_options.max_num_iterations = 25;
+    m_options.linear_solver_type = ceres::DENSE_QR;
+    m_options.minimizer_progress_to_stdout = true;
+
+    Solve(m_options, &problem,&m_summary);
 }

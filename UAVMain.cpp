@@ -6,7 +6,7 @@
 
 void InitialData1()
 {
-	_info_._g_image_dir_="/home/wuwei/Data/UAVData/small_test/Img/";
+	_info_._g_image_dir_="/home/wuwei/Data/UAVData/9/Img/";
 	_info_._g_SFM_data="/home/wuwei/Data/UAVData/small_test/SFM_Data.json";
 	_info_._g_match_dir_="/home/wuwei/Data/UAVData/small_test/Matches/";
 	_info_._g_feature_dir_="/home/wuwei/Data/UAVData/small_test/Features/";
@@ -25,14 +25,13 @@ void InitialData1()
 int main(int argc,char* argv[])
 {
 	//测试环境的初始化
-	//InitialData1();
-
+	InitialData1();
     //testing::GTEST_FLAG(output) = "xml:TestReport.xml";
 	//testing::InitGoogleTest(&argc,argv);
     //return RUN_ALL_TEST();
 
-	UAVDenseProcess pointcloud;
-	pointcloud.UAVDPCloud_ToDSM("/home/wuwei/Data/UAVData/1/Points/dense.ply","/home/wuwei/Data/UAVData/1/Points/dem.tif",124,41,0.3);
+	//UAVDenseProcess pointcloud;
+	//pointcloud.UAVDPCloud_ToDSM("/home/wuwei/Data/UAVData/1/Points/dense.ply","/home/wuwei/Data/UAVData/1/Points/dem.tif",124,41,0.3);
 	return 0;
 }
 

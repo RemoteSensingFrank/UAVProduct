@@ -31,6 +31,7 @@ using namespace Eigen;
 #include <omp.h>
 #include <vector>
 #include <map>
+#include "UAVAuxiliary.h"
 
 static  UAVXYZToLatLonWGS84 CooridinateTrans;
 
@@ -399,4 +400,96 @@ bool UAVGeoProc::UAVGeoProc_GeoProc(double dGroundSize,double dL,double dB)
     } else{
         return UAVGeoProc_GeoProc(sfm,_info_._g_geocorrect_dir_,dGroundSize,dL,dB);
     }
+}
+
+void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int gcpNum,double dGroundSize,double Xs,double Ys,double Zs,double fLen,string imageDem,string geoImageAccur)
+{
+    double params[6];
+    Resection(gcps,gcpNum,fLen,Xs,Ys,Zs,params);
+
+    //先不管坐标系统了
+    GDALDatasetH m_datasetsrc = GDALOpen(image.c_str(),GA_ReadOnly);
+    int xsrc = GDALGetRasterXSize(m_datasetsrc);
+    int ysrc = GDALGetRasterYSize(m_datasetsrc);
+
+    GDALDatasetH m_datasetdem = GDALOpen(imageDem.c_str(),GA_ReadOnly);
+    double adfGeoTransformdem[6];
+    GDALGetGeoTransform(m_datasetdem,adfGeoTransformdem);
+    int xdem = GDALGetRasterXSize(m_datasetdem);
+    int ydem = GDALGetRasterYSize(m_datasetdem);
+    float* dem = new float[xdem*ydem];
+    GDALRasterIO(GDALGetRasterBand(m_datasetdem,1),GF_Read,0,0,xdem,ydem,dem,xdem,ydem,GDT_Float32,0,0);
+
+    int hx = xsrc/2;
+    int hy = ysrc/2;
+
+    double dPhi = params[3];
+    double dOmega = params[4];
+    double dKappa = params[5];
+    Eigen::MatrixXd rotmat(3,3);
+    rotmat(0,0)  = cos(dPhi)*cos(dKappa) - sin(dPhi)*sin(dOmega)*sin(dKappa);
+    rotmat(0,1)  = -cos(dPhi)*sin(dKappa) - sin(dPhi)*sin(dOmega)*cos(dKappa);
+    rotmat(0,2)  = -sin(dPhi)*cos(dOmega);
+    rotmat(1,0) = cos(dOmega)*sin(dKappa);
+    rotmat(1,1) = cos(dOmega)*cos(dKappa);
+    rotmat(1,2) = -sin(dOmega);
+    rotmat(2,0) = sin(dPhi)*cos(dKappa) + cos(dPhi)*sin(dOmega)*sin(dKappa);
+    rotmat(2,1) = -sin(dPhi)*sin(dKappa) + cos(dPhi)*sin(dOmega)*cos(dKappa);
+    rotmat(2,2) = cos(dPhi)*cos(dOmega);
+
+    float* xPositions = new float[xsrc*ysrc];
+    float* yPositions = new float[xsrc*ysrc];
+    float* zPositions = new float[xsrc*ysrc];
+    memset(zPositions,0,sizeof(float)*xsrc*ysrc);
+
+    //第一次计算
+    for(int i=0;i<xsrc;++i){
+        for(int j=0;j<ysrc;++j){
+            //计算坐标
+            Eigen::MatrixXd ptImg(3,1),ptGeo(3,1);
+            ptImg(0,0) = i-hx;
+            ptImg(1,0) = hy-j;
+            ptImg(2,0) = -fLen;
+
+            ptGeo = rotmat.inverse()*ptImg;
+            xPositions[j*xsrc+i]=Xs+(zPositions[j*xsrc+i]-Zs)*ptGeo(0,0)/ptGeo(2,0);
+            yPositions[j*xsrc+i]=Ys+(zPositions[j*xsrc+i]-Zs)*ptGeo(1,0)/ptGeo(2,0);
+
+            int idem = (xPositions[j*xsrc+i]-adfGeoTransformdem[0])/adfGeoTransformdem[1];
+            int jdem = (yPositions[j*xsrc+i]-adfGeoTransformdem[3])/adfGeoTransformdem[5];
+            if(idem>xdem||idem<0||idem>ydem||jdem<0)
+                zPositions[j*xsrc+i]=0;
+            else
+                zPositions[j*xsrc+i]=dem[jdem*xdem+idem];
+
+        }
+    }
+
+    //第二次计算(不进行循环迭代计算了)
+    for(int i=0;i<xsrc;++i){
+        for(int j=0;j<ysrc;++j){
+            //计算坐标
+            Eigen::MatrixXd ptImg(3,1),ptGeo(3,1);
+            ptImg(0,0) = i-hx;
+            ptImg(1,0) = hy-j;
+            ptImg(2,0) = -fLen;
+
+            ptGeo = rotmat.inverse()*ptImg;
+            xPositions[j*xsrc+i]=Xs+(zPositions[j*xsrc+i]-Zs)*ptGeo(0,0)/ptGeo(2,0);
+            yPositions[j*xsrc+i]=Ys+(zPositions[j*xsrc+i]-Zs)*ptGeo(1,0)/ptGeo(2,0);
+
+            int idem = (xPositions[j*xsrc+i]-adfGeoTransformdem[0])/adfGeoTransformdem[1];
+            int jdem = (yPositions[j*xsrc+i]-adfGeoTransformdem[3])/adfGeoTransformdem[5];
+            if(idem>xdem||idem<0||idem>ydem||jdem<0)
+                zPositions[j*xsrc+i]=0;
+            else
+                zPositions[j*xsrc+i]=dem[jdem*xdem+idem];
+
+        }
+    }
+
+    //重采样
+
+
+
 }

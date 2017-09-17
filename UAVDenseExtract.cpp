@@ -190,6 +190,136 @@ void UAVDenseProcess::UAVDP_MVSProc() {
 #include "gdal_alg.h"
 #include "cpl_progress.h"
 
+static void UAVDPPointsToDEM_Grid(double *points,int numPoints,double dL,double dB,double resolution,string pathDEM)
+{
+    double dfXMax=-99999999,dfXMin=99999999,dfYMax=-99999999,dfYMin=99999999;
+    double *padX = new double[numPoints];
+    double *padY = new double[numPoints];
+    double *padZ = new double[numPoints];
+
+    for(size_t i=0;i<numPoints;++i)
+    {
+        dfXMax = max(points[3*i+0],dfXMax);
+        dfXMin = min(points[3*i+0],dfXMin);
+        dfYMax = max(points[3*i+1],dfYMax);
+        dfYMin = min(points[3*i+1],dfYMin);
+
+        padX[i]= points[3*i+0];
+        padY[i]= points[3*i+1];
+        padZ[i]= points[3*i+2];
+    }
+
+    double pixResoultion = 0.5; //设置分辨率为0.5
+    GUInt32 nXSize = (dfXMax-dfXMin) / pixResoultion;
+    GUInt32 nYSize = (dfYMax-dfYMin) / pixResoultion;
+
+    GDALAllRegister();
+    float *pData  =  new float[nXSize*nYSize];
+
+    GDALGridNearestNeighborOptions *poOptions = new GDALGridNearestNeighborOptions();
+    poOptions->dfRadius1 = 0.5;
+    poOptions->dfRadius2 = 0.8;
+
+    GDALGridCreate(GGA_NearestNeighbor, poOptions, numPoints, padX, padY, padZ,
+                   dfXMin, dfXMax, dfYMin, dfYMax, nXSize, nYSize, GDT_Float32, pData, GDALTermProgress, NULL);
+
+    GDALDriver * pDriver = NULL;
+    pDriver = GetGDALDriverManager()->GetDriverByName("Gtiff");
+    GDALDataset *poDataset = pDriver->Create(pathDEM.c_str(), nXSize,nYSize, 1, GDT_Float32, NULL);
+
+    // 设置六参数
+    double adfGeoTransform[6] = {dfXMin, pixResoultion, 0 , dfYMax, 0, -pixResoultion};
+    poDataset->SetGeoTransform(adfGeoTransform );
+
+    int nZone = dL/6+39;
+    OGRSpatialReference oSrcSrs;
+    char *pszSRS_WKT = NULL;
+    oSrcSrs.SetUTM( nZone, TRUE );
+    oSrcSrs.SetWellKnownGeogCS( "WGS84" );
+    oSrcSrs.exportToWkt( &pszSRS_WKT );
+
+    // 写入影像
+    poDataset->RasterIO(GF_Write, 0, 0, nXSize, nYSize, pData, nXSize, nYSize, GDT_Float32, 1, 0, 0, 0, 0);
+    poDataset->SetProjection(pszSRS_WKT);
+
+    // 释放资源 关闭图像
+    delete poOptions;
+    delete []pData;
+    delete []padX;
+    delete []padY;
+    delete []padZ;
+    GDALClose(poDataset);
+    poDataset = NULL;
+}
+static void UAVDPPointsToDEM_Grid2(double *points,int numPoints,double dL,double dB,double resolution,string pathDEM)
+{
+    double dfXMax=-99999999,dfXMin=99999999,dfYMax=-99999999,dfYMin=99999999;
+
+    for(size_t i=0;i<numPoints;++i)
+    {
+        dfXMax = max(points[3*i+0],dfXMax);
+        dfXMin = min(points[3*i+0],dfXMin);
+        dfYMax = max(points[3*i+1],dfYMax);
+        dfYMin = min(points[3*i+1],dfYMin);
+    }
+
+    double pixResoultion = 0.5; //设置分辨率为0.5
+    GUInt32 nXSize = (dfXMax-dfXMin) / pixResoultion;
+    GUInt32 nYSize = (dfYMax-dfYMin) / pixResoultion;
+
+    GDALAllRegister();
+    float *pData  =  new float[nXSize*nYSize];
+    float *iData  =  new float[nXSize*nYSize];
+    memset(pData,0,sizeof(float)*nXSize*nYSize);
+    memset(iData,0,sizeof(int)*nXSize*nYSize);
+
+    int idxstep = numPoints/30;
+
+    printf("0%");
+    for(int i=0;i<numPoints;++i){
+        if(i/idxstep==0&&i>idxstep)
+            printf(".");
+
+        //位置
+        int xgrid = floor((points[3*i+0]-dfXMin)/pixResoultion);
+        int ygrid = floor((points[3*i+1]-dfYMin)/pixResoultion);
+        ygrid=nYSize-ygrid;
+        pData[ygrid*nXSize+xgrid] +=  points[3*i+2];
+        iData[ygrid*nXSize+xgrid]++;
+    }
+    for(int i=0;i<nXSize*nYSize;++i){
+        //位置
+        if(iData[i]!=0)
+            pData[i]=pData[i]/iData[i];
+    }
+    printf("100\%-done\n");
+
+
+    GDALDriver * pDriver = NULL;
+    pDriver = GetGDALDriverManager()->GetDriverByName("Gtiff");
+    GDALDataset *poDataset = pDriver->Create(pathDEM.c_str(), nXSize,nYSize, 1, GDT_Float32, NULL);
+
+    // 设置六参数
+    double adfGeoTransform[6] = {dfXMin, pixResoultion, 0 , dfYMax, 0, -pixResoultion};
+    poDataset->SetGeoTransform(adfGeoTransform );
+
+    int nZone = dL/6+39;
+    OGRSpatialReference oSrcSrs;
+    char *pszSRS_WKT = NULL;
+    oSrcSrs.SetUTM( nZone, TRUE );
+    oSrcSrs.SetWellKnownGeogCS( "WGS84" );
+    oSrcSrs.exportToWkt( &pszSRS_WKT );
+
+    // 写入影像
+    poDataset->RasterIO(GF_Write, 0, 0, nXSize, nYSize, pData, nXSize, nYSize, GDT_Float32, 1, 0, 0, 0, 0);
+    poDataset->SetProjection(pszSRS_WKT);
+
+    // 释放资源 关闭图像
+    delete []pData;
+    delete []iData;
+    GDALClose(poDataset);
+    poDataset = NULL;
+}
 void UAVDenseProcess::UAVDPCloud_ToDSM(string pathPly,string pathDsm,double dL,double dB,double dGround)
 {
     //读取ply数据
@@ -199,18 +329,22 @@ void UAVDenseProcess::UAVDPCloud_ToDSM(string pathPly,string pathDsm,double dL,d
         printf("load scene failed!");
         return ;
     }
-
+    else
+    {
+        printf("points num:%d \n",pntcl.GetSize());
+    }
     double  dfXMin;
     double  dfXMax;
     double  dfYMin;
     double  dfYMax;
     double  dfZMin;
     double  dfZMax;
+    /*
     double *points3d[3];
     for(int i=0;i<3;++i){
         points3d[i]=new double[pntcl.GetSize()];
-    }
-
+    }*/
+    double *points3d=new double[3*pntcl.GetSize()];
     //统计
     for(int i=0;i<pntcl.GetSize();++i){
         //坐标是不是要转换到UTM坐标系下
@@ -219,9 +353,9 @@ void UAVDenseProcess::UAVDPCloud_ToDSM(string pathPly,string pathDsm,double dL,d
         Vec3 utm;
         utm=lla_to_utm(lla(0),lla(1),lla(2));
 
-        points3d[0][i]=utm(0);
-        points3d[1][i]=utm(1);
-        points3d[2][i]=utm(2);
+        points3d[3*i+0]=utm(0);
+        points3d[3*i+1]=utm(1);
+        points3d[3*i+2]=utm(2);
 
         if(i == 0)
         {
@@ -243,12 +377,13 @@ void UAVDenseProcess::UAVDPCloud_ToDSM(string pathPly,string pathDsm,double dL,d
 
     GUInt32 nXSize = (dfXMax-dfXMin) / dGround;
     GUInt32 nYSize = (dfYMax-dfYMin) / dGround;
-
+    UAVDPPointsToDEM_Grid2(points3d,pntcl.GetSize(),dL,dB,dGround,pathDsm);
+    delete[]points3d;
     //GDALGridInverseDistanceToAPowerOptions *poOptions = new GDALGridInverseDistanceToAPowerOptions();
     //poOptions->dfPower = 2;
    // poOptions->dfRadius1 = 3;
     //poOptions->dfRadius2 = 1;
-    GDALGridNearestNeighborOptions *poOptions = new GDALGridNearestNeighborOptions();
+    /*GDALGridNearestNeighborOptions *poOptions = new GDALGridNearestNeighborOptions();
     poOptions->dfRadius1=0.5;
     poOptions->dfRadius2=0.5;
     poOptions->dfNoDataValue=0;
@@ -285,5 +420,8 @@ void UAVDenseProcess::UAVDPCloud_ToDSM(string pathPly,string pathDsm,double dL,d
         points3d[i]=NULL;
     }
     GDALClose(poDataset);
-    poDataset = NULL;
+    poDataset = NULL;*/
+
+
 }
+
