@@ -5,6 +5,7 @@
 #include "UAVCommon.h"
 #include "UAVDataList.h"
 #include "UAVICPProc.h"
+
 void InitialData5()
 {
     _info_._g_image_dir_="/home/wuwei/Data/UAVData/1/Img/";
@@ -25,7 +26,11 @@ void InitialData5()
 
 int main(int argc,char* argv[])
 {
-    InitialData5();
-    _info_._g_run("GPU","Global",124,41);
+    //InitialData5();
+    //_info_._g_run("GPU","Global",124,41);
+
+    UAVICPExtract extract;
+    extract.UAVICPExtractMatchesEnvi("/home/wuwei/Data/MatchTest/1.jpg","/home/wuwei/Data/MatchTest/9.jpg","/home/wuwei/Data/MatchTest/1-9jpg.pts",EXTRACT_CPU);
+
     return 0;
 }
