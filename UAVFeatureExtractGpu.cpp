@@ -265,7 +265,7 @@ bool UAVFeatsSIFTGpu::UAVMatchesExtract() {
             matcher->SetDescriptors(1, num2, &desc2[0]); //image 2
             int (*match_buf)[2] = new int[num1][2];
             int num_match = matcher->GetSiftMatch(num1, match_buf);
-            if(num_match>30)
+            if(num_match>10)
             {
                 UAVExportMatchesToFile(stlplus::create_filespec(match_path,"matches.e.txt"),img1,img2,num_match,match_buf);
                 pairs_filter.insert(std::make_pair(img1,img2));

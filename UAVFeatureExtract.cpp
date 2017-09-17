@@ -430,7 +430,7 @@ bool UAVFeatsSIFT::UAVMatchesExtract() {
     std::string sMatchesDirectory = _info_._g_match_dir_;
     std::string sGeometricModel = "e";
     float fDistRatio = 0.6f;
-    int iMatchingVideoMode = -1;
+    int iMatchingVideoMode = 0;
     std::string sPredefinedPairList = stlplus::create_filespec(_info_._g_auxiliary_dir,"MatchNeighbor.txt");
     std::string sNearestMatchingMethod = "AUTO";
     bool bForce = false;

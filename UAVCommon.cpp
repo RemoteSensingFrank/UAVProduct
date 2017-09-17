@@ -31,9 +31,19 @@ void GLOBAL_INFO::_g_run(string Type_P,string Type_B,double dL,double dB) {
             printf("解算特征点失败!");
             return;
         }
-        if(!_sift_features_->UAVMatchesList(8))
+        if(_g_Has_Pos)
         {
-            return ;
+            if(!_sift_features_->UAVMatchesList(8))
+            {
+                return ;
+            }
+        }
+        else
+        {
+            if(!_sift_features_->UAVMatchesList(0))
+            {
+                return ;
+            }
         }
         if(!_sift_features_->UAVMatchesExtract())
         {
@@ -65,11 +75,19 @@ void GLOBAL_INFO::_g_run(string Type_P,string Type_B,double dL,double dB) {
             printf("解算特征点失败!");
             return;
         }
-        if(!_sift_features_->UAVMatchesList(8))
+        if(_g_Has_Pos)
         {
-            return ;
+            if(!_sift_features_->UAVMatchesList(8))
+            {
+                return ;
+            }
         }
-        if(!_sift_features_->UAVMatchesExtract())
+        else {
+            if (!_sift_features_->UAVMatchesList(0)) {
+                return;
+            }
+        }
+            if(!_sift_features_->UAVMatchesExtract())
         {
             printf("特征点匹配失败!");
             return ;
@@ -102,7 +120,6 @@ void GLOBAL_INFO::_g_run(string Type_P,string Type_B,double dL,double dB) {
     UAVDenseProcess _dense_;
     _dense_.UAVDP_ExportMVS();
     _dense_.UAVDP_MVSProc();
-
 }
 
 
