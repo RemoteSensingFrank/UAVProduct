@@ -14,6 +14,7 @@
 #include "openMVG/sfm/pipelines/sfm_engine.hpp"
 #include "openMVG/sfm/pipelines/sfm_features_provider.hpp"
 #include "UAVXYZToLatLonWGS84.h"
+
 /// Generic Image Collection image matching
 #include "openMVG/matching/indMatch_utils.hpp"
 #include "openMVG/stl/stl.hpp"
@@ -391,6 +392,99 @@ bool UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGro
     return true;
 }
 
+bool UAVGeoProc::UAVGetProc_GeoProcDEM(string pathSFM, string pathDem,string pathDstDir, double dGroundSize, double dL, double dB)
+{
+    //output directory
+    SfM_Data sfm_data;
+    if (!Load(sfm_data, pathSFM, ESfM_Data(ALL))) {
+        std::cerr << std::endl
+                  << "The input SfM_Data file \""<< pathSFM << "\" cannot be read." << std::endl;
+        return false;
+    }
+
+    if ( !stlplus::folder_exists( pathDstDir ) )
+    {
+        if ( !stlplus::folder_create( pathDstDir ))
+        {
+            std::cerr << "\nCannot create output directory" << std::endl;
+            return false;
+        }
+    }
+
+    std::vector<string> image_list;
+    string sView_filename ;
+    for (Views::const_iterator iter = sfm_data.GetViews().begin();
+         iter != sfm_data.GetViews().end();
+         ++iter)
+    {
+        const View * v = iter->second.get();
+        image_list.push_back(stlplus::create_filespec(sfm_data.s_root_path,
+                                                      v->s_Img_path));
+        sView_filename = stlplus::create_filespec(sfm_data.s_root_path, v->s_Img_path);
+    }
+
+    const Landmarks & landmarks = sfm_data.GetLandmarks();
+
+#pragma omp parallel for
+    for(size_t k=0;k<image_list.size();++k)
+    {
+        vector<Vec3> groundPnts;
+        vector<Vec2> featurePnts;
+        int xsize = sfm_data.GetViews().at(k).get()->ui_width;
+        int ysize = sfm_data.GetViews().at(k).get()->ui_height;
+        double flen = ((Pinhole_Intrinsic*)sfm_data.intrinsics.at(k).get())->focal();
+
+        Vec3 pos = sfm_data.GetPoses().at(k).center();
+        Vec3 lla;
+        lla=CooridinateTrans.XYZToLatLon(pos(0),pos(1),pos(2));
+        Vec3 utm;
+        utm=CooridinateTrans.LatLonToUTM(lla(0),lla(1),lla(2));
+
+
+        for ( const auto & iterLandmarks : landmarks )
+        {
+            if(iterLandmarks.second.obs.find(k)!=iterLandmarks.second.obs.end())
+            {
+                groundPnts.push_back(iterLandmarks.second.X);
+                Vec2 tmp(iterLandmarks.second.obs.at(k).x(0)-xsize/2,ysize/2-iterLandmarks.second.obs.at(k).x(1));
+                featurePnts.push_back(tmp);
+            }
+        }
+
+        if(groundPnts.size()!=featurePnts.size()||groundPnts.size()<3)
+        {
+            cerr<<"error feature points and ground points\n";
+            continue ;
+        }
+        else {
+            int size = groundPnts.size();
+            double *gcps = new double[5*size];
+            for (int i = 0; i < size; ++i)
+            {
+                gcps[5*i+0]=featurePnts[i](0);
+                gcps[5*i+1]=featurePnts[i](1);
+
+                double x=gcps[5*i+2]=groundPnts[i](0);
+                double y=gcps[5*i+3]=groundPnts[i](1);
+                double z=gcps[5*i+4]=groundPnts[i](2);
+                Vec3 lla;
+                lla=CooridinateTrans.XYZToLatLon(x,y,z);
+                Vec3 utm;
+                utm=CooridinateTrans.LatLonToUTM(lla(0),lla(1),lla(2));
+                gcps[5*i+2]=utm(0);
+                gcps[5*i+3]=utm(1);
+                gcps[5*i+4]=utm(2);
+            }
+            //UAVGetProc_GeoCoordiTrans(gcps,size,dL,dB);
+            string dst=stlplus::create_filespec(pathDstDir, stlplus::basename_part(image_list[k]), "tif");
+            UAVGeoProc_GeoCorrectionWithDEM(image_list[k],gcps,size,dGroundSize,utm(0),utm(1),utm(2),flen,pathDem,dst);
+            delete[]gcps;gcps=NULL;
+        }
+
+    }
+    return true;
+}
+
 bool UAVGeoProc::UAVGeoProc_GeoProc(double dGroundSize,double dL,double dB)
 {
     string sfm=stlplus::create_filespec(_info_._g_point_cloud_dir, "sfm_data", ".bin");
@@ -411,6 +505,7 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
     GDALDatasetH m_datasetsrc = GDALOpen(image.c_str(),GA_ReadOnly);
     int xsrc = GDALGetRasterXSize(m_datasetsrc);
     int ysrc = GDALGetRasterYSize(m_datasetsrc);
+    int bands=GDALGetRasterCount(m_datasetsrc);
 
     GDALDatasetH m_datasetdem = GDALOpen(imageDem.c_str(),GA_ReadOnly);
     double adfGeoTransformdem[6];
@@ -426,7 +521,7 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
     double dPhi = params[3];
     double dOmega = params[4];
     double dKappa = params[5];
-    Eigen::MatrixXd rotmat(3,3);
+    MatrixXd rotmat(3,3);
     rotmat(0,0)  = cos(dPhi)*cos(dKappa) - sin(dPhi)*sin(dOmega)*sin(dKappa);
     rotmat(0,1)  = -cos(dPhi)*sin(dKappa) - sin(dPhi)*sin(dOmega)*cos(dKappa);
     rotmat(0,2)  = -sin(dPhi)*cos(dOmega);
@@ -446,7 +541,7 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
     for(int i=0;i<xsrc;++i){
         for(int j=0;j<ysrc;++j){
             //计算坐标
-            Eigen::MatrixXd ptImg(3,1),ptGeo(3,1);
+            MatrixXd ptImg(3,1),ptGeo(3,1);
             ptImg(0,0) = i-hx;
             ptImg(1,0) = hy-j;
             ptImg(2,0) = -fLen;
@@ -469,7 +564,7 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
     for(int i=0;i<xsrc;++i){
         for(int j=0;j<ysrc;++j){
             //计算坐标
-            Eigen::MatrixXd ptImg(3,1),ptGeo(3,1);
+            MatrixXd ptImg(3,1),ptGeo(3,1);
             ptImg(0,0) = i-hx;
             ptImg(1,0) = hy-j;
             ptImg(2,0) = -fLen;
@@ -484,22 +579,46 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
                 zPositions[j*xsrc+i]=0;
             else
                 zPositions[j*xsrc+i]=dem[jdem*xdem+idem];
-
         }
     }
 
     //
-    
+    double maxPt[2]={xPositions[0],yPositions[0]};
+    double minPt[2]={xPositions[0],yPositions[0]};
+    for(int i=0;i<xsrc*ysrc;++i)
+    {
+        maxPt[0]=max(maxPt[0],(double)xPositions[i]);
+        maxPt[1]=max(maxPt[1],(double)yPositions[i]);
+
+        minPt[0]=min(minPt[0],(double)xPositions[i]);
+        minPt[1]=min(minPt[1],(double)yPositions[i]);
+    }
+
+    int xre = (maxPt[0]-minPt[0])/dGroundSize;
+    int yre = (maxPt[1]-minPt[1])/dGroundSize;
+    unsigned  char* pDataRe = new unsigned char[xre*yre];
+    unsigned  char* pDataSrc=new unsigned char[xsrc*ysrc];
+    GDALDatasetH m_datasetGeo = GDALCreate(GDALGetDriverByName("GTiff"),geoImageAccur.c_str(),xre,yre,bands,GDT_Byte,NULL);
+    for(int i=0;i<bands;++i){
+        GDALRasterIO(GDALGetRasterBand(m_datasetsrc,i+1),GF_Read,0,0,xsrc,ysrc,pDataSrc,xsrc,ysrc,GDT_Byte,0,0);
+        UAVGeoProc_ImageResample(pDataSrc,xPositions,yPositions,maxPt,minPt,dGroundSize,xsrc,ysrc,xre,yre,pDataRe);
+        GDALRasterIO(GDALGetRasterBand(m_datasetGeo,i+1),GF_Write,0,0,xre,yre,pDataSrc,xre,yre,GDT_Byte,0,0);
+    }
+    GDALClose(m_datasetsrc);
+    GDALClose(m_datasetdem);
+    GDALClose(m_datasetGeo);
 
 
     //重采样
     delete[] xPositions;xPositions=NULL;
     delete[] yPositions;yPositions=NULL;
     delete[] zPositions;zPositions=NULL;
-
-
+    delete[] dem;dem=NULL;
+    delete[] pDataRe;pDataRe=NULL;
+    delete[] pDataSrc;pDataSrc=NULL;
 
 }
+
 
 void UAVGeoProc::UAVGeoProc_ImageResample(unsigned char* pDataSrc,float* xMap,float* yMap,double maxpt[],double minpt[],double dGroundSize,int xsrc,int ysrc,int xre,int yre,unsigned char* pDataRe)
 {
@@ -513,7 +632,7 @@ void UAVGeoProc::UAVGeoProc_ImageResample(unsigned char* pDataSrc,float* xMap,fl
         fDItem = new float[xre*yre];
         memset(fDGray,0,sizeof(float)*xre*yre);
         memset(fDItem,0,sizeof(float)*xre*yre);
-    }catch(bad_alloc_){
+    }catch(bad_alloc){
         printf("allocat memory failed!\n");
         return ;
     }
@@ -538,93 +657,93 @@ void UAVGeoProc::UAVGeoProc_ImageResample(unsigned char* pDataSrc,float* xMap,fl
             fTmpWeight[3]=(float)(fx)*(fy)*fDN;
 
             if (nc>=0 && nc<xre && nr>=0 && nr<yre)
-      			{
-        		    lOffset = nr*xre+nc;
-        				fDGray[lOffset] += fTmpWeight[0];
-        				fDItem[lOffset] += (1-fDX)*(1-fDY);						//左上点
-        				if (nC < xre-1)	//未处于右边界
-        				{
-          					fDGray[lOffset+1] += fTmpWeight[1];
-          					fDItem[lOffset+1] += fDX*(1-fDY);					//右上点
-        				}
-        				if (nY < yre-1)	//未处于下边界
-        				{
-          					fDGray[lOffset+xre] += fTmpWeight[2];
-          					fDItem[lOffset+xre] += (1-fDX)*fDY;		//左下点
-        				}
-        				if ( nC<xre-1 && nY<yre-1)
-        				{
-          					fDGray[lOffset+xre+1] += fTmpWeight[3];
-          					fDItem[lOffset+xre+1] += fDX*fDY;			//右下点
-        				}
-      			}
+            {
+                lOffset = nr*xre+nc;
+                fDGray[lOffset] += fTmpWeight[0];
+                fDItem[lOffset] += (1-fx)*(1-fy);						//左上点
+                if (nc < xre-1)	//未处于右边界
+                {
+                    fDGray[lOffset+1] += fTmpWeight[1];
+                    fDItem[lOffset+1] += fx*(1-fy);					//右上点
+                }
+                if (nr < yre-1)	//未处于下边界
+                {
+                    fDGray[lOffset+xre] += fTmpWeight[2];
+                    fDItem[lOffset+xre] += (1-fx)*fy;		//左下点
+                }
+                if ( nc<xre-1 && nr<yre-1)
+                {
+                    fDGray[lOffset+xre+1] += fTmpWeight[3];
+                    fDItem[lOffset+xre+1] += fx*fy;			//右下点
+                }
+            }
         }
     }
 
     for (int i = 0; i<xre; i++)
-  	{
-    		for (int j = 0; j<yre; j++)
-    		{
-      			lOffset = i*xre+j;
-      			if (fDItem[lOffset] != 0 )
-      			{
-      				    pDataRe[lOffset] = unsigned char(fDGray[lOffset]/fDItem[lOffset]);
-      			}
-      			else	//修复黑点
-      			{
-        				if (i>0 && i<xre-1 && j>0 && j<yre-1)	//不处于边界位置
-        				{
-          					float fSumValues = 0;
-          					int nCount = 0;
+    {
+        for (int j = 0; j<yre; j++)
+        {
+            lOffset = i*xre+j;
+            if (fDItem[lOffset] != 0 )
+            {
+                pDataRe[lOffset] = (unsigned char)(fDGray[lOffset]/fDItem[lOffset]);
+            }
+            else	//修复黑点
+            {
+                if (i>0 && i<xre-1 && j>0 && j<yre-1)	//不处于边界位置
+                {
+                    float fSumValues = 0;
+                    int nCount = 0;
 
-          					if (fDItem[lOffset-nReSamples-1] != 0)	//左上
-          					{
-          						  nCount++;
-          					  	fSumValues += fDGray[lOffset-nReSamples-1]/fDItem[lOffset-nReSamples-1];
-          					}
-          					if (fDItem[lOffset-nReSamples] != 0)		//上
-          					{
-          						  nCount++;
-          						  fSumValues += fDGray[lOffset-nReSamples]/fDItem[lOffset-nReSamples];
-          					}
-          					if (fDItem[lOffset-nReSamples+1] != 0)	//右上
-          					{
-          						  nCount++;
-          						  fSumValues += fDGray[lOffset-nReSamples+1]/fDItem[lOffset-nReSamples+1];
-          					}
-          					if (fDItem[lOffset-1] != 0)					//左
-          					{
-          						  nCount++;
-          						  fSumValues += fDGray[lOffset-1]/fDItem[lOffset-1];
-          					}
-          					if (fDItem[lOffset+1] != 0)					//右
-          					{
-          						  nCount++;
-          						  fSumValues += fDGray[lOffset+1]/fDItem[lOffset+1];
-          					}
-          					if (fDItem[lOffset+nReSamples-1] != 0)	//左下
-          					{
-          						  nCount++;
-          						  fSumValues += fDGray[lOffset+nReSamples-1]/fDItem[lOffset+nReSamples-1];
-          					}
-          					if (fDItem[lOffset+nReSamples] != 0)		//下
-          					{
-          						  nCount++;
-          						  fSumValues += fDGray[lOffset+nReSamples]/fDItem[lOffset+nReSamples];
-          					}
-          					if (fDItem[lOffset+nReSamples+1] != 0)	//右下
-          					{
-    						        nCount++;
-  				              fSumValues += fDGray[lOffset+nReSamples+1]/fDItem[lOffset+nReSamples+1];
-          					}
-          					if (nCount >= 2)	//如果周围有五个以上不是黑点就进行均值处理
-          					{
-          						  pDataRe[lOffset] = unsigned short(fSumValues/nCount);
-          					}
-      				  }
-      			}
-    		}
-  	}
+                    if (fDItem[lOffset-xre-1] != 0)	//左上
+                    {
+                        nCount++;
+                        fSumValues += fDGray[lOffset-xre-1]/fDItem[lOffset-xre-1];
+                    }
+                    if (fDItem[lOffset-xre] != 0)		//上
+                    {
+                        nCount++;
+                        fSumValues += fDGray[lOffset-xre]/fDItem[lOffset-xre];
+                    }
+                    if (fDItem[lOffset-xre+1] != 0)	//右上
+                    {
+                        nCount++;
+                        fSumValues += fDGray[lOffset-xre+1]/fDItem[lOffset-xre+1];
+                    }
+                    if (fDItem[lOffset-1] != 0)					//左
+                    {
+                        nCount++;
+                        fSumValues += fDGray[lOffset-1]/fDItem[lOffset-1];
+                    }
+                    if (fDItem[lOffset+1] != 0)					//右
+                    {
+                        nCount++;
+                        fSumValues += fDGray[lOffset+1]/fDItem[lOffset+1];
+                    }
+                    if (fDItem[lOffset+xre-1] != 0)	//左下
+                    {
+                        nCount++;
+                        fSumValues += fDGray[lOffset+xre-1]/fDItem[lOffset+xre-1];
+                    }
+                    if (fDItem[lOffset+xre] != 0)		//下
+                    {
+                        nCount++;
+                        fSumValues += fDGray[lOffset+xre]/fDItem[lOffset+xre];
+                    }
+                    if (fDItem[lOffset+xre+1] != 0)	//右下
+                    {
+                        nCount++;
+                        fSumValues += fDGray[lOffset+xre+1]/fDItem[lOffset+xre+1];
+                    }
+                    if (nCount >= 2)	//如果周围有五个以上不是黑点就进行均值处理
+                    {
+                        pDataRe[lOffset] = (unsigned char)(fSumValues/nCount);
+                    }
+                }
+            }
+        }
+    }
     delete[]fDGray;fDGray=NULL;
     delete[]fDItem;fDItem=NULL;
 }
