@@ -488,8 +488,143 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
         }
     }
 
+    //
+    
+
+
     //重采样
+    delete[] xPositions;xPositions=NULL;
+    delete[] yPositions;yPositions=NULL;
+    delete[] zPositions;zPositions=NULL;
 
 
 
+}
+
+void UAVGeoProc::UAVGeoProc_ImageResample(unsigned char* pDataSrc,float* xMap,float* yMap,double maxpt[],double minpt[],double dGroundSize,int xsrc,int ysrc,int xre,int yre,unsigned char* pDataRe)
+{
+    //
+    double topleft[2]={minpt[0],maxpt[1]};  //左上角点
+
+    float *fDGray = NULL;
+    float *fDItem = NULL;
+    try{
+        fDGray = new float[xre*yre];
+        fDItem = new float[xre*yre];
+        memset(fDGray,0,sizeof(float)*xre*yre);
+        memset(fDItem,0,sizeof(float)*xre*yre);
+    }catch(bad_alloc_){
+        printf("allocat memory failed!\n");
+        return ;
+    }
+
+    long long lOffset;
+    float fTmpWeight[4];
+    for(int i=0;i<xsrc;++i){
+        for(int j=0;j<ysrc;++j){
+            lOffset = j*xsrc+i;
+            float x = fabs(xMap[lOffset]-topleft[0])/dGroundSize;
+            float y = fabs(xMap[lOffset]-topleft[1])/dGroundSize;
+
+            int nc = (int)x;
+            int nr = (int)y;
+            float fx = float(x-nc);
+            float fy = float(y-nr);
+            unsigned char fDN = pDataSrc[lOffset];
+
+            fTmpWeight[0]=(float)(1-fx)*(1-fy)*fDN;
+            fTmpWeight[1]=(float)(fx)*(1-fy)*fDN;
+            fTmpWeight[2]=(float)(1-fx)*(fy)*fDN;
+            fTmpWeight[3]=(float)(fx)*(fy)*fDN;
+
+            if (nc>=0 && nc<xre && nr>=0 && nr<yre)
+      			{
+        		    lOffset = nr*xre+nc;
+        				fDGray[lOffset] += fTmpWeight[0];
+        				fDItem[lOffset] += (1-fDX)*(1-fDY);						//左上点
+        				if (nC < xre-1)	//未处于右边界
+        				{
+          					fDGray[lOffset+1] += fTmpWeight[1];
+          					fDItem[lOffset+1] += fDX*(1-fDY);					//右上点
+        				}
+        				if (nY < yre-1)	//未处于下边界
+        				{
+          					fDGray[lOffset+xre] += fTmpWeight[2];
+          					fDItem[lOffset+xre] += (1-fDX)*fDY;		//左下点
+        				}
+        				if ( nC<xre-1 && nY<yre-1)
+        				{
+          					fDGray[lOffset+xre+1] += fTmpWeight[3];
+          					fDItem[lOffset+xre+1] += fDX*fDY;			//右下点
+        				}
+      			}
+        }
+    }
+
+    for (int i = 0; i<xre; i++)
+  	{
+    		for (int j = 0; j<yre; j++)
+    		{
+      			lOffset = i*xre+j;
+      			if (fDItem[lOffset] != 0 )
+      			{
+      				    pDataRe[lOffset] = unsigned char(fDGray[lOffset]/fDItem[lOffset]);
+      			}
+      			else	//修复黑点
+      			{
+        				if (i>0 && i<xre-1 && j>0 && j<yre-1)	//不处于边界位置
+        				{
+          					float fSumValues = 0;
+          					int nCount = 0;
+
+          					if (fDItem[lOffset-nReSamples-1] != 0)	//左上
+          					{
+          						  nCount++;
+          					  	fSumValues += fDGray[lOffset-nReSamples-1]/fDItem[lOffset-nReSamples-1];
+          					}
+          					if (fDItem[lOffset-nReSamples] != 0)		//上
+          					{
+          						  nCount++;
+          						  fSumValues += fDGray[lOffset-nReSamples]/fDItem[lOffset-nReSamples];
+          					}
+          					if (fDItem[lOffset-nReSamples+1] != 0)	//右上
+          					{
+          						  nCount++;
+          						  fSumValues += fDGray[lOffset-nReSamples+1]/fDItem[lOffset-nReSamples+1];
+          					}
+          					if (fDItem[lOffset-1] != 0)					//左
+          					{
+          						  nCount++;
+          						  fSumValues += fDGray[lOffset-1]/fDItem[lOffset-1];
+          					}
+          					if (fDItem[lOffset+1] != 0)					//右
+          					{
+          						  nCount++;
+          						  fSumValues += fDGray[lOffset+1]/fDItem[lOffset+1];
+          					}
+          					if (fDItem[lOffset+nReSamples-1] != 0)	//左下
+          					{
+          						  nCount++;
+          						  fSumValues += fDGray[lOffset+nReSamples-1]/fDItem[lOffset+nReSamples-1];
+          					}
+          					if (fDItem[lOffset+nReSamples] != 0)		//下
+          					{
+          						  nCount++;
+          						  fSumValues += fDGray[lOffset+nReSamples]/fDItem[lOffset+nReSamples];
+          					}
+          					if (fDItem[lOffset+nReSamples+1] != 0)	//右下
+          					{
+    						        nCount++;
+  				              fSumValues += fDGray[lOffset+nReSamples+1]/fDItem[lOffset+nReSamples+1];
+          					}
+          					if (nCount >= 2)	//如果周围有五个以上不是黑点就进行均值处理
+          					{
+          						  pDataRe[lOffset] = unsigned short(fSumValues/nCount);
+          					}
+      				  }
+      			}
+    		}
+  	}
+    delete[]fDGray;fDGray=NULL;
+    delete[]fDItem;fDItem=NULL;
 }

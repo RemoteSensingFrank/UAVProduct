@@ -74,7 +74,8 @@ public:
     void UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int gcpNum,double dGroundSize,double Xs,double Ys,double Zs,double fLen,string imageDem,string geoImageAccur);
 
 private:
-
+    //
+    void UAVGeoProc_ImageResample(unsigned char* pDataSrc,float* xMap,float* yMap,double dGroundSize,int xsrc,int ysrc,int xre,int yre,unsigned char* pDataRe);
 };
 
 #endif //UAVPRODUCT_UAVGEOPROC_H
