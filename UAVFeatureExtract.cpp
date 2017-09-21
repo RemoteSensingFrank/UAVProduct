@@ -26,6 +26,10 @@
 
 #include "openMVG/graph/graph.hpp"
 #include "openMVG/stl/stl.hpp"
+#include "SiftGPU/SiftGPU.h"
+
+#include "third_party/progress/progress.hpp"
+#include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 
 using namespace openMVG;
 using namespace openMVG::cameras;
@@ -34,15 +38,12 @@ using namespace openMVG::robust;
 using namespace openMVG::sfm;
 using namespace openMVG::image;
 using namespace openMVG::matching_image_collection;
+using namespace std;
 
-#include "third_party/progress/progress.hpp"
-#include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 
 #ifdef OPENMVG_USE_OPENMP
 #include <omp.h>
 #endif
-
-using namespace std;
 static  UAVXYZToLatLonWGS84 CooridinateTrans;
 
 

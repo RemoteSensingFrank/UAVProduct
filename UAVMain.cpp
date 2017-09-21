@@ -1,10 +1,8 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include "gtest/gtest.h"
-#include "UAVMapCalculate.h"
 #include "UAVCommon.h"
-#include "UAVDataList.h"
-#include "UAVICPProc.h"
+
 
 void InitialData5()
 {

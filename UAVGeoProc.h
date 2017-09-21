@@ -5,23 +5,7 @@
 #ifndef UAVPRODUCT_UAVGEOPROC_H
 #define UAVPRODUCT_UAVGEOPROC_H
 
-#include "gdal_priv.h"
-#include "gdalwarper.h"
-#include "gdal_alg_priv.h"
-#include "gdal_alg.h"
-#include "ogrsf_frmts.h"
-
-#include <iostream>
-#include <stdio.h>
-#include <iomanip>
-#include <fstream>
-
-#include<vector>
 #include<string>
-
-using namespace std;
-#include <string>
-
 using namespace std;
 
 class UAVGeoProc {

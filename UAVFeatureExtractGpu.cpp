@@ -2,14 +2,14 @@
 // Created by wuwei on 17-8-6.
 //
 #include "UAVFeatureExtract.h"
-
+#include "SiftGPU/SiftGPU.h"
 
 #include "openMVG/sfm/sfm.hpp"
 #include "openMVG/image/image.hpp"
 #include "openMVG/features/features.hpp"
 #include "openMVG/matching/regions_matcher.hpp"
-#include "openMVG/multiview/triangulation.hpp"
-#include "openMVG/sfm/pipelines/global/sfm_global_engine_relative_motions.hpp"
+//#include "openMVG/multiview/triangulation.hpp"
+//#include "openMVG/sfm/pipelines/global/sfm_global_engine_relative_motions.hpp"
 #include "openMVG/system/timer.hpp"
 #include "openMVG/matching_image_collection/Pair_Builder.hpp"
 

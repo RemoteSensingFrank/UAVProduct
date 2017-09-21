@@ -1,15 +1,16 @@
 #include"UAVMapCalculate.h"
-#include "gdal_priv.h"
 #include "UAVCommon.h"
+#include "gdal_priv.h"
+
 #include "openMVG/sfm/sfm.hpp"
 #include "Python.h"
 #include "UAVXYZToLatLonWGS84.h"
 
 #include <stdio.h>
 using namespace openMVG;
-using namespace openMVG::cameras;
+//using namespace openMVG::cameras;
 using namespace openMVG::sfm;
-using namespace openMVG::image;
+//using namespace openMVG::image;
 
 static  UAVXYZToLatLonWGS84 CooridinateTrans;
 

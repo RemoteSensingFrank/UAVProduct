@@ -3,11 +3,11 @@
 //
 
 #include "UAVDataList.h"
+#include "UAVCommon.h"
 
 #include "openMVG/stl/split.hpp"
 #include "openMVG/sfm/sfm.hpp"
 #include "openMVG/exif/exif_IO_EasyExif.hpp"
-#include "third_party/cmdLine/cmdLine.h"
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 #include "UAVXYZToLatLonWGS84.h"
 
@@ -20,13 +20,13 @@
 #include <kml/dom.h>
 #include <kml/engine.h>
 
-static  UAVXYZToLatLonWGS84 CooridinateTrans;
 using namespace openMVG;
 using namespace openMVG::cameras;
 using namespace openMVG::sfm;
 using namespace openMVG::image;
 using namespace openMVG::exif;
 
+static  UAVXYZToLatLonWGS84 CooridinateTrans;
 static int get_file_size(const char* file) {
     struct stat tbuf;
     stat(file, &tbuf);

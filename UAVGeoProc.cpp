@@ -10,22 +10,22 @@
 
 //#include"types.hpp"
 #include "openMVG/sfm/sfm.hpp"
-#include "openMVG/sfm/sfm_data_io.hpp"
-#include "openMVG/sfm/pipelines/sfm_engine.hpp"
-#include "openMVG/sfm/pipelines/sfm_features_provider.hpp"
+//#include "openMVG/sfm/sfm_data_io.hpp"
+//#include "openMVG/sfm/pipelines/sfm_engine.hpp"
+//#include "openMVG/sfm/pipelines/sfm_features_provider.hpp"
 #include "UAVXYZToLatLonWGS84.h"
 /// Generic Image Collection image matching
-#include "openMVG/matching/indMatch_utils.hpp"
-#include "openMVG/stl/stl.hpp"
-#include<Eigen/Dense>
+//#include "openMVG/matching/indMatch_utils.hpp"
+//#include "openMVG/stl/stl.hpp"
+//#include<Eigen/Dense>
 using namespace openMVG;
-using namespace openMVG::cameras;
-using namespace openMVG::matching;
+//using namespace openMVG::cameras;
+//using namespace openMVG::matching;
 using namespace openMVG::sfm;
 using namespace Eigen;
 
-#include "third_party/progress/progress.hpp"
-#include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
+//#include "third_party/progress/progress.hpp"
+//#include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 #include "UAVCommon.h"
 
 #include <omp.h>

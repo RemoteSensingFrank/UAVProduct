@@ -7,6 +7,7 @@
 #include "UAVFeatureExtract.h"
 #include "UAVDenseProcess.h"
 #include "UAVGeoProc.h"
+#include <math.h>
 
 GLOBAL_INFO _info_;
 

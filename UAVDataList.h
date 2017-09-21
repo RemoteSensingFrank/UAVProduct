@@ -5,11 +5,11 @@
 #ifndef UAVPRODUCT_UAVDATALIST_H
 #define UAVPRODUCT_UAVDATALIST_H
 
-#include "UAVCommon.h"
-#include "UAVXYZToLatLonWGS84.h"
+#include"numeric/numeric.h"
 #include <string>
 #include <fstream>
-
+using namespace std;
+using namespace openMVG;
 /***
  * 数据整理的操作，一般来说给定数据，然后对于数据进行整理是必要的操作
  */

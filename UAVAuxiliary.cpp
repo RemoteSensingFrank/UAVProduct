@@ -2,6 +2,7 @@
 // Created by wuwei on 17-7-30.
 //
 #include "UAVAuxiliary.h"
+#include "third_party/vectorGraphics/svgDrawer.hpp"
 
 void AdjacencyMatrixToSVG
         (

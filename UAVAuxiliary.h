@@ -6,7 +6,6 @@
 #define UAVPRODUCT_UAVAUXILIARY_H
 
 #include "openMVG/matching_image_collection/Pair_Builder.hpp"
-#include "third_party/vectorGraphics/svgDrawer.hpp"
 
 /// Export an adjacency matrix as a SVG file
 void AdjacencyMatrixToSVG

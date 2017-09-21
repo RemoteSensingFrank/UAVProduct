@@ -4,7 +4,7 @@
 
 #ifndef UAVPRODUCT_UAVCOMMON_H
 #define UAVPRODUCT_UAVCOMMON_H
-#include <math.h>
+
 #include <string>
 using namespace std;
 

@@ -5,36 +5,34 @@
 #include "UAVICPProc.h"
 #include "SiftGPU/SiftGPU.h"
 
-#include "openMVG/features/image_describer.hpp"
-#include "openMVG/features/regions.hpp"
+//#include "openMVG/features/image_describer.hpp"
+//#include "openMVG/features/regions.hpp"
 
 #include "openMVG/sfm/sfm.hpp"
-#include "openMVG/matching_image_collection/Matcher_Regions_AllInMemory.hpp"
-#include "openMVG/matching_image_collection/Cascade_Hashing_Matcher_Regions_AllInMemory.hpp"
-#include "openMVG/matching_image_collection/GeometricFilter.hpp"
-#include "openMVG/matching_image_collection/F_ACRobust.hpp"
-#include "openMVG/matching_image_collection/E_ACRobust.hpp"
-#include "openMVG/matching_image_collection/H_ACRobust.hpp"
-#include "openMVG/matching_image_collection/Pair_Builder.hpp"
-#include "openMVG/matching/matcher_brute_force.hpp"
+//#include "openMVG/matching_image_collection/Matcher_Regions_AllInMemory.hpp"
+//#include "openMVG/matching_image_collection/Cascade_Hashing_Matcher_Regions_AllInMemory.hpp"
+//#include "openMVG/matching_image_collection/GeometricFilter.hpp"
+//#include "openMVG/matching_image_collection/F_ACRobust.hpp"
+//#include "openMVG/matching_image_collection/E_ACRobust.hpp"
+//#include "openMVG/matching_image_collection/H_ACRobust.hpp"
+//#include "openMVG/matching_image_collection/Pair_Builder.hpp"
+//#include "openMVG/matching/matcher_brute_force.hpp"
 
 #include "nonFree/sift/SIFT_describer.hpp"
-#include "openMVG/features/sift/SIFT_Anatomy_Image_Describer.hpp"
+//#include "openMVG/features/sift/SIFT_Anatomy_Image_Describer.hpp"
 
-#include "openMVG/graph/graph.hpp"
+//#include "openMVG/graph/graph.hpp"
 #include "openMVG/stl/stl.hpp"
 
-#include "openMVG/graph/graph.hpp"
-#include "openMVG/stl/stl.hpp"
 
 using namespace openMVG;
-using namespace openMVG::features;
-using namespace openMVG::cameras;
-using namespace openMVG::matching;
-using namespace openMVG::robust;
+//using namespace openMVG::features;
+//using namespace openMVG::cameras;
+//using namespace openMVG::matching;
+//using namespace openMVG::robust;
 using namespace openMVG::sfm;
 using namespace openMVG::image;
-using namespace openMVG::matching_image_collection;
+//using namespace openMVG::matching_image_collection;
 
 #include "third_party/progress/progress.hpp"
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
