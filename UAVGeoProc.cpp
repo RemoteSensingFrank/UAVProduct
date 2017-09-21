@@ -434,20 +434,29 @@ bool UAVGeoProc::UAVGetProc_GeoProcDEM(string pathSFM, string pathDem,string pat
         int ysize = sfm_data.GetViews().at(k).get()->ui_height;
         double flen = ((Pinhole_Intrinsic*)sfm_data.intrinsics.at(k).get())->focal();
 
+        Pose3 pos3 = sfm_data.GetPoses().at(k);
+        Mat34 p = ((Pinhole_Intrinsic*)sfm_data.intrinsics.at(k).get())->get_projective_equivalent(pos3);
+
+
         Vec3 pos = sfm_data.GetPoses().at(k).center();
+
         Vec3 lla;
         lla=CooridinateTrans.XYZToLatLon(pos(0),pos(1),pos(2));
         Vec3 utm;
         utm=CooridinateTrans.LatLonToUTM(lla(0),lla(1),lla(2));
 
-
         for ( const auto & iterLandmarks : landmarks )
         {
             if(iterLandmarks.second.obs.find(k)!=iterLandmarks.second.obs.end())
             {
+                Vec2 rxy=iterLandmarks.second.obs.at(k).x;
+                Eigen::MatrixXd mat1(2,2);
+                mat1(0,0) =
                 groundPnts.push_back(iterLandmarks.second.X);
                 Vec2 tmp(iterLandmarks.second.obs.at(k).x(0)-xsize/2,ysize/2-iterLandmarks.second.obs.at(k).x(1));
                 featurePnts.push_back(tmp);
+
+
             }
         }
 
@@ -502,6 +511,7 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
     Resection(gcps,gcpNum,fLen,Xs,Ys,Zs,params);
 
     //先不管坐标系统了
+    GDALAllRegister();
     GDALDatasetH m_datasetsrc = GDALOpen(image.c_str(),GA_ReadOnly);
     int xsrc = GDALGetRasterXSize(m_datasetsrc);
     int ysrc = GDALGetRasterYSize(m_datasetsrc);
@@ -560,6 +570,7 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
         }
     }
 
+    /*
     //第二次计算(不进行循环迭代计算了)
     for(int i=0;i<xsrc;++i){
         for(int j=0;j<ysrc;++j){
@@ -581,7 +592,7 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
                 zPositions[j*xsrc+i]=dem[jdem*xdem+idem];
         }
     }
-
+    */
     //
     double maxPt[2]={xPositions[0],yPositions[0]};
     double minPt[2]={xPositions[0],yPositions[0]};
@@ -595,7 +606,9 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
     }
 
     int xre = (maxPt[0]-minPt[0])/dGroundSize;
+    printf("%d\n",xre);
     int yre = (maxPt[1]-minPt[1])/dGroundSize;
+    printf("%d\n",yre);
     unsigned  char* pDataRe = new unsigned char[xre*yre];
     unsigned  char* pDataSrc=new unsigned char[xsrc*ysrc];
     GDALDatasetH m_datasetGeo = GDALCreate(GDALGetDriverByName("GTiff"),geoImageAccur.c_str(),xre,yre,bands,GDT_Byte,NULL);

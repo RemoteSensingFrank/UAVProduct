@@ -119,7 +119,7 @@ void Resection(double* gcps,int gcpnum,double fLen,double Xs,double Ys,double Zs
     {
         double* pPoint = gcps+ 5*i;
 
-        ResectionResidual*pResidualX =new ResectionResidual(pPoint[2],pPoint[3], pPoint[4],pPoint[0], pPoint[1],fLen);
+        ResectionResidual*pResidualX =new ResectionResidual(pPoint[2],pPoint[3], pPoint[4],pPoint[0], pPoint[1],-fLen);
         problem.AddResidualBlock(new AutoDiffCostFunction<ResectionResidual, 2, 6>(pResidualX), NULL,dBackCrossParameters);
     }
 
@@ -130,4 +130,5 @@ void Resection(double* gcps,int gcpnum,double fLen,double Xs,double Ys,double Zs
     m_options.minimizer_progress_to_stdout = true;
 
     Solve(m_options, &problem,&m_summary);
+    memcpy(param,dBackCrossParameters,sizeof(double)*6);
 }

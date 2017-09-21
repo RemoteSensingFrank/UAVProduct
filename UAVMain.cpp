@@ -3,6 +3,8 @@
 //#include "gtest/gtest.h"
 #include "UAVCommon.h"
 #include"UAVDenseProcess.h"
+#include"UAVGeoProc.h"
+#include "UAVGeoMosaic.h"
 
 void InitialData1()
 {
@@ -32,6 +34,9 @@ int main(int argc,char* argv[])
 
 	//UAVDenseProcess pointcloud;
 	//pointcloud.UAVDPCloud_ToDSM("/home/wuwei/Data/UAVData/1/Points/dense.ply","/home/wuwei/Data/UAVData/1/Points/dem.tif",124,41,0.3);
+	UAVGeoProc proc;
+	proc.UAVGetProc_GeoProcDEM("/home/wuwei/Data/UAVData/1/Points/sfm_data.bin","/home/wuwei/Data/UAVData/1/Points/dem.tif","/home/wuwei/Data/UAVData/1/Geocorrect/",0.5,124,41);
+
 	return 0;
 }
 
