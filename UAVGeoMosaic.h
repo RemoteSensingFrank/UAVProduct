@@ -163,6 +163,11 @@ public:
     */
     long GDALTool_ImageMosaicing(vector<string> vStrSrcFiles, const char* pszCutLineFile, const char* pszOutFile,
                                  GDALResampleAlg eResampleMethod, const char *pszFormat);
+
+
+    //TODO:影像拼接的过程需要添加拼接线处理和影像色调调整的步骤，
+    // 拼接线具体的处理方式可以参考openCV对于拼接线处理的方式
+    // 色调调整的方法可以参考openMVG的色调调整方法
 };
 
 

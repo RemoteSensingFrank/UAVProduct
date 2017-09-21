@@ -15,4 +15,7 @@ void AdjacencyMatrixToSVG
                 const std::string & sOutName
         );
 
+//空间后方交会的Ceres Solver实现
+void Resection(double* gcps,int gcpnum,double flen,double Xs,double Ys,double Zs,double* param);
+
 #endif //UAVPRODUCT_UAVAUXILIARY_H

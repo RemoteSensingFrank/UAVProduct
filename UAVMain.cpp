@@ -1,7 +1,8 @@
 #include<stdlib.h>
 #include<stdio.h>
-#include "gtest/gtest.h"
+//#include "gtest/gtest.h"
 #include "UAVCommon.h"
+
 
 
 void InitialData5()
@@ -31,4 +32,6 @@ int main(int argc,char* argv[])
     //extract.UAVICPExtractMatchesEnvi("/home/wuwei/Data/UAVData/9/Img/0001.jpg","/home/wuwei/Data/UAVData/9/Img/0002.jpg","/home/wuwei/Data/UAVData/9/Img/1-2.pts",EXTRACT_GPU);
 
     return 0;
+
 }
+
