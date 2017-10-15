@@ -4,6 +4,56 @@
 
 #include "UAVXYZToLatLonWGS84.h"
 
+#define WGS84LRadius 6378137
+#define WGS84Eccentricity 0.0066943850
+#define PI 3.1415926534
+Vec3 UAVXYZToLatLonWGS84::BLHToXYZ(double lat, double lon, double alt)
+{
+    double dN = WGS84LRadius / sqrt(1 - WGS84Eccentricity*sin(lat)*sin(lat));
+    double dX = (dN + alt)*cos(lat)*cos(lon);
+    double dY = (dN + alt)*cos(lat)*sin(lon);
+    double dZ = (dN*(1 - WGS84Eccentricity) + alt)*sin(lat);
+    return Vec3(dX,dY,dZ);
+}
+
+Vec3 UAVXYZToLatLonWGS84::XYZToBLH(double x, double y, double z) {
+    double dB0 = 0;
+    double dB1 = 0;
+    double dThreshold = 0;
+    double dN = 0;
+
+    dB0 = atan(z / sqrt(x*x + y*y));
+    do
+    {
+        dN = WGS84LRadius / sqrt(1 - WGS84Eccentricity*sin(dB0)*sin(dB0));
+        dB1 = atan((z + dN*WGS84Eccentricity*sin(dB0)) / sqrt(x*x + y*y));
+        dThreshold = fabs(dB0 - dB1);
+        dB0 = dB1;
+    } while (dThreshold >= 0.00001);
+    double dB = dB0;
+    double dH = z / sin(dB) - dN*(1 - WGS84Eccentricity);
+    double dL = atan(fabs(y / z)) * 180 / PI;
+    if (x>0 && y>0)
+    {
+        ;
+    }
+    if (x<0 && y>0)
+    {
+        dL = 180 - dL;
+    }
+    if (x<0 && y<0)
+    {
+        dL = 180 + dL;
+    }
+    if (x>0 && y<0)
+    {
+        dL = 360 - dL;
+    }
+    dB = dB * 180 / PI;
+
+    return Vec3(dB,dL,dH);
+}
+
 /**
  ** Convert WGS84 lon,lat,alt data to ECEF data (Earth Centered Earth Fixed)
  ** @param lat Latitude in degree
@@ -185,4 +235,184 @@ void UAVXYZToLatLonWGS84::WGSLatLonToGCJ(double wgLon, double wgLat, double &mgL
 
     mgLat = wgLat + dLat;
     mgLon = wgLon + dLon;
+}
+
+
+
+long POSProc::POSProc_POSTrans(Vec3 centerllat,Vec3 curllat,Vec3 rot,Vec3 &eo)
+{
+    //成图坐标系到地心坐标系
+    double dL = centerllat(0);
+    double dB = centerllat(0);
+
+    Eigen::MatrixXd EMMatrix(3,3);
+    EMMatrix(0,0) = -sin(dL);
+    EMMatrix(0,1) = cos(dL);
+    EMMatrix(0,2) = 0;
+
+    EMMatrix(1,0) = -sin(dB)*cos(dL);
+    EMMatrix(1,1) = -sin(dB)*sin(dL);
+    EMMatrix(1,2) = cos(dB);
+
+    EMMatrix(2,0) = cos(dB)*cos(dL);
+    EMMatrix(2,1) = cos(dB)*sin(dL);
+    EMMatrix(2,2) = sin(dB);
+
+    //rotate matrix
+    Eigen::MatrixXd EGMatrix=Eigen::MatrixXd::Identity(3,3);	//
+    Eigen::MatrixXd GIMatrix=Eigen::MatrixXd::Identity(3,3);	//
+    Eigen::MatrixXd CIMatrix=Eigen::MatrixXd::Identity(3,3);	//
+    Eigen::MatrixXd ICMatrix=Eigen::MatrixXd::Identity(3,3);	//
+
+    double dH;
+    double roll, pitch, yaw;
+    dB =curllat(0);
+    dL =curllat(1);
+    dH =curllat(2);
+
+    roll =rot(0);
+    pitch =rot(1);
+    yaw =rot(2);
+
+    //WGS84 trans to local coordinate system
+    EGMatrix(0,0) = -sin(dB)*cos(dL); EGMatrix(0,1) = -sin(dL); EGMatrix(0,2) = -cos(dB)*cos(dL);
+    EGMatrix(1,0) = -sin(dB)*sin(dL); EGMatrix(1,1) = cos(dL); EGMatrix(1,2) = -cos(dB)*sin(dL);
+    EGMatrix(2,0) = cos(dB);		 EGMatrix(2,1) = 0; ; EGMatrix(2,2) = -sin(dB);
+
+    //Local coordinate system to IMU coordinate system
+    GIMatrix(0,0) = cos(pitch)*cos(yaw);
+    GIMatrix(0,1) = sin(roll)*sin(pitch)*cos(yaw) - cos(roll)*sin(yaw);
+    GIMatrix(0,2) = cos(roll)*sin(pitch)*cos(yaw) + sin(roll)*sin(yaw);
+    GIMatrix(1,0) = cos(pitch)*sin(yaw);
+    GIMatrix(1,1) = sin(roll)*sin(pitch)*sin(yaw) + cos(roll)*cos(yaw);
+    GIMatrix(1,2) = cos(roll)*sin(pitch)*sin(yaw) - sin(roll)*cos(yaw);
+    GIMatrix(2,0) = -sin(pitch);
+    GIMatrix(2,1) = sin(roll)*cos(pitch);
+    GIMatrix(2,2) = cos(roll)*cos(pitch);
+
+    //IMU to sensor coordinate system trans
+    /*CIMatrix[0] = cos(THETA.dY)*cos(THETA.dZ);
+    CIMatrix[1] = cos(THETA.dY)*sin(THETA.dZ);
+    CIMatrix[2] = -sin(THETA.dY);
+    CIMatrix[3] = sin(THETA.dX)*sin(THETA.dY)*cos(THETA.dZ) - cos(THETA.dX)*sin(THETA.dZ);
+    CIMatrix[4] = sin(THETA.dX)*sin(THETA.dY)*sin(THETA.dZ) + cos(THETA.dX)*cos(THETA.dZ);
+    CIMatrix[5] = sin(THETA.dX)*cos(THETA.dY);
+    CIMatrix[6] = cos(THETA.dX)*sin(THETA.dY)*cos(THETA.dZ) + sin(THETA.dX)*sin(THETA.dZ);
+    CIMatrix[7] = cos(THETA.dX)*sin(THETA.dY)*sin(THETA.dZ) - sin(THETA.dX)*cos(THETA.dZ);
+    CIMatrix[8] = cos(THETA.dX)*cos(THETA.dY);*/
+
+    //seneor to image coordinate system which could be modified according to different seneor
+    /*ICMatrix[0] = 0; 	ICMatrix[1] = -1;	ICMatrix[2] = 0;
+    ICMatrix[3] = -1;	ICMatrix[4] = 0;	ICMatrix[5] = 0;
+    ICMatrix[6] = 0;	ICMatrix[7] = 0;	ICMatrix[8] = -1;*/
+
+    Eigen::MatrixXd IMMatrix(3,3);
+    double M1[9], M2[9], M3[9];
+    double pVector[] = { 0,0,0 };
+    IMMatrix=EMMatrix*EGMatrix*GIMatrix*CIMatrix*ICMatrix;
+
+    //get sensor center pos in the
+    UAVXYZToLatLonWGS84 coordi;
+    Vec3 cur=coordi.LatLonToXYZ(curllat(0),curllat(1),curllat(2));
+    Vec3 cnt=coordi.LatLonToXYZ(centerllat(0),centerllat(1),centerllat(2));
+
+    double dXs = (cur(0) - cnt(0))*EMMatrix(0,0) + (cur(1) - cnt(1))*EMMatrix(0,1) + (cur(2) - cnt(2))*EMMatrix(0,2);
+    double dYs = (cur(0) - cnt(0))*EMMatrix(1,0) + (cur(1) - cnt(1))*EMMatrix(1,1) + (cur(2) - cnt(2))*EMMatrix(1,2);
+    double dZs = (cur(0) - cnt(0))*EMMatrix(2,0) + (cur(1) - cnt(1))*EMMatrix(2,1) + (cur(2) - cnt(2))*EMMatrix(2,2);
+
+    // calculate the placement vector
+    eo(0)=dXs;
+    eo(1)=dYs;
+    eo(2)=dZs;
+
+    return 0;
+
+}
+
+long POSProc::POSProc_POSTrans(Vec3 centerllat, Vec3 curllat, Vec3 &eo)
+{
+    //成图坐标系到地心坐标系
+    double dL = centerllat(0);
+    double dB = centerllat(1);
+
+    Eigen::MatrixXd EMMatrix(3,3);
+    EMMatrix(0,0) = -sin(dL);
+    EMMatrix(0,1) = cos(dL);
+    EMMatrix(0,2) = 0;
+
+    EMMatrix(1,0) = -sin(dB)*cos(dL);
+    EMMatrix(1,1) = -sin(dB)*sin(dL);
+    EMMatrix(1,2) = cos(dB);
+
+    EMMatrix(2,0) = cos(dB)*cos(dL);
+    EMMatrix(2,1) = cos(dB)*sin(dL);
+    EMMatrix(2,2) = sin(dB);
+
+    //rotate matrix
+    Eigen::MatrixXd EGMatrix=Eigen::MatrixXd::Identity(3,3);	//
+    Eigen::MatrixXd GIMatrix=Eigen::MatrixXd::Identity(3,3);	//
+    Eigen::MatrixXd CIMatrix=Eigen::MatrixXd::Identity(3,3);	//
+    Eigen::MatrixXd ICMatrix=Eigen::MatrixXd::Identity(3,3);	//
+
+    double dH;
+    double roll, pitch, yaw;
+    dB =curllat(1);
+    dL =curllat(0);
+    dH =curllat(2);
+
+    roll =0;
+    pitch =0;
+    yaw =0;
+
+    //WGS84 trans to local coordinate system
+    EGMatrix(0,0) = -sin(dB)*cos(dL); EGMatrix(0,1) = -sin(dL); EGMatrix(0,2) = -cos(dB)*cos(dL);
+    EGMatrix(1,0) = -sin(dB)*sin(dL); EGMatrix(1,1) = cos(dL); EGMatrix(1,2) = -cos(dB)*sin(dL);
+    EGMatrix(2,0) = cos(dB);		 EGMatrix(2,1) = 0; ; EGMatrix(2,2) = -sin(dB);
+
+    //Local coordinate system to IMU coordinate system
+    GIMatrix(0,0) = cos(pitch)*cos(yaw);
+    GIMatrix(0,1) = sin(roll)*sin(pitch)*cos(yaw) - cos(roll)*sin(yaw);
+    GIMatrix(0,2) = cos(roll)*sin(pitch)*cos(yaw) + sin(roll)*sin(yaw);
+    GIMatrix(1,0) = cos(pitch)*sin(yaw);
+    GIMatrix(1,1) = sin(roll)*sin(pitch)*sin(yaw) + cos(roll)*cos(yaw);
+    GIMatrix(1,2) = cos(roll)*sin(pitch)*sin(yaw) - sin(roll)*cos(yaw);
+    GIMatrix(2,0) = -sin(pitch);
+    GIMatrix(2,1) = sin(roll)*cos(pitch);
+    GIMatrix(2,2) = cos(roll)*cos(pitch);
+
+    //IMU to sensor coordinate system trans
+    /*CIMatrix[0] = cos(THETA.dY)*cos(THETA.dZ);
+    CIMatrix[1] = cos(THETA.dY)*sin(THETA.dZ);
+    CIMatrix[2] = -sin(THETA.dY);
+    CIMatrix[3] = sin(THETA.dX)*sin(THETA.dY)*cos(THETA.dZ) - cos(THETA.dX)*sin(THETA.dZ);
+    CIMatrix[4] = sin(THETA.dX)*sin(THETA.dY)*sin(THETA.dZ) + cos(THETA.dX)*cos(THETA.dZ);
+    CIMatrix[5] = sin(THETA.dX)*cos(THETA.dY);
+    CIMatrix[6] = cos(THETA.dX)*sin(THETA.dY)*cos(THETA.dZ) + sin(THETA.dX)*sin(THETA.dZ);
+    CIMatrix[7] = cos(THETA.dX)*sin(THETA.dY)*sin(THETA.dZ) - sin(THETA.dX)*cos(THETA.dZ);
+    CIMatrix[8] = cos(THETA.dX)*cos(THETA.dY);*/
+
+    //seneor to image coordinate system which could be modified according to different seneor
+    ICMatrix(0,0) = 0; 	ICMatrix(0,1) = -1;	ICMatrix(0,2) = 0;
+    ICMatrix(1,0) = -1;	ICMatrix(1,1) = 0;	ICMatrix(1,2) = 0;
+    ICMatrix(2,0) = 0;	ICMatrix(2,1) = 0;	ICMatrix(2,2) = -1;
+
+    Eigen::MatrixXd IMMatrix(3,3);
+    double M1[9], M2[9], M3[9];
+    double pVector[] = { 0,0,0 };
+    IMMatrix=EMMatrix*EGMatrix*GIMatrix*CIMatrix*ICMatrix;
+
+    //get sensor center pos in the
+    UAVXYZToLatLonWGS84 coordi;
+    Vec3 cur=coordi.BLHToXYZ(curllat(1),curllat(0),curllat(2));
+    Vec3 cnt=coordi.BLHToXYZ(centerllat(1),centerllat(0),centerllat(2));
+
+    double dXs = (cur(0) - cnt(0))*EMMatrix(0,0) + (cur(1) - cnt(1))*EMMatrix(0,1) + (cur(2) - cnt(2))*EMMatrix(0,2);
+    double dYs = (cur(0) - cnt(0))*EMMatrix(1,0) + (cur(1) - cnt(1))*EMMatrix(1,1) + (cur(2) - cnt(2))*EMMatrix(1,2);
+    double dZs = (cur(0) - cnt(0))*EMMatrix(2,0) + (cur(1) - cnt(1))*EMMatrix(2,1) + (cur(2) - cnt(2))*EMMatrix(2,2);
+
+    // calculate the placement vector
+    eo(0)=dXs;
+    eo(1)=dYs;
+    eo(2)=dZs;
+    return 0;
 }

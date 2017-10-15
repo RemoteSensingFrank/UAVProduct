@@ -1,7 +1,6 @@
 //
 // Created by wuwei on 17-3-26.
 //
-
 #include "UAVGeoProc.h"
 #include "gdal_priv.h"
 #include "ogrsf_frmts.h"
@@ -11,14 +10,12 @@
 #include "openMVG/sfm/sfm.hpp"
 #include "openMVG/cameras/cameras.hpp"
 #include "UAVXYZToLatLonWGS84.h"
-
+#include "UAVCommon.h"
 
 using namespace openMVG;
 using namespace openMVG::sfm;
 using namespace openMVG::cameras;
 using namespace Eigen;
-
-#include "UAVCommon.h"
 
 #include <omp.h>
 #include <vector>
@@ -362,14 +359,15 @@ bool UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGro
                 double x=gcps[5*i+2]=groundPnts[i](0);
                 double y=gcps[5*i+3]=groundPnts[i](1);
                 double z=gcps[5*i+4]=groundPnts[i](2);
+
                 Vec3 lla;
                 lla=CooridinateTrans.XYZToLatLon(x,y,z);
                 Vec3 utm;
                 utm=CooridinateTrans.LatLonToUTM(lla(0),lla(1),lla(2));
+
                 gcps[5*i+2]=utm(0);
                 gcps[5*i+3]=utm(1);
                 gcps[5*i+4]=utm(2);
-
             }
             //UAVGetProc_GeoCoordiTrans(gcps,size,dL,dB);
             string dst=stlplus::create_filespec(pathDstDir, stlplus::basename_part(image_list[k]), "tif");
@@ -384,6 +382,7 @@ bool UAVGeoProc::UAVGeoProc_GeoProc(string pathSFM,string pathDstDir,double dGro
 
     return true;
 }
+
 
 bool UAVGeoProc::UAVGeoProc_GeoProcWMT(string pathSFM,string pathDstDir,double dGroundSize,double dL,double dB)
 {
@@ -471,7 +470,8 @@ bool UAVGeoProc::UAVGeoProc_GeoProcWMT(string pathSFM,string pathDstDir,double d
     return true;
 }
 
-bool UAVGeoProc::UAVGetProc_GeoProcDEM(string pathSFM, string pathDem,string pathDstDir, double dGroundSize, double dL, double dB)
+
+bool UAVGeoProc::UAVGeoProc_GeoProcDEM(string pathSFM, string pathDem,string pathDstDir, double dGroundSize, double dL, double dB)
 {
     //output directory
     SfM_Data sfm_data;
@@ -509,33 +509,12 @@ bool UAVGeoProc::UAVGetProc_GeoProcDEM(string pathSFM, string pathDem,string pat
     {
         vector<Vec3> groundPnts;
         vector<Vec2> featurePnts;
-        int xsize = sfm_data.GetViews().at(k).get()->ui_width;
-        int ysize = sfm_data.GetViews().at(k).get()->ui_height;
-        double flen = ((Pinhole_Intrinsic*)sfm_data.intrinsics.at(k).get())->focal();
-
-        Pose3 pos3 = sfm_data.GetPoses().at(k);
-        Mat34 p = ((Pinhole_Intrinsic*)sfm_data.intrinsics.at(k).get())->get_projective_equivalent(pos3);
-
-
-        Vec3 pos = sfm_data.GetPoses().at(k).center();
-
-        Vec3 lla;
-        lla=CooridinateTrans.XYZToLatLon(pos(0),pos(1),pos(2));
-        Vec3 utm;
-        utm=CooridinateTrans.LatLonToUTM(lla(0),lla(1),lla(2));
-
         for ( const auto & iterLandmarks : landmarks )
         {
             if(iterLandmarks.second.obs.find(k)!=iterLandmarks.second.obs.end())
             {
-                Vec2 rxy=iterLandmarks.second.obs.at(k).x;
-                Eigen::MatrixXd mat1(2,2);
-                //mat1(0,0) =
                 groundPnts.push_back(iterLandmarks.second.X);
-                Vec2 tmp(iterLandmarks.second.obs.at(k).x(0)-xsize/2,ysize/2-iterLandmarks.second.obs.at(k).x(1));
-                featurePnts.push_back(tmp);
-
-
+                featurePnts.push_back(iterLandmarks.second.obs.at(k).x);
             }
         }
 
@@ -546,32 +525,47 @@ bool UAVGeoProc::UAVGetProc_GeoProcDEM(string pathSFM, string pathDem,string pat
         }
         else {
             int size = groundPnts.size();
-            double *gcps = new double[5*size];
-            for (int i = 0; i < size; ++i)
-            {
-                gcps[5*i+0]=featurePnts[i](0);
-                gcps[5*i+1]=featurePnts[i](1);
+            int xsize = sfm_data.GetViews().at(k).get()->ui_width;
+            int ysize = sfm_data.GetViews().at(k).get()->ui_height;
+            double flen = ((Pinhole_Intrinsic*)sfm_data.intrinsics.at(k).get())->focal();
 
-                double x=gcps[5*i+2]=groundPnts[i](0);
-                double y=gcps[5*i+3]=groundPnts[i](1);
-                double z=gcps[5*i+4]=groundPnts[i](2);
+            Pose3 pos3 = sfm_data.GetPoses().at(k);
+            Vec3 cent = pos3.center();
+            Mat34 p = ((Pinhole_Intrinsic*)sfm_data.intrinsics.at(k).get())->get_projective_equivalent(pos3);
+            double *gcps = new double[5 * size];
+            for (int i = 0; i < size; ++i) {
+                gcps[5 * i + 0] = featurePnts[i](0)-xsize/2;
+                gcps[5 * i + 1] = ysize/2-featurePnts[i](1);
+
+                double x = gcps[5 * i + 2] = groundPnts[i](0);
+                double y = gcps[5 * i + 3] = groundPnts[i](1);
+                double z = gcps[5 * i + 4] = groundPnts[i](2);
+
                 Vec3 lla;
-                lla=CooridinateTrans.XYZToLatLon(x,y,z);
+                lla = CooridinateTrans.XYZToLatLon(x, y, z);
                 Vec3 utm;
-                utm=CooridinateTrans.LatLonToUTM(lla(0),lla(1),lla(2));
-                gcps[5*i+2]=utm(0);
-                gcps[5*i+3]=utm(1);
-                gcps[5*i+4]=utm(2);
+                utm = CooridinateTrans.LatLonToUTM(lla(0), lla(1), lla(2));
+
+                gcps[5 * i + 2] = x;
+                gcps[5 * i + 3] = y;
+                gcps[5 * i + 4] = z;
             }
             //UAVGetProc_GeoCoordiTrans(gcps,size,dL,dB);
+            Vec3 lla;
+            lla = CooridinateTrans.XYZToLatLon(cent(0), cent(1), cent(2));
+            Vec3 utm;
+            utm = CooridinateTrans.LatLonToUTM(lla(0), lla(1), lla(2));
             string dst=stlplus::create_filespec(pathDstDir, stlplus::basename_part(image_list[k]), "tif");
-            UAVGeoProc_GeoCorrectionWithDEM(image_list[k],gcps,size,dGroundSize,utm(0),utm(1),utm(2),flen,pathDem,dst);
+            //UAVGeoProc_GeoCorrectionWithDEM(image_list[k],gcps,size,0.5,utm(0),utm(1),utm(2),flen,pathDem,dst);
+            UAVGeoProc_GeoCorrectionWithDEM(image_list[k],p,dGroundSize,flen,pathDem,dst);
             delete[]gcps;gcps=NULL;
+
         }
 
     }
     return true;
 }
+
 
 bool UAVGeoProc::UAVGeoProc_GeoProc(double dGroundSize,double dL,double dB)
 {
@@ -594,6 +588,7 @@ bool UAVGeoProc::UAVGeoProc_GeoProcWMT(double dGroundSize,double dL,double dB) {
     }
 }
 
+
 void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int gcpNum,double dGroundSize,double Xs,double Ys,double Zs,double fLen,string imageDem,string geoImageAccur)
 {
     double params[6];
@@ -601,6 +596,9 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
 
     //先不管坐标系统了
     GDALAllRegister();
+    double data1=gcps[2];
+    double data2=gcps[3];
+    double data3=gcps[4];
     GDALDatasetH m_datasetsrc = GDALOpen(image.c_str(),GA_ReadOnly);
     int xsrc = GDALGetRasterXSize(m_datasetsrc);
     int ysrc = GDALGetRasterYSize(m_datasetsrc);
@@ -634,20 +632,28 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
     float* xPositions = new float[xsrc*ysrc];
     float* yPositions = new float[xsrc*ysrc];
     float* zPositions = new float[xsrc*ysrc];
-    memset(zPositions,0,sizeof(float)*xsrc*ysrc);
+    for(int i=0;i< xsrc*ysrc;++i)
+    {
+        zPositions[i]=400.0f;
+    }
 
     //第一次计算
     for(int i=0;i<xsrc;++i){
         for(int j=0;j<ysrc;++j){
             //计算坐标
             MatrixXd ptImg(3,1),ptGeo(3,1);
-            ptImg(0,0) = i-hx;
-            ptImg(1,0) = hy-j;
+            ptImg(0,0) = gcps[0];
+            ptImg(1,0) = gcps[1];
             ptImg(2,0) = -fLen;
 
             ptGeo = rotmat.inverse()*ptImg;
-            xPositions[j*xsrc+i]=Xs+(zPositions[j*xsrc+i]-Zs)*ptGeo(0,0)/ptGeo(2,0);
-            yPositions[j*xsrc+i]=Ys+(zPositions[j*xsrc+i]-Zs)*ptGeo(1,0)/ptGeo(2,0);
+
+            double X = (data3-Zs)*ptGeo(0,0)/ptGeo(2,0);
+            double Y = (data3-Zs)*ptGeo(1,0)/ptGeo(2,0);
+            //xPositions[j*xsrc+i]=Xs+X;
+            //yPositions[j*xsrc+i]=Ys+Y;
+            double tmp1 = Xs+X;
+            double tmp2 = Ys+Y;
 
             int idem = (xPositions[j*xsrc+i]-adfGeoTransformdem[0])/adfGeoTransformdem[1];
             int jdem = (yPositions[j*xsrc+i]-adfGeoTransformdem[3])/adfGeoTransformdem[5];
@@ -718,6 +724,112 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
     delete[] dem;dem=NULL;
     delete[] pDataRe;pDataRe=NULL;
     delete[] pDataSrc;pDataSrc=NULL;
+
+}
+
+
+void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image, Eigen::MatrixXd P,double dGroundSize, double fLen, string imageDem, string geoImageAccur)
+{
+    double xs = P(0,1);
+    double ys = P(1,1);
+    double zs = P(2,1);
+    double tm = P(3,1);
+    Vec3 XYZCnt = CooridinateTrans.LatLonToXYZ(41,124,400);
+
+
+    //先不管坐标系统了
+    GDALAllRegister();
+    GDALDatasetH m_datasetsrc = GDALOpen(image.c_str(),GA_ReadOnly);
+    int xsrc = GDALGetRasterXSize(m_datasetsrc);
+    int ysrc = GDALGetRasterYSize(m_datasetsrc);
+    int bands=GDALGetRasterCount(m_datasetsrc);
+
+    GDALDatasetH m_datasetdem = GDALOpen(imageDem.c_str(),GA_ReadOnly);
+    double adfGeoTransformdem[6];
+    GDALGetGeoTransform(m_datasetdem,adfGeoTransformdem);
+    int xdem = GDALGetRasterXSize(m_datasetdem);
+    int ydem = GDALGetRasterYSize(m_datasetdem);
+    float* dem = new float[xdem*ydem];
+    GDALRasterIO(GDALGetRasterBand(m_datasetdem,1),GF_Read,0,0,xdem,ydem,dem,xdem,ydem,GDT_Float32,0,0);
+
+    float* xPositions = new float[xsrc*ysrc];
+    float* yPositions = new float[xsrc*ysrc];
+    float* zPositions = new float[xsrc*ysrc];
+    memset(zPositions,0,sizeof(float)*xsrc*ysrc);
+
+    //求解坐标
+    for(int i=0;i<xsrc;++i){
+        for(int j=0;j<ysrc;++j){
+            //计算坐标
+            Vec2 ptImg;
+            ptImg(0,0) = xsrc;
+            ptImg(1,0) = ysrc;
+
+            double z = XYZCnt(2);
+            Eigen::MatrixXd mat1(2,2);
+            mat1(0,0) = P(2,0)*ptImg(0)-P(0,0);mat1(0,1) = P(2,1)*ptImg(0)-P(0,1);
+            mat1(1,0) = P(2,0)*ptImg(1)-P(1,0);mat1(1,1) = P(2,1)*ptImg(1)-P(1,1);
+            Eigen::MatrixXd pa(2,1);
+            pa(0,0)=P(0,2)*z+P(0,3)-ptImg(0)*(P(2,2)*z+P(2,3));
+            pa(1,0)=P(1,2)*z+P(1,3)-ptImg(1)*(P(2,2)*z+P(2,3));
+
+            Eigen::MatrixXd XYZ(2,1);
+            XYZ=mat1.inverse()*pa;
+
+            //转换到UTM坐标系下
+            Vec3 lla = CooridinateTrans.XYZToLatLon(XYZ(0),XYZ(1),z);
+            double x=lla(0);
+            double y=lla(1);
+            Vec3 utm = CooridinateTrans.LatLonToUTM(lla(0),lla(1),z);
+            xPositions[j*xsrc+i] = utm(0);
+            yPositions[j*xsrc+i] = utm(1);
+            printf("%lf  %lf\n",utm(0),utm(1));
+            int idem = (xPositions[j*xsrc+i]-adfGeoTransformdem[0])/adfGeoTransformdem[1];
+            int jdem = (yPositions[j*xsrc+i]-adfGeoTransformdem[3])/adfGeoTransformdem[5];
+            if(idem>xdem||idem<0||idem>ydem||jdem<0)
+                zPositions[j*xsrc+i]=0;
+            else
+                zPositions[j*xsrc+i]=dem[jdem*xdem+idem];
+        }
+    }
+
+    double maxPt[2]={xPositions[0],yPositions[0]};
+    double minPt[2]={xPositions[0],yPositions[0]};
+    for(int i=0;i<xsrc*ysrc;++i)
+    {
+        maxPt[0]=max(maxPt[0],(double)xPositions[i]);
+        maxPt[1]=max(maxPt[1],(double)yPositions[i]);
+
+        minPt[0]=min(minPt[0],(double)xPositions[i]);
+        minPt[1]=min(minPt[1],(double)yPositions[i]);
+    }
+    printf("%f %f\n",minPt[0],maxPt[0]);
+    int xre = (maxPt[0]-minPt[0])/dGroundSize;
+    printf("%d\n",xre);
+
+    printf("%f %f\n",minPt[1],maxPt[1]);
+    int yre = (maxPt[1]-minPt[1])/dGroundSize;
+    printf("%d\n",yre);
+    /*unsigned  char* pDataRe = new unsigned char[xre*yre];
+    unsigned  char* pDataSrc=new unsigned char[xsrc*ysrc];
+    GDALDatasetH m_datasetGeo = GDALCreate(GDALGetDriverByName("GTiff"),geoImageAccur.c_str(),xre,yre,bands,GDT_Byte,NULL);
+    for(int i=0;i<bands;++i){
+        GDALRasterIO(GDALGetRasterBand(m_datasetsrc,i+1),GF_Read,0,0,xsrc,ysrc,pDataSrc,xsrc,ysrc,GDT_Byte,0,0);
+        UAVGeoProc_ImageResample(pDataSrc,xPositions,yPositions,maxPt,minPt,dGroundSize,xsrc,ysrc,xre,yre,pDataRe);
+        GDALRasterIO(GDALGetRasterBand(m_datasetGeo,i+1),GF_Write,0,0,xre,yre,pDataSrc,xre,yre,GDT_Byte,0,0);
+    }
+    GDALClose(m_datasetsrc);
+    GDALClose(m_datasetdem);
+    GDALClose(m_datasetGeo);
+    delete[] pDataRe;pDataRe=NULL;
+    delete[] pDataSrc;pDataSrc=NULL;
+    */
+
+    //重采样
+    delete[] xPositions;xPositions=NULL;
+    delete[] yPositions;yPositions=NULL;
+    delete[] zPositions;zPositions=NULL;
+    delete[] dem;dem=NULL;
 
 }
 

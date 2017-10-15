@@ -32,9 +32,9 @@ static int get_file_size(const char* file) {
     stat(file, &tbuf);
     return tbuf.st_size;
 }
+#define PI 3.1415926534
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
 pair<Vec3f,Vec3f> UAVPosRead::ReadPOS(fstream &ifs) {
     double x,y,z,r,p,h;
     char line[1024];
@@ -115,6 +115,7 @@ float UAVDataList::UAVList_CreateSFMList()
     sfm_data.s_root_path =  _info_._g_image_dir_; // Setup main image root_path
     Views & views = sfm_data.views;
     Intrinsics & intrinsics = sfm_data.intrinsics;
+    float files_size = 0;
 
     //POS Data
     bool pos_file = false;
@@ -135,10 +136,60 @@ float UAVDataList::UAVList_CreateSFMList()
 
     }
 
+    /*
+    _info_._g_centerLatitude= _info_._g_centerLongitude=_info_._g_centerHeight=0;
     //计算文件大小的参数
-    float files_size = 0;
+    for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin();
+          iter_image != vec_image.end(); ++iter_image )
+    {
+        const std::string sImageFilename = stlplus::create_filespec(  _info_._g_image_dir_, *iter_image );
+        const std::string sImFilenamePart = stlplus::filename_part(sImageFilename);
+        std::unique_ptr<Exif_IO> exifReader(new Exif_IO_EasyExif);
+        exifReader->open( sImageFilename );
+        //POS data from Exif
+        if(pos_file)
+        {
+            _info_._g_Has_Pos = true;
 
+            // Add ECEF XYZ position to the GPS position array
+            pair<Vec3f ,Vec3f> trans_rot = readPOS.ReadPOS(ifs);
+            _info_._g_centerLatitude+=trans_rot.first(0);
+            _info_._g_centerLongitude+=trans_rot.first(1);
+            _info_._g_centerHeight+=trans_rot.first(2);
+        } else if ( exifReader->open( sImageFilename ) && exifReader->doesHaveExifInfo() ) {
+            // Try to parse EXIF metada & check existence of EXIF data
+            _info_._g_Has_Pos = true;
+            double latitude, longitude, altitude;
+            if ( exifReader->GPSLatitude( &latitude ) &&
+                 exifReader->GPSLongitude( &longitude ) &&
+                 exifReader->GPSAltitude( &altitude ) )
+            {
+                _info_._g_centerLatitude+=latitude;
+                _info_._g_centerLongitude+=longitude;
+                _info_._g_centerHeight+=altitude;
+            }
+        }
+    }
+
+    _info_._g_centerLatitude/=vec_image.size();
+    _info_._g_centerLongitude/=vec_image.size();
+    _info_._g_centerHeight/=vec_image.size();
+    if(_info_._g_Pos_data!="")
+    {
+        ifs.seekg(0,ios::beg);
+        //POS from file
+        pos_file = true;
+        if(ifs.is_open())
+        {
+            for(int i=0;i<_info_._g_Pos_bias;++i){
+                char line[1024];
+                ifs.getline(line,1024);
+            }
+        }
+    }
+    */
     double width = -1,height = -1,focal = -1;
+    POSProc posPro;
     C_Progress_display my_progress_bar( vec_image.size(),
                                         std::cout, "\n- Image listing -\n" );
     std::ostringstream error_report_stream;
@@ -185,8 +236,12 @@ float UAVDataList::UAVList_CreateSFMList()
             // Add ECEF XYZ position to the GPS position array
             pair<Vec3f ,Vec3f> trans_rot = readPOS.ReadPOS(ifs);
             val.first = true;
-            val.second = CooridinateTrans.LatLonToXYZ(trans_rot.first(0),trans_rot.first(1),trans_rot.first(2));
+            //Vec3 centllat = Vec3(_info_._g_centerLongitude*PI/180,_info_._g_centerLatitude*PI/180,_info_._g_centerHeight);
+            //Vec3 curtllat = Vec3(trans_rot.first(1)*PI/180,trans_rot.first(0)*PI/180,trans_rot.first(2));
+            //posPro.POSProc_POSTrans(centllat,curtllat,val.second);
 
+            //val.second = CooridinateTrans.LatLonToUTM(trans_rot.first(0),trans_rot.first(1),trans_rot.first(2));
+            val.second=CooridinateTrans.LatLonToXYZ(trans_rot.first(0),trans_rot.first(1),trans_rot.first(2));
             //使用影像内置的POS数据
             ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
 
@@ -220,6 +275,8 @@ float UAVDataList::UAVList_CreateSFMList()
                 // Add ECEF XYZ position to the GPS position array
                 val.first = true;
                 val.second = CooridinateTrans.LatLonToXYZ( latitude, longitude, altitude );
+                //直接转换为UTM坐标是不是好一点
+                //val.second = CooridinateTrans.LatLonToUTM(latitude,longitude,altitude);
 
                 //使用影像内置的POS数据
                 ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);

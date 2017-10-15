@@ -11,8 +11,6 @@
 
 GLOBAL_INFO _info_;
 
-
-
 void GLOBAL_INFO::_g_run(string Type_P,string Type_B,double dL,double dB) {
     UAVDataList   _datalist_;
     UAVFeatureExtract *_sift_features_;

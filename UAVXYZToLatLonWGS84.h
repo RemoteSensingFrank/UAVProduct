@@ -17,6 +17,14 @@ using namespace openMVG;
 class UAVXYZToLatLonWGS84 {
 
 public:
+    Vec3 BLHToXYZ(double lat,
+                  double lon,
+                  double alt);
+
+    Vec3 XYZToBLH(double x,
+                  double y,
+                  double z);
+
     //trans from lat&lon&altitude to XYZ coordinate in WGS84
     Vec3 LatLonToXYZ(double lat,
                      double lon,
@@ -52,5 +60,14 @@ public:
                         double &mgLat);
 };
 
+//为什么要增加这个，主要是因为在后期的计算过程中需要根据高程进行校正在相对坐标系下更好处理
+class POSProc{
+public:
+    long POSProc_POSTrans(Vec3 centerllat,Vec3 curllat,Vec3 rot,Vec3 &eo);
+
+    long POSProc_POSTrans(Vec3 centerllat,Vec3 curllat,Vec3 &eo);
+
+
+};
 
 #endif //UAVPRODUCT_UAVXYZTOLATLONWGS84_H

@@ -120,13 +120,13 @@ void Resection(double* gcps,int gcpnum,double fLen,double Xs,double Ys,double Zs
     {
         double* pPoint = gcps+ 5*i;
 
-        ResectionResidual*pResidualX =new ResectionResidual(pPoint[2],pPoint[3], pPoint[4],pPoint[0], pPoint[1],-fLen);
+        ResectionResidual*pResidualX =new ResectionResidual(pPoint[2],pPoint[3], pPoint[4],pPoint[0], pPoint[1],fLen);
         problem.AddResidualBlock(new AutoDiffCostFunction<ResectionResidual, 2, 6>(pResidualX), NULL,dBackCrossParameters);
     }
 
     Solver::Options m_options;
     Solver::Summary m_summary;
-    m_options.max_num_iterations = 25;
+    m_options.max_num_iterations = 50;
     m_options.linear_solver_type = ceres::DENSE_QR;
     m_options.minimizer_progress_to_stdout = true;
 

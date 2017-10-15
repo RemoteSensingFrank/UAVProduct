@@ -6,6 +6,7 @@
 #define UAVPRODUCT_UAVGEOPROC_H
 
 #include<string>
+#include "Eigen/Core"
 using namespace std;
 
 class UAVGeoProc {
@@ -39,7 +40,7 @@ public:
     * @param dL ：中心经度
     * @param dB ：中心纬度
     */
-    bool UAVGetProc_GeoProcDEM(string pathSFM, string pathDem,string pathDstDir, double dGroundSize, double dL, double dB);
+    bool UAVGeoProc_GeoProcDEM(string pathSFM, string pathDem,string pathDstDir, double dGroundSize, double dL, double dB);
     /***
      * 将地心直角坐标系转换为UTM坐标系
      * @param gcps ：控制点（输入-输出）
@@ -76,6 +77,9 @@ public:
     void
     UAVGeoProc_GeoCorrectionWithDEM(string image, double *gcps, int gcpNum, double dGroundSize, double Xs, double Ys,
                                     double Zs, double fLen, string imageDem, string geoImageAccur);
+
+    //似乎直接根据P进行校正效果更好一些
+    void UAVGeoProc_GeoCorrectionWithDEM(string image, Eigen::MatrixXd P,double dGroundSize, double fLen, string imageDem, string geoImageAccur);
 
 private:
     /***

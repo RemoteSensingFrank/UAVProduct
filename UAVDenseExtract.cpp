@@ -277,7 +277,7 @@ static void UAVDPPointsToDEM_Grid2(double *points,int numPoints,double dL,double
 
     printf("0%");
     for(int i=0;i<numPoints;++i){
-        if(i/idxstep==0&&i>idxstep)
+        if(i%idxstep==0&&i>=idxstep)
             printf(".");
 
         //位置
@@ -292,7 +292,7 @@ static void UAVDPPointsToDEM_Grid2(double *points,int numPoints,double dL,double
         if(iData[i]!=0)
             pData[i]=pData[i]/iData[i];
     }
-    printf("100\%-done\n");
+    printf("100\% -done\n");
 
 
     GDALDriver * pDriver = NULL;
@@ -359,12 +359,12 @@ void UAVDenseProcess::UAVDPCloud_ToDSM(string pathPly,string pathDsm,double dL,d
 
         if(i == 0)
         {
-            dfXMin = pntcl.points[i].x;
-            dfXMax = pntcl.points[i].x;
-            dfYMin = pntcl.points[i].y;
-            dfYMax = pntcl.points[i].y;
-            dfZMin = pntcl.points[i].z;
-            dfZMax = pntcl.points[i].z;
+            dfXMin = utm(0);
+            dfXMax = utm(0);
+            dfYMin = utm(1);
+            dfYMax = utm(1);
+            dfZMin = utm(2);
+            dfZMax = utm(2);
         }
 
         dfXMin = (utm(0)<dfXMin ) ? utm(0) : dfXMin;

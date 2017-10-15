@@ -62,6 +62,11 @@ typedef struct __GLOBAL__INFO_
     double _g_ppy;
     double _g_ccdsize;
 
+    //中心点的坐标
+    double _g_centerLatitude;
+    double _g_centerLongitude;
+    double _g_centerHeight;
+
     //全局启动函数
     /**
      * 全局的ｒｕｎ函数

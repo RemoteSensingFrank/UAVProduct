@@ -8,6 +8,7 @@
 #include"numeric/numeric.h"
 #include <string>
 #include <fstream>
+
 using namespace std;
 using namespace openMVG;
 /***
