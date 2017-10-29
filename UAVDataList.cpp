@@ -240,8 +240,8 @@ float UAVDataList::UAVList_CreateSFMList()
             //Vec3 curtllat = Vec3(trans_rot.first(1)*PI/180,trans_rot.first(0)*PI/180,trans_rot.first(2));
             //posPro.POSProc_POSTrans(centllat,curtllat,val.second);
 
-            //val.second = CooridinateTrans.LatLonToUTM(trans_rot.first(0),trans_rot.first(1),trans_rot.first(2));
-            val.second=CooridinateTrans.LatLonToXYZ(trans_rot.first(0),trans_rot.first(1),trans_rot.first(2));
+            val.second = CooridinateTrans.LatLonToUTM(trans_rot.first(0),trans_rot.first(1),trans_rot.first(2));
+            //val.second=CooridinateTrans.LatLonToXYZ(trans_rot.first(0),trans_rot.first(1),trans_rot.first(2));
             //使用影像内置的POS数据
             ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
 
@@ -274,9 +274,9 @@ float UAVDataList::UAVList_CreateSFMList()
             {
                 // Add ECEF XYZ position to the GPS position array
                 val.first = true;
-                val.second = CooridinateTrans.LatLonToXYZ( latitude, longitude, altitude );
+                //val.second = CooridinateTrans.LatLonToXYZ( latitude, longitude, altitude );
                 //直接转换为UTM坐标是不是好一点
-                //val.second = CooridinateTrans.LatLonToUTM(latitude,longitude,altitude);
+                val.second = CooridinateTrans.LatLonToUTM(latitude,longitude,altitude);
 
                 //使用影像内置的POS数据
                 ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);

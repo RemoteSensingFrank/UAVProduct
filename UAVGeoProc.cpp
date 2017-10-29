@@ -11,6 +11,7 @@
 #include "openMVG/cameras/cameras.hpp"
 #include "UAVXYZToLatLonWGS84.h"
 #include "UAVCommon.h"
+#include "openMVG/multiview/triangulation.hpp"
 
 using namespace openMVG;
 using namespace openMVG::sfm;
@@ -515,6 +516,31 @@ bool UAVGeoProc::UAVGeoProc_GeoProcDEM(string pathSFM, string pathDem,string pat
             {
                 groundPnts.push_back(iterLandmarks.second.X);
                 featurePnts.push_back(iterLandmarks.second.obs.at(k).x);
+
+               vector<Mat34> ps;
+               vector<Vec2>  pnts;
+               for(int l=0;l<iterLandmarks.second.obs.size();++l)
+               {
+                   Pose3 pos3 = sfm_data.GetPoses().at(l);
+                   Mat34 p = ((Pinhole_Intrinsic*)sfm_data.intrinsics.at(l).get())->get_projective_equivalent(pos3);
+                   ps.push_back(p);
+                   pnts.push_back(iterLandmarks.second.obs.at(l).x);
+               }
+
+               //Vec3 llat = CooridinateTrans.XYZToLatLon(iterLandmarks.second.X(0),iterLandmarks.second.X(1),iterLandmarks.second.X(2));
+               double z = iterLandmarks.second.X(2)-10;
+               Eigen::MatrixXd mat1(2,2);
+               mat1(0,0) = ps[0](2,0)*pnts[0](0)-ps[0](0,0);mat1(0,1) = ps[0](2,1)*pnts[0](0)-ps[0](0,1);
+               mat1(1,0) = ps[0](2,0)*pnts[0](1)-ps[0](1,0);mat1(1,1) = ps[0](2,1)*pnts[0](1)-ps[0](1,1);
+               Eigen::MatrixXd pa(2,1);
+               pa(0,0)=ps[0](0,2)*z+ps[0](0,3)-pnts[0](0)*(ps[0](2,2)*z+ps[0](2,3));
+               pa(1,0)=ps[0](1,2)*z+ps[0](1,3)-pnts[0](1)*(ps[0](2,2)*z+ps[0](2,3));
+
+               Eigen::MatrixXd XYZ(2,1);
+               XYZ=mat1.inverse()*pa;
+                printf("%lf   %lf \n",XYZ(0,0),XYZ(1,0));
+               int tmp=0;
+
             }
         }
 
@@ -528,14 +554,16 @@ bool UAVGeoProc::UAVGeoProc_GeoProcDEM(string pathSFM, string pathDem,string pat
             int xsize = sfm_data.GetViews().at(k).get()->ui_width;
             int ysize = sfm_data.GetViews().at(k).get()->ui_height;
             double flen = ((Pinhole_Intrinsic*)sfm_data.intrinsics.at(k).get())->focal();
-
+            printf("%lf\n",flen);
             Pose3 pos3 = sfm_data.GetPoses().at(k);
             Vec3 cent = pos3.center();
             Mat34 p = ((Pinhole_Intrinsic*)sfm_data.intrinsics.at(k).get())->get_projective_equivalent(pos3);
+            //printf("%lf   %lf   %lf\n",pos3.rotation()(0,0),pos3.rotation()(0,1),pos3.rotation()(0,2));
+            //cout<<((Pinhole_Intrinsic*)sfm_data.intrinsics.at(k).get())->K()<<endl;
             double *gcps = new double[5 * size];
             for (int i = 0; i < size; ++i) {
-                gcps[5 * i + 0] = featurePnts[i](0)-xsize/2;
-                gcps[5 * i + 1] = ysize/2-featurePnts[i](1);
+                gcps[5 * i + 0] = featurePnts[i](0);
+                gcps[5 * i + 1] = featurePnts[i](1);
 
                 double x = gcps[5 * i + 2] = groundPnts[i](0);
                 double y = gcps[5 * i + 3] = groundPnts[i](1);
@@ -730,11 +758,13 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image,double* gcps,int g
 
 void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image, Eigen::MatrixXd P,double dGroundSize, double fLen, string imageDem, string geoImageAccur)
 {
-    double xs = P(0,1);
-    double ys = P(1,1);
-    double zs = P(2,1);
-    double tm = P(3,1);
-    Vec3 XYZCnt = CooridinateTrans.LatLonToXYZ(41,124,400);
+    /*
+    printf("%lf  %lf  %lf  %lf\n",P(0,0),P(0,1),P(0,2),P(0,3));
+    printf("%lf  %lf  %lf  %lf\n",P(1,0),P(1,1),P(1,2),P(1,3));
+    printf("%lf  %lf  %lf  %lf\n",P(2,0),P(2,1),P(2,2),P(2,3));
+     */
+
+    //Vec3 XYZCnt = CooridinateTrans.LatLonToXYZ(41.376846,124.780536,400);
 
 
     //先不管坐标系统了
@@ -762,10 +792,10 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image, Eigen::MatrixXd P
         for(int j=0;j<ysrc;++j){
             //计算坐标
             Vec2 ptImg;
-            ptImg(0,0) = xsrc;
-            ptImg(1,0) = ysrc;
+            ptImg(0,0) = i;
+            ptImg(1,0) = j;
 
-            double z = XYZCnt(2);
+            double z = 500;//XYZCnt(2);
             Eigen::MatrixXd mat1(2,2);
             mat1(0,0) = P(2,0)*ptImg(0)-P(0,0);mat1(0,1) = P(2,1)*ptImg(0)-P(0,1);
             mat1(1,0) = P(2,0)*ptImg(1)-P(1,0);mat1(1,1) = P(2,1)*ptImg(1)-P(1,1);
@@ -775,15 +805,19 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image, Eigen::MatrixXd P
 
             Eigen::MatrixXd XYZ(2,1);
             XYZ=mat1.inverse()*pa;
-
+            //printf("%lf  %lf\n",XYZ(0),XYZ(1));
+            /*
             //转换到UTM坐标系下
             Vec3 lla = CooridinateTrans.XYZToLatLon(XYZ(0),XYZ(1),z);
             double x=lla(0);
             double y=lla(1);
             Vec3 utm = CooridinateTrans.LatLonToUTM(lla(0),lla(1),z);
-            xPositions[j*xsrc+i] = utm(0);
+            xPositions[j*xsrc+i] = XYZ(0);
             yPositions[j*xsrc+i] = utm(1);
-            printf("%lf  %lf\n",utm(0),utm(1));
+            */
+
+            xPositions[j*xsrc+i] = XYZ(0);
+            yPositions[j*xsrc+i] = XYZ(1);
             int idem = (xPositions[j*xsrc+i]-adfGeoTransformdem[0])/adfGeoTransformdem[1];
             int jdem = (yPositions[j*xsrc+i]-adfGeoTransformdem[3])/adfGeoTransformdem[5];
             if(idem>xdem||idem<0||idem>ydem||jdem<0)
@@ -810,7 +844,7 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image, Eigen::MatrixXd P
     printf("%f %f\n",minPt[1],maxPt[1]);
     int yre = (maxPt[1]-minPt[1])/dGroundSize;
     printf("%d\n",yre);
-    /*unsigned  char* pDataRe = new unsigned char[xre*yre];
+    unsigned  char* pDataRe = new unsigned char[xre*yre];
     unsigned  char* pDataSrc=new unsigned char[xsrc*ysrc];
     GDALDatasetH m_datasetGeo = GDALCreate(GDALGetDriverByName("GTiff"),geoImageAccur.c_str(),xre,yre,bands,GDT_Byte,NULL);
     for(int i=0;i<bands;++i){
@@ -823,7 +857,7 @@ void UAVGeoProc::UAVGeoProc_GeoCorrectionWithDEM(string image, Eigen::MatrixXd P
     GDALClose(m_datasetGeo);
     delete[] pDataRe;pDataRe=NULL;
     delete[] pDataSrc;pDataSrc=NULL;
-    */
+
 
     //重采样
     delete[] xPositions;xPositions=NULL;

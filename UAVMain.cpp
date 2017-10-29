@@ -1,6 +1,5 @@
 #include<stdlib.h>
 #include<stdio.h>
-//#include "gtest/gtest.h"
 #include "UAVCommon.h"
 #include "UAVGeoProc.h"
 #include "UAVDenseProcess.h"
