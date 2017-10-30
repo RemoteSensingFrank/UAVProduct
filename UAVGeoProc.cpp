@@ -505,41 +505,47 @@ bool UAVGeoProc::UAVGeoProc_GeoProcDEM(string pathSFM, string pathDem,string pat
 
     const Landmarks & landmarks = sfm_data.GetLandmarks();
 
-#pragma omp parallel for
+//#pragma omp parallel for
     for(size_t k=0;k<image_list.size();++k)
     {
         vector<Vec3> groundPnts;
         vector<Vec2> featurePnts;
+        FILE* fs=fopen("/home/wuwei/Data/求解结果误差.txt","w+");
         for ( const auto & iterLandmarks : landmarks )
         {
-            if(iterLandmarks.second.obs.find(k)!=iterLandmarks.second.obs.end())
-            {
-                groundPnts.push_back(iterLandmarks.second.X);
-                featurePnts.push_back(iterLandmarks.second.obs.at(k).x);
+             if(iterLandmarks.second.obs.find(k)!=iterLandmarks.second.obs.end())
+             {
+                 groundPnts.push_back(iterLandmarks.second.X);
+                 featurePnts.push_back(iterLandmarks.second.obs.at(k).x);
 
-               vector<Mat34> ps;
-               vector<Vec2>  pnts;
-               for(int l=0;l<iterLandmarks.second.obs.size();++l)
-               {
-                   Pose3 pos3 = sfm_data.GetPoses().at(l);
-                   Mat34 p = ((Pinhole_Intrinsic*)sfm_data.intrinsics.at(l).get())->get_projective_equivalent(pos3);
-                   ps.push_back(p);
-                   pnts.push_back(iterLandmarks.second.obs.at(l).x);
-               }
+                 vector<Mat34> ps;
+                 vector<Vec2>  pnts;
+                 for(int l=0;l<iterLandmarks.second.obs.size();++l)
+                 {
+                     Pose3 pos3 = sfm_data.GetPoses().at(l);
+                     Mat34 p = ((Pinhole_Intrinsic*)sfm_data.intrinsics.at(l).get())->get_projective_equivalent(pos3);
+                     ps.push_back(p);
+                     pnts.push_back(iterLandmarks.second.obs.at(l).x);
+                     break;
+                 }
 
-               //Vec3 llat = CooridinateTrans.XYZToLatLon(iterLandmarks.second.X(0),iterLandmarks.second.X(1),iterLandmarks.second.X(2));
-               double z = iterLandmarks.second.X(2)-10;
-               Eigen::MatrixXd mat1(2,2);
-               mat1(0,0) = ps[0](2,0)*pnts[0](0)-ps[0](0,0);mat1(0,1) = ps[0](2,1)*pnts[0](0)-ps[0](0,1);
-               mat1(1,0) = ps[0](2,0)*pnts[0](1)-ps[0](1,0);mat1(1,1) = ps[0](2,1)*pnts[0](1)-ps[0](1,1);
-               Eigen::MatrixXd pa(2,1);
-               pa(0,0)=ps[0](0,2)*z+ps[0](0,3)-pnts[0](0)*(ps[0](2,2)*z+ps[0](2,3));
-               pa(1,0)=ps[0](1,2)*z+ps[0](1,3)-pnts[0](1)*(ps[0](2,2)*z+ps[0](2,3));
+                 //Vec3 llat = CooridinateTrans.XYZToLatLon(iterLandmarks.second.X(0),iterLandmarks.second.X(1),iterLandmarks.second.X(2));
+                 for(int l=-300;l<=300;l+=10)
+                 {
+                     double z = iterLandmarks.second.X(2)+l;
+                     Eigen::MatrixXd mat1(2,2);
+                     mat1(0,0) = ps[0](2,0)*pnts[0](0)-ps[0](0,0);mat1(0,1) = ps[0](2,1)*pnts[0](0)-ps[0](0,1);
+                     mat1(1,0) = ps[0](2,0)*pnts[0](1)-ps[0](1,0);mat1(1,1) = ps[0](2,1)*pnts[0](1)-ps[0](1,1);
+                     Eigen::MatrixXd pa(2,1);
+                     pa(0,0)=ps[0](0,2)*z+ps[0](0,3)-pnts[0](0)*(ps[0](2,2)*z+ps[0](2,3));
+                     pa(1,0)=ps[0](1,2)*z+ps[0](1,3)-pnts[0](1)*(ps[0](2,2)*z+ps[0](2,3));
 
-               Eigen::MatrixXd XYZ(2,1);
-               XYZ=mat1.inverse()*pa;
-                printf("%lf   %lf \n",XYZ(0,0),XYZ(1,0));
-               int tmp=0;
+                     Eigen::MatrixXd XYZ(2,1);
+                     XYZ=mat1.inverse()*pa;
+                     fprintf(fs,"%lf   %lf \n",XYZ(0,0)-iterLandmarks.second.X(0),XYZ(1,0)-iterLandmarks.second.X(1));
+                     int tmp=0;
+                 }
+                 fclose(fs);
 
             }
         }

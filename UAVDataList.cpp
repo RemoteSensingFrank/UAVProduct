@@ -297,6 +297,23 @@ float UAVDataList::UAVList_CreateSFMList()
                 v.pose_center_ = val.second;
                 views[v.id_view] = std::make_shared<ViewPriors>(v);
             }
+            else{
+                _info_._g_Has_Pos = false;
+                View v(*iter_image, views.size(), views.size(), views.size(), width, height);
+                if (intrinsic == NULL)
+                {
+                    //Since the view have invalid intrinsic data
+                    // (export the view, with an invalid intrinsic field value)
+                    v.id_intrinsic = UndefinedIndexT;
+                }
+                else
+                {
+                    // Add the defined intrinsic to the sfm_container
+                    intrinsics[v.id_intrinsic] = intrinsic;
+                }
+                // Add the view to the sfm_container
+                views[v.id_view] = std::make_shared<View>(v);
+            }
         } else{
             _info_._g_Has_Pos = false;
             View v(*iter_image, views.size(), views.size(), views.size(), width, height);

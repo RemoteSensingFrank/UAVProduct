@@ -116,9 +116,9 @@ void GLOBAL_INFO::_g_run(string Type_P,string Type_B,double dL,double dB) {
     //_geo_.UAVGeoProc_GeoProc(0,dL,dB);
 
     //密集匹配
-    //UAVDenseProcess _dense_;
-    //_dense_.UAVDP_ExportMVS();
-    //_dense_.UAVDP_MVSProc();
+    UAVDenseProcess _dense_;
+    _dense_.UAVDP_ExportMVS();
+    _dense_.UAVDP_MVSProc();
 }
 
 
