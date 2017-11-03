@@ -6,7 +6,7 @@
 #include "UAVCommon.h"
 
 #include "openMVG/stl/split.hpp"
-#include "openMVG/sfm/sfm.hpp"
+
 #include "openMVG/exif/exif_IO_EasyExif.hpp"
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 #include "UAVXYZToLatLonWGS84.h"

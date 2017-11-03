@@ -2,15 +2,13 @@
 #include "UAVCommon.h"
 #include "gdal_priv.h"
 
-#include "openMVG/sfm/sfm.hpp"
+//#include "openMVG/sfm/sfm.hpp"
 #include "Python.h"
 #include "UAVXYZToLatLonWGS84.h"
 
 #include <stdio.h>
 using namespace openMVG;
-//using namespace openMVG::cameras;
 using namespace openMVG::sfm;
-//using namespace openMVG::image;
 
 static  UAVXYZToLatLonWGS84 CooridinateTrans;
 
@@ -70,7 +68,7 @@ bool UAVMapCalculate::UAVMapUnitCombie(vector<MapUnit> units,string dest)
       minx=maxx=units[0].row;
       miny=maxy=units[0].col;
 
-      for(int i=0;i<units.size();++i)
+      for(size_t i=0;i<units.size();++i)
       {
         minx=min(minx,units[i].row);
         maxx=max(maxx,units[i].row);
@@ -103,7 +101,7 @@ bool UAVMapCalculate::UAVMapUnitCombie(vector<MapUnit> units,string dest)
 
       for (int k = 0; k <3 ; ++k) {
 
-        for (int j = 0; j < units.size(); ++j) {
+        for (size_t j = 0; j < units.size(); ++j) {
           GDALDatasetH m_datasrc = GDALOpen(units[j].unit_save.c_str(),GA_ReadOnly);
           //数据不大 不用做内存申请检查
           int widthsc  = GDALGetRasterXSize(m_datasrc);
@@ -137,7 +135,7 @@ bool UAVMapCalculate::UAVMapUnitCombie(vector<MapUnit> units,string dest)
 //===================================================================================================================
 bool UAVMapCalculateGoogle::UAVMapUnitURL(vector<MapUnit> &units)
 {
-      for(int i=0;i<units.size();++i)
+      for(size_t i=0;i<units.size();++i)
       {
         char tile_url[256];
         sprintf(tile_url,"&x=%d&y=%d&z=%d",units[i].row,units[i].col,units[i].level);
@@ -151,7 +149,7 @@ bool UAVMapCalculateGoogle::UAVMapUnitURL(vector<MapUnit> &units)
 
 bool UAVMapCalculateGoogle::UAVMapUnitData(vector<MapUnit> units)
 {
-      for(int i=0;i<units.size();++i)
+      for(size_t i=0;i<units.size();++i)
       {
           if(stlplus::file_exists(units[i].unit_save))
               continue;

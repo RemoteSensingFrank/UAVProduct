@@ -7,7 +7,7 @@
 #include "gdal_alg.h"
 #include "gdalwarper.h"
 
-#include "openMVG/sfm/sfm.hpp"
+//#include "openMVG/sfm/sfm.hpp"
 #include "openMVG/cameras/cameras.hpp"
 #include "UAVXYZToLatLonWGS84.h"
 #include "UAVCommon.h"

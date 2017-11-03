@@ -4,7 +4,7 @@
 
 #ifndef UAVPRODUCT_UAVCOMMON_H
 #define UAVPRODUCT_UAVCOMMON_H
-
+#include "openMVG/sfm/sfm.hpp"
 #include <string>
 using namespace std;
 
