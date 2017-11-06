@@ -46,33 +46,23 @@ typedef struct calib{
     double _ccd_size_;
 }UAVCalibParams;
 
-//parameters type
-typedef enum paramtype{
-	PARAMList,
-	PARAMFeature,
-	PARAMMatch,
-	PARAMBundle,
-	PARAMGeocorrect,
-	PARAMDense
-}PARAMTYPE;
+//POS数据结构体
+typedef struct uavposst{
+	double dL;
+    double dB;
+    double dH;
+    double dRoll;
+    double dPitch;
+    double dHeading;
+}UAVPOSSt;
 
-typedef enum proctype{
-	PROCList,
-	PROCFeatureGpuSIFT,
-	PROCFeatureCpuSIFT,
-	PROCMatchFundmatrix,
-	PROCMatchEssentialmatrix,
-	PROCBundleSequence,
-	PROCBundleGlobal,
-	PROCGeocorrect,
-	PROCGeocorrectDEM,
-	PROCMosaic,
-	PROCDense
-}PROCTYPE;
+typedef enum coordilisttype{
+	CoordinateUTM,
+	CoordinateXYZ,
+	CoordinateLocal,
+} CoordiListType;
 
 //进度条
 typedef int (*UAVProgressFunc)(double dfComplete, const char *pszMessage, void *pProgressArg);
 
-#define PI 3.1415926534
-#define PI_M2 PI*PI
-#define PI_D2 PI/2
+ 
