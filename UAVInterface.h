@@ -5,11 +5,12 @@
 #include<stdexcept>
 #include<string>
 #include<map>
+#include <types.hpp>
 
 typedef std::map<int,UAVPOSSt> POSPair;
-typedef std::map<int,int> MatchesList;
+typedef openMVG::Pair_Set MatchesList;
 #define UndefinedCalibParam(cParam)  (memset(&cParam,0,sizeof(UAVCalibParams)))
-#define IsUndefineCalibParam(cParam) (!cParam._flen_x_||!cParam._flen_x_||!cParam._ppx_||!cParam._ppy_)
+#define IsUndefineCalibParam(cParam) (cParam._flen_x_&&cParam._flen_x_&&cParam._ppx_&&cParam._ppy_)
 
 class UAV
 {
@@ -55,12 +56,15 @@ public:
 class UAVProcessMatches:public UAVProcessList
 {
 public:
-	virtual UAVErr UAVProcessMatchesList()=0;
+	virtual UAVErr UAVProcessMatchesList(std::string imageList,int neighbor_count,bool bGeo,std::string pMatch);
+    virtual void UAVProcessAdjacencyMatrixToSVG(const size_t NbImages,
+                                                const MatchesList & corresponding_indexes,
+                                                const std::string & sOutName);
 	virtual UAVErr UAVProcessMatchesExport(MatchesList list,std::string pMatch);
 	virtual UAVErr UAVProcessMatchesImport(MatchesList &list,std::string pMatch);
 
 protected:
-	virtual UAVErr UAVProcessMatchesExtract(MatchesList list,std::string pMatchData)=0;
+	virtual UAVErr UAVProcessMatchesExtract(int neighbor_count,MatchesList list)=0;
 	
 	struct FeatureParam
 	{
@@ -73,7 +77,7 @@ protected:
 class UAVProcessFeature:public UAVProcessMatches
 {
 public:
-	virtual UAVErr UAVProcessFeatList(std::string dImage,std::string dFeats);
+	virtual UAVErr UAVProcessFeatList(std::string imageList,std::string dFeats);
 	virtual UAVErr UAVProcessMatchesList();
 	virtual UAVErr UAVProcessFeatExtract(bool bThread) = 0;
 

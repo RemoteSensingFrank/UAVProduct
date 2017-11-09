@@ -62,6 +62,22 @@ typedef enum coordilisttype{
 	CoordinateLocal,
 } CoordiListType;
 
+typedef enum EGeometricModel
+{
+	FUNDAMENTAL_MATRIX = 0,
+	ESSENTIAL_MATRIX   = 1,
+	HOMOGRAPHY_MATRIX  = 2
+}MATRIXMODEL;
+
+typedef enum ePairMode
+{
+    PAIR_MODE_EXHAUSTIVE = 0,
+    PAIR_MODE_CONTIGUOUS = 1,
+    PAIR_MODE_NEIGHBORHOOD = 2
+}MATCHMODEL;
+
+
+
 //½ø¶ÈÌõ
 typedef int (*UAVProgressFunc)(double dfComplete, const char *pszMessage, void *pProgressArg);
 
