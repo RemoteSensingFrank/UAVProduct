@@ -9,7 +9,7 @@
 #include "openMVG/matching/matcher_brute_force.hpp"
 #include "openMVG/exif/exif_IO_EasyExif.hpp"
 #include "openMVG/sfm/sfm.hpp"
-
+#include <cereal/archives/json.hpp>
 #ifdef DEBUG
 #define LOG( format, args... )  printf( format, ##args )
 #else
@@ -211,7 +211,9 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
     if(!bPos&&pPorc->posList.size()<vec_image.size())
         return 1;
     POSPair::iterator iter = pPorc->posList.begin();
-    for(size_t i=0;i<vec_image.size();++i)
+    int i=0;
+    for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin();
+          iter_image != vec_image.end(); ++iter_image,++i)
     {
         const std::string sImageFilename = stlplus::create_filespec(image_dir, vec_image[i]);
         const std::string sImFilenamePart = stlplus::filename_part(sImageFilename);
@@ -236,9 +238,6 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
             focal = std::max ( width, height ) * exifReader->getFocal() / exifReader->getFocal();
         }
 
-
-
-
         std::shared_ptr<openMVG::cameras::IntrinsicBase> intrinsic(NULL);
         if(focal>0&&ppx>0&& ppy&&height>0&&width>0)
         {
@@ -249,7 +248,7 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
 
         if(bPos)
         {
-            ViewPriors v(vec_image[i], views.size(), views.size(), views.size(), width, height);
+            ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
             // Add intrinsic related to the image (if any)
             if (intrinsic == NULL)
             {
@@ -264,7 +263,7 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
         else
         {
 
-            ViewPriors v(vec_image[i], views.size(), views.size(), views.size(), width, height);
+            ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
             // Add intrinsic related to the image (if any)
             if (intrinsic == NULL)
             {
@@ -283,12 +282,19 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
             iter++;
         }
     }
-    if (!Save(
+    if (!openMVG::sfm::Save(
             sfm_data,
             sfm_in,
             ESfM_Data(VIEWS|INTRINSICS)))
     {
         return 3;
+    }
+    openMVG::sfm::SfM_Data sfm_datatest;
+    if (!openMVG::sfm::Load(sfm_datatest, "/home/wuwei/Data/UAVData/10/sfm.json", openMVG::sfm::ESfM_Data(VIEWS|INTRINSICS)))
+    {
+        std::cerr << std::endl
+                  << "The input SfM_Data file \"" << sfm_in << "\" cannot be read." << std::endl;
+        return 1;
     }
     return 0;
 
@@ -382,6 +388,7 @@ UAVErr UAVProcessMatches::UAVProcessMatchesList(std::string imageList, int neigh
                 std::cerr << "You are trying to use the gps_mode but your data does"
                           << " not have any pose priors."
                           << std::endl;
+                return 1;
             }
             // Compute i_neighbor_count neighbor(s) for each pose
             size_t contiguous_pose_id = 0;
@@ -413,7 +420,7 @@ UAVErr UAVProcessMatches::UAVProcessMatchesList(std::string imageList, int neigh
             break;
         default:
             std::cerr << "Unknown pair mode." << std::endl;
-            return false;
+            return 4;
     }
 
 

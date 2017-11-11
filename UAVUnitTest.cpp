@@ -3,6 +3,8 @@
 //
 #include "gtest/gtest.h"
 #include "UAVPreProcess.h"
+#include <memory>
+#include <iostream>
 
 TEST(UAVUnitTest,UnitTestListPOS)
 {
@@ -43,4 +45,57 @@ TEST(UAVUnitTest,UnitTestListError)
     EXPECT_EQ(err,3);
     err=list->UAVProcessListGet("/home/wuwei/Data/UAVData/8/Img/","",calibCameras,"/home/wuwei/Data/UAVData/8/sfm.json",posSimple,CoordinateUTM);
     EXPECT_EQ(err,0);
+}
+
+TEST(UAVUnitTest,UnitTestMatch)
+{
+    std::string strList = "/home/wuwei/Data/UAVData/1/sfm.json";
+    std::string strMatch="/home/wuwei/Data/UAVData/1/matches.txt";
+    std::shared_ptr<UAVProcessMatches> match(new UAVProcessMatches());
+    UAVErr err;
+    err=match->UAVProcessMatchesList(strList,1,false,strMatch);
+    EXPECT_EQ(0,err);
+    err=match->UAVProcessMatchesList(strList,0,false,strMatch);
+    EXPECT_EQ(0,err);
+    err=match->UAVProcessMatchesList(strList,8,false,strMatch);
+    EXPECT_EQ(0,err);
+    strList="/home/wuwei/Data/UAVData/8/sfm.json";
+    strMatch="/home/wuwei/Data/UAVData/8/matches.txt";
+    err=match->UAVProcessMatchesList(strList,1,true,strMatch);
+    EXPECT_EQ(0,err);
+    err=match->UAVProcessMatchesList(strList,0,true,strMatch);
+    EXPECT_EQ(0,err);
+    err=match->UAVProcessMatchesList(strList,8,true,strMatch);
+    EXPECT_EQ(0,err);
+}
+TEST(UAVUnitTest,UnitTestMatchError)
+{
+    std::string strList = "/home/wuwei/Data/UAVData/1/sfm.json";
+    std::string strMatch="/home/wuwei/Data/UAVData/1/matches.txt";
+    std::shared_ptr<UAVProcessMatches> match(new UAVProcessMatches());
+
+    UAVErr err;
+    err=match->UAVProcessMatchesList(strList,1,true,strMatch);
+    EXPECT_EQ(4,err);
+    err=match->UAVProcessMatchesList(strList,0,true,strMatch);
+    EXPECT_EQ(0,err);
+    err=match->UAVProcessMatchesList(strList,8,true,strMatch);
+    EXPECT_EQ(4,err);
+    strList="/home/wuwei/Data/UAVData/8/sfm.json";
+    strMatch="/home/wuwei/Data/UAVData/8/matches.txt";
+    err=match->UAVProcessMatchesList(strList,1,false,strMatch);
+    EXPECT_EQ(0,err);
+    err=match->UAVProcessMatchesList(strList,0,false,strMatch);
+    EXPECT_EQ(0,err);
+    err=match->UAVProcessMatchesList(strList,8,false,strMatch);
+    EXPECT_EQ(0,err);
+
+    err=match->UAVProcessMatchesList("",1,true,strMatch);
+    EXPECT_EQ(1,err);
+    err=match->UAVProcessMatchesList("",1,false,strMatch);
+    EXPECT_EQ(1,err);
+    err=match->UAVProcessMatchesList(strList,1,true,"");
+    EXPECT_EQ(1,err);
+    err=match->UAVProcessMatchesList(strList,1,false,"");
+    EXPECT_EQ(1,err);
 }

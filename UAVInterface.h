@@ -64,8 +64,6 @@ public:
 	virtual UAVErr UAVProcessMatchesImport(MatchesList &list,std::string pMatch);
 
 protected:
-	virtual UAVErr UAVProcessMatchesExtract(int neighbor_count,MatchesList list)=0;
-	
 	struct FeatureParam
 	{
 		std::string _image_in_;
