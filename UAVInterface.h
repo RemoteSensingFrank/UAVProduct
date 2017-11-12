@@ -68,6 +68,7 @@ protected:
 	{
 		std::string _image_in_;
 		std::string _feature_out_;
+		std::string _descs_out_;
 	};
 	std::map<int,FeatureParam> feature;
 };
@@ -75,12 +76,13 @@ protected:
 class UAVProcessFeature:public UAVProcessMatches
 {
 public:
-	virtual UAVErr UAVProcessFeatList(std::string imageList,std::string dFeats);
-	virtual UAVErr UAVProcessMatchesList();
+	virtual UAVErr UAVProcessFeatList(std::string sfmList,std::string dFeats);
 	virtual UAVErr UAVProcessFeatExtract(bool bThread) = 0;
-
 protected:
-	virtual UAVErr UAVProcessMatchesExtract(MatchesList list,std::string pMatchData)=0;
+	virtual UAVErr UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData)=0;
+
+	std::string pSfmList;
+
 };
 
 class UAVProcessDense:public UAV

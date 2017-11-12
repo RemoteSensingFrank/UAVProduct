@@ -3,13 +3,28 @@
 //
 
 #include <memory>
+#include <thread>
 #include "UAVPreProcess.h"
+#include "openMVG/system/timer.hpp"
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 #include "openMVG/matching_image_collection/Pair_Builder.hpp"
+
 #include "openMVG/matching/matcher_brute_force.hpp"
 #include "openMVG/exif/exif_IO_EasyExif.hpp"
 #include "openMVG/sfm/sfm.hpp"
-#include <cereal/archives/json.hpp>
+
+#include "openMVG/stl/stl.hpp"
+#include "nonFree/sift/SIFT_describer.hpp"
+#include "openMVG/features/regions_factory.hpp"
+#include "openMVG/features/sift/SIFT_Anatomy_Image_Describer.hpp"
+#include "openMVG/matching_image_collection/Matcher_Regions_AllInMemory.hpp"
+#include "openMVG/matching_image_collection/Cascade_Hashing_Matcher_Regions_AllInMemory.hpp"
+#include "openMVG/matching/pairwiseAdjacencyDisplay.hpp"
+#include "openMVG/matching_image_collection/E_ACRobust.hpp"
+
+#include "openMVG/matching_image_collection/GeometricFilter.hpp"
+
+
 #ifdef DEBUG
 #define LOG( format, args... )  printf( format, ##args )
 #else
@@ -127,7 +142,8 @@ UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps) {
                 } else{
                     return 1;
                 }
-            }
+            }else
+                return 1;
         }
         return 0;
     } else{
@@ -153,7 +169,6 @@ UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps) {
             return 0;
         }
     }
-
 }
 
 //TODO:
@@ -212,6 +227,8 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
         return 1;
     POSPair::iterator iter = pPorc->posList.begin();
     int i=0;
+
+    /*
     for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin();
           iter_image != vec_image.end(); ++iter_image,++i)
     {
@@ -224,6 +241,8 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
 
         width = imgHeader.width;
         height = imgHeader.height;
+        std::unique_ptr<openMVG::exif::Exif_IO> exifReader(new openMVG::exif::Exif_IO_EasyExif);
+
         if(bCalibParam)
         {
 
@@ -233,9 +252,10 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
         } else{
             ppx=width/2.0;
             ppy=height/2.0;
-            std::unique_ptr<openMVG::exif::Exif_IO> exifReader(new openMVG::exif::Exif_IO_EasyExif);
-            exifReader->open( sImageFilename );
-            focal = std::max ( width, height ) * exifReader->getFocal() / exifReader->getFocal();
+            if(exifReader->open( sImageFilename ))
+                focal = std::max ( width, height ) * exifReader->getFocal() / exifReader->getFocal();
+            else
+                focal=std::max(width,height);
         }
 
         std::shared_ptr<openMVG::cameras::IntrinsicBase> intrinsic(NULL);
@@ -282,20 +302,88 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
             iter++;
         }
     }
-    if (!openMVG::sfm::Save(
+     */
+    for (std::vector<std::string>::const_iterator iter_image = vec_image.begin();
+         iter_image != vec_image.end(); ++iter_image,++i)
+    {
+        ppx=ppy= width = height= focal = -1;
+        const std::string sImageFilename = stlplus::create_filespec(dImage, *iter_image );
+        const std::string sImFilenamePart = stlplus::filename_part(sImageFilename);
+
+        openMVG::image::ImageHeader imgHeader;
+        if (!openMVG::image::ReadImageHeader(sImageFilename.c_str(), &imgHeader))
+            continue;
+
+        width = imgHeader.width;
+        height = imgHeader.height;
+        ppx = width / 2.0;
+        ppy = height / 2.0;
+        if(bCalibParam)
+        {
+            ppx=cParam._ppx_;
+            ppy=cParam._ppy_;
+            focal=std::max(cParam._flen_x_,cParam._flen_y_);
+        } else{
+            ppx=width/2.0;
+            ppy=height/2.0;
+            std::unique_ptr<openMVG::exif::Exif_IO> exifPosReader(new openMVG::exif::Exif_IO_EasyExif);
+            if(exifPosReader->open( sImageFilename ))
+                focal = std::max ( width, height ) * exifPosReader->getFocal() / exifPosReader->getFocal();
+            else
+                focal=std::max(width,height);
+        }
+        std::unique_ptr<openMVG::exif::Exif_IO> exifReader(new openMVG::exif::Exif_IO_EasyExif);
+        exifReader->open( sImageFilename );
+            focal = std::max ( width, height );
+
+        std::shared_ptr<openMVG::cameras::IntrinsicBase> intrinsic(NULL);
+        if(focal>0&&ppx>0&& ppy&&height>0&&width>0)
+        {
+            //initial intrinsic
+            intrinsic = std::make_shared<openMVG::cameras::Pinhole_Intrinsic_Radial_K3>
+                    (width, height, focal, ppx, ppy, 0.0, 0.0, 0.0);  // setup no distortion as initial guess
+        }
+
+        if(bPos)
+        {
+            View v(*iter_image, views.size(), views.size(), views.size(), width, height);
+            if (intrinsic == NULL)
+                v.id_intrinsic = openMVG::UndefinedIndexT;
+            else
+                intrinsics[v.id_intrinsic] = intrinsic;
+            // Add the view to the sfm_container
+            views[v.id_view] = std::make_shared<View>(v);
+        }
+        else
+        {
+            ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
+            // Add intrinsic related to the image (if any)
+            if (intrinsic == NULL)
+                v.id_intrinsic = openMVG::UndefinedIndexT;
+            else
+                intrinsics[v.id_intrinsic] = intrinsic;
+
+            // Add the view to the sfm_container
+            views[v.id_view] = std::make_shared<View>(v);
+            v.b_use_pose_center_ = true;
+            double x = iter->second.dL;
+            double y = iter->second.dB;
+            double z = iter->second.dH;
+            v.pose_center_ = openMVG::Vec3(x,y,z);
+            views[v.id_view] = std::make_shared<ViewPriors>(v);
+            iter++;
+        }
+
+    }
+
+    if (!Save(
             sfm_data,
-            sfm_in,
+            sfm_in.c_str(),
             ESfM_Data(VIEWS|INTRINSICS)))
     {
         return 3;
     }
-    openMVG::sfm::SfM_Data sfm_datatest;
-    if (!openMVG::sfm::Load(sfm_datatest, "/home/wuwei/Data/UAVData/10/sfm.json", openMVG::sfm::ESfM_Data(VIEWS|INTRINSICS)))
-    {
-        std::cerr << std::endl
-                  << "The input SfM_Data file \"" << sfm_in << "\" cannot be read." << std::endl;
-        return 1;
-    }
+
     return 0;
 
 }
@@ -310,8 +398,8 @@ UAVErr UAVProcessMatches::UAVProcessMatchesList(std::string imageList, int neigh
     //首先check输入
     if(!stlplus::file_exists(imgLst)||pMatch.empty())
         return 1;
-    if(bGeo&&neighbor_count==0)
-        return 1;
+    //if(bGeo&&neighbor_count==0)
+    //    return 1;
 
     if (i_neighbor_count==0)
         i_mode = PAIR_MODE_EXHAUSTIVE;
@@ -419,6 +507,7 @@ UAVErr UAVProcessMatches::UAVProcessMatchesList(std::string imageList, int neigh
         }
             break;
         default:
+            //测试用例无法覆盖
             std::cerr << "Unknown pair mode." << std::endl;
             return 4;
     }
@@ -524,4 +613,251 @@ UAVErr UAVProcessMatches::UAVProcessMatchesExport(MatchesList list, std::string 
 
 UAVErr UAVProcessMatches::UAVProcessMatchesImport(MatchesList &list, std::string pMatch) {
     return 0;
+}
+
+UAVErr UAVProcessFeature::UAVProcessFeatList(std::string sfmList, std::string dFeats) {
+    //判断输入
+    if(!stlplus::file_exists(sfmList))
+        return 1;
+    if(!stlplus::folder_exists(dFeats))
+    {
+        if(!stlplus::folder_create(dFeats))
+            return 1;
+    }
+
+    pSfmList = sfmList;
+    openMVG::sfm::SfM_Data sfm_data;
+    if (!Load(sfm_data, sfmList, openMVG::sfm::ESfM_Data(openMVG::sfm::VIEWS|openMVG::sfm::INTRINSICS)))
+    {
+        std::cerr << std::endl
+                  << "The input SfM_Data file \"" << sfmList << "\" cannot be read." << std::endl;
+        return 1;
+    }
+    LOG("Loaded a sfm_data scene with:\n#views: %d\n",sfm_data.GetViews().size());
+
+    std::string dImage = sfm_data.s_root_path;
+    int i=0;
+    for (const auto & viewIter : sfm_data.GetViews())
+    {
+        const openMVG::sfm::View * view = viewIter.second.get();
+        std::string img_name=view->s_Img_path;
+        const std::string
+                sView_filename = stlplus::create_filespec(sfm_data.s_root_path, view->s_Img_path),
+                sFeat = stlplus::create_filespec(dFeats, stlplus::basename_part(sView_filename), "feat"),
+                sDesc = stlplus::create_filespec(dFeats, stlplus::basename_part(sView_filename), "desc");
+        FeatureParam featsParam;
+        featsParam._image_in_ = sView_filename;
+        featsParam._feature_out_=sFeat;
+        featsParam._descs_out_=sDesc;
+        this->feature[i]=featsParam;
+        ++i;
+    }
+    return 0;
+}
+
+UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData) {
+    std::string pList = pMatchList;
+    std::string pMatchDir = stlplus::folder_part(pMatchData);
+
+    if(!stlplus::file_exists(pMatchList))
+        return 1;
+
+    //读取matchlist
+    std::unique_ptr<openMVG::features::Regions> regions_type;
+    regions_type.reset(new openMVG::features::SIFT_Regions());
+    std::unique_ptr<openMVG::features::Image_describer> image_describer;
+    image_describer.reset(new openMVG::features::SIFT_Image_describer
+                                  (openMVG::features::SIFT_Image_describer::Params(), true));
+    std::shared_ptr<openMVG::sfm::Regions_Provider> regions_provider;
+    regions_provider = std::make_shared<openMVG::sfm::Regions_Provider>();
+    bool bContinue = true;
+
+    openMVG::sfm::SfM_Data sfm_data;
+    if (!Load(sfm_data, pSfmList, openMVG::sfm::ESfM_Data(openMVG::sfm::VIEWS|openMVG::sfm::INTRINSICS))) {
+        std::cerr << std::endl
+                  << "The input SfM_Data file \""<< pSfmList << "\" cannot be read." << std::endl;
+        return false;
+    }
+
+    //regions_provider->load(sfm_data,stlplus::folder_part(feature[0]._feature_out_),regions_type);
+    //获取特征点
+    for (auto iter:feature)
+    {
+#ifdef OPENMVG_USE_OPENMP
+#pragma omp single nowait
+#endif
+        {
+            const std::string sImageName = iter.second._image_in_;
+            const std::string featFile = iter.second._feature_out_;
+            const std::string descFile = iter.second._descs_out_;
+
+            std::unique_ptr<openMVG::features::Regions> regions_ptr(regions_type->EmptyClone());
+            if (!regions_ptr->Load(featFile, descFile))
+            {
+                std::cerr << "Invalid regions files for the view: " << sImageName << std::endl;
+#ifdef OPENMVG_USE_OPENMP
+#pragma omp critical
+#endif
+                bContinue = false;
+            }
+#ifdef OPENMVG_USE_OPENMP
+#pragma omp critical
+#endif
+        }
+    }
+
+    //进行匹配
+    openMVG::matching::PairWiseMatches map_PutativesMatches;
+    //判断是否存在
+    if(stlplus::file_exists(pMatchData))
+    {
+        if(openMVG::matching::Load(map_PutativesMatches,pMatchData))
+            return 0;
+    }
+
+    //不存在则需要重新匹配 SIFT对应的不需要进行判断了
+    float fDistRatio=0.6f;
+    std::unique_ptr<openMVG::matching_image_collection::Matcher> collectionMatcher;
+    std::cout << "Using FAST_CASCADE_HASHING_L2 matcher" << std::endl;
+    collectionMatcher.reset(new openMVG::matching_image_collection::Cascade_Hashing_Matcher_Regions_AllInMemory(fDistRatio));
+
+    openMVG::system::Timer timer;
+    {
+        // From matching mode compute the pair list that have to be matched:
+        openMVG::Pair_Set pairs;
+        if(!openMVG::loadPairs(feature.size(), pList, pairs))
+        {
+            return false;
+        }
+
+        // Photometric matching of putative pairs
+        collectionMatcher->Match(sfm_data, regions_provider, pairs, map_PutativesMatches);
+        //---------------------------------------
+        //-- Export putative matches
+        //---------------------------------------
+        if (!Save(map_PutativesMatches, std::string(pMatchData)))
+        {
+            std::cerr
+                    << "Cannot save computed matches in: "
+                    << pMatchData;
+            return 5;
+        }
+
+        //几何处理优化
+        //-- export putative matches Adjacency matrix
+        openMVG::matching::PairWiseMatchingToAdjacencyMatrixSVG(feature.size(),
+                                             map_PutativesMatches,
+                                             stlplus::create_filespec(stlplus::folder_part(pMatchData), "PutativeAdjacencyMatrix", "svg"));
+        //-- export view pair graph once putative graph matches have been computed
+        {
+            std::set<openMVG::IndexT> set_ViewIds;
+            std::transform(sfm_data.GetViews().begin(), sfm_data.GetViews().end(),
+                           std::inserter(set_ViewIds, set_ViewIds.begin()), stl::RetrieveKey());
+            openMVG::graph::indexedGraph putativeGraph(set_ViewIds, getPairs(map_PutativesMatches));
+            openMVG::graph::exportToGraphvizData(
+                    stlplus::create_filespec(stlplus::folder_part(pMatchData), "putative_matches"),
+                    putativeGraph);
+        }
+
+        //---------------------------------------
+        // b. Geometric filtering of putative matches
+        //    - AContrario Estimation of the desired geometric model
+        //    - Use an upper bound for the a contrario estimated threshold
+        //---------------------------------------
+
+        std::unique_ptr<openMVG::matching_image_collection::ImageCollectionGeometricFilter> filter_ptr(
+                new openMVG::matching_image_collection::ImageCollectionGeometricFilter(&sfm_data, regions_provider));
+        int imax_iteration = 2048;
+        bool bGuided_matching = false;
+        if (filter_ptr)
+        {
+            openMVG::matching::PairWiseMatches map_GeometricMatches;
+            filter_ptr->Robust_model_estimation(openMVG::matching_image_collection::GeometricFilter_EMatrix_AC(4.0, imax_iteration),
+                                                map_PutativesMatches, bGuided_matching);
+            map_GeometricMatches = filter_ptr->Get_geometric_matches();
+
+            //-- Perform an additional check to remove pairs with poor overlap
+            std::vector<openMVG::matching::PairWiseMatches::key_type> vec_toRemove;
+            for (openMVG::matching::PairWiseMatches::const_iterator iterMap = map_GeometricMatches.begin();
+                 iterMap != map_GeometricMatches.end(); ++iterMap)
+            {
+                const size_t putativePhotometricCount = map_PutativesMatches.find(iterMap->first)->second.size();
+                const size_t putativeGeometricCount = iterMap->second.size();
+                const float ratio = putativeGeometricCount / (float)putativePhotometricCount;
+                if (putativeGeometricCount < 50 || ratio < .3f)  {
+                    // the pair will be removed
+                    vec_toRemove.push_back(iterMap->first);
+                }
+            }
+            //-- remove discarded pairs
+            for (std::vector<openMVG::matching::PairWiseMatches::key_type>::const_iterator
+                         iter =  vec_toRemove.begin(); iter != vec_toRemove.end(); ++iter)
+            {
+                map_GeometricMatches.erase(*iter);
+            }
+            std::string sGeometricMatchesFilename = "matches.h.txt";
+            //---------------------------------------
+            //-- Export geometric filtered matches
+            //---------------------------------------
+            if (!openMVG::matching::Save(map_GeometricMatches,
+                      std::string(stlplus::folder_part(pMatchData) + "/" + sGeometricMatchesFilename)))
+            {
+                std::cerr
+                        << "Cannot save computed matches in: "
+                        << std::string(stlplus::folder_part(pMatchData) + "/" + sGeometricMatchesFilename);
+                return false;
+            }
+
+            std::cout << "Task done in (s): " << timer.elapsed() << std::endl;
+
+            //-- export Adjacency matrix
+            std::cout << "\n Export Adjacency Matrix of the pairwise's geometric matches"
+                      << std::endl;
+            PairWiseMatchingToAdjacencyMatrixSVG(feature.size(),
+                                                 map_GeometricMatches,
+                                                 stlplus::create_filespec(stlplus::folder_part(pMatchData), "GeometricAdjacencyMatrix", "svg"));
+
+            //-- export view pair graph once geometric filter have been done
+            {
+                std::set<openMVG::IndexT> set_ViewIds;
+                std::transform(sfm_data.GetViews().begin(), sfm_data.GetViews().end(),
+                               std::inserter(set_ViewIds, set_ViewIds.begin()), stl::RetrieveKey());
+                openMVG::graph::indexedGraph putativeGraph(set_ViewIds, getPairs(map_GeometricMatches));
+                openMVG::graph::exportToGraphvizData(
+                        stlplus::create_filespec(stlplus::folder_part(pMatchData), "geometric_matches"),
+                        putativeGraph);
+            }
+        }
+    }
+    return 0;
+}
+
+UAVErr UAVProcessFeatureSIFT::UAVProcessFeatExtractEach(FeatureParam fParam){
+    std::string img=fParam._image_in_;
+    std::string feats=fParam._feature_out_;
+    std::string descs=fParam._descs_out_;
+    openMVG::image::Image<unsigned char> imageGray, globalMask;
+
+    if(!stlplus::file_exists(img))
+    {
+        return 1;
+    }
+    std::unique_ptr<openMVG::features::Image_describer> image_describer;
+    image_describer.reset(new openMVG::features::SIFT_Image_describer
+                                      (openMVG::features::SIFT_Image_describer::Params(), true));
+    if (!image_describer)
+    {
+        std::cerr << "Cannot create the designed Image_describer:"
+                  << "SIFT" << "." << std::endl;
+        return 5;
+    }
+
+    if (!openMVG::image::ReadImage(img.c_str(), &imageGray))
+        return 1;
+
+    openMVG::image::Image<unsigned char> * mask = nullptr;
+    // Compute features and descriptors and export them to files
+    std::unique_ptr<openMVG::features::Regions> regions;
+    image_describer->Describe(imageGray, regions, mask);
+    image_describer->Save(regions.get(), feats, descs);
 }
