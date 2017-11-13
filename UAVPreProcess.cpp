@@ -24,8 +24,9 @@
 
 #include "openMVG/matching_image_collection/GeometricFilter.hpp"
 
+#include <omp.h>
 
-#ifdef DEBUG
+#ifdef _DEBUG
 #define LOG( format, args... )  printf( format, ##args )
 #else
 #define LOG( format, args... ) NULL;
@@ -860,4 +861,5 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessFeatExtractEach(FeatureParam fParam){
     std::unique_ptr<openMVG::features::Regions> regions;
     image_describer->Describe(imageGray, regions, mask);
     image_describer->Save(regions.get(), feats, descs);
+    return 0;
 }

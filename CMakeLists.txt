@@ -20,6 +20,7 @@ set(GTest_LIBRARY "/usr/local/lib/libgtest.a")
 
 
 #openMP
+find_package(OpenMP REQUIRED)
 if(OPENMP_FOUND)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -45,7 +46,7 @@ ADD_SUBDIRECTORY(SiftGPU)
 LINK_DIRECTORIES(SiftGPU)
 
 #set(SOURCE_FILES ${SIFTLIST} UAVMain.cpp UAVICPProc.h UAVMapCalculate.cpp UAVMapCalculate.h UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVAuxiliary.h UAVAuxiliary.cpp UAVBundle.cpp UAVBundle.h UAVFeatureExtract.cpp UAVDMatch.h UAVDenseProcess.cpp UAVDenseProcess.h UAVDenseExtract.cpp UAVCommon.h UAVCommon.cpp UAVFeatureExtractGpu.cpp UAVTest.cpp UAVICPProc.cpp)
-set(INTERFACE common_header.h common_header.cpp UAVInterface.h UAVBundler.h UAVPreProcess.h)
+set(INTERFACE common_header.h common_header.cpp UAVInterface.h UAVBundler.h UAVPreProcess.h UAVProcessThreadPool.h)
 set(SOURCE_FILES ${SIFTLIST} ${INTERFACE} UAVMain.cpp UAVPreProcess.cpp UAVProcessGeometry.h UAVProcessGeometry.cpp UAVUnitTest.cpp)
 
 add_executable(UAVProcess ${SOURCE_FILES})

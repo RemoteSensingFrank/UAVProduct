@@ -114,13 +114,13 @@ TEST(UAVUnitTest,UnitTestFeature)
     EXPECT_EQ(err,5);
     err=feats->UAVProcessFeatList(sfm_data,dFeature);
     EXPECT_EQ(0,err);
-    err=feats->UAVProcessFeatExtract(false);
-    EXPECT_EQ(0,err);
     err=feats->UAVProcessFeatExtract(true);
     EXPECT_EQ(0,err);
+    ///err=feats->UAVProcessFeatExtract(true);
+    //EXPECT_EQ(0,err);
 
-    err=feats->UAVProcessMatchesExtract(strMatchList,strMatch);
-    EXPECT_EQ(0,err);
+    //err=feats->UAVProcessMatchesExtract(strMatchList,strMatch);
+    //EXPECT_EQ(0,err);
 }
 TEST(UAVUniTest,UnitTestFeatureErr)
 {

@@ -2,6 +2,8 @@
 
 #include"UAVInterface.h"
 #include <thread>
+#include "UAVProcessThreadPool.h"
+
 class UAVProcessPOSSimple:public UAVProcessPOS
 {
 public:
@@ -23,18 +25,18 @@ public:
 				err=err|UAVProcessFeatExtractEach(iter.second);
 			}
 		} else{
-
-			for(const auto iter:feature)
+            UAVProcessThreadPool threadPool(2);
+			std::vector<std::future<UAVErr>> errReturn;
+            for(const auto iter:feature)
 			{
-				std::thread threadFunc( &UAVProcessFeatureSIFT::UAVProcessFeatExtractEach, this, iter.second);
-				threadFunc.detach();
+                errReturn.emplace_back(threadPool.UAVProcess_Enterqueue(
+                        [](FeatureParam param){UAVProcessFeatureSIFT::UAVProcessFeatExtractEach(param);}
+                        ,&iter.second
+                ));
 			}
-			//目前没有更好的办法进行线程的同步饿了
-			while(true)
-			{
-				if(iterNumber==feature.size())
-					break;
-			};
+            for (auto res:errReturn) {
+                err+=res.get();
+            }
 		}
 
 		if(err!=0)
@@ -47,8 +49,6 @@ public:
 protected:
 	virtual UAVErr UAVProcessFeatExtractEach(FeatureParam fParam);
 
-protected:
-	int iterNumber = 0;	//c++11 标准
 };
 
 class UAVProcessFeatureSIFTGpu:public UAVProcessFeature
