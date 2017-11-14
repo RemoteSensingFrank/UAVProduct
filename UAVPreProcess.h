@@ -2,6 +2,7 @@
 
 #include"UAVInterface.h"
 #include <thread>
+#include <mutex>
 #include "UAVProcessThreadPool.h"
 
 class UAVProcessPOSSimple:public UAVProcessPOS
@@ -25,30 +26,21 @@ public:
 				err=err|UAVProcessFeatExtractEach(iter.second);
 			}
 		} else{
-            UAVProcessThreadPool threadPool(2);
-			std::vector<std::future<UAVErr>> errReturn;
+            UAVProcessThreadPool threadPool(4);
             for(const auto iter:feature)
 			{
-                errReturn.emplace_back(threadPool.UAVProcess_Enterqueue(
-                        [](FeatureParam param){UAVProcessFeatureSIFT::UAVProcessFeatExtractEach(param);}
-                        ,&iter.second
-                ));
+                threadPool.UAVProcess_Enterqueue(&UAVProcessFeatureSIFT::UAVProcessFeatExtractEach,this,iter.second);
 			}
-            for (auto res:errReturn) {
-                err+=res.get();
-            }
 		}
-
-		if(err!=0)
-			return 5;
-		else
-			return 0;
+        return 0;
 	}
 	virtual UAVErr UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData);
 
 protected:
 	virtual UAVErr UAVProcessFeatExtractEach(FeatureParam fParam);
 
+    int threadProcNumber = 0;
+    std::mutex exportFile_lock;
 };
 
 class UAVProcessFeatureSIFTGpu:public UAVProcessFeature

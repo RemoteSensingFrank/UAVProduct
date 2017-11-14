@@ -1,10 +1,20 @@
 #include<stdlib.h>
 #include<stdio.h>
-#include "gtest/gtest.h"
-
+//./UAVProcess#include "gtest/gtest.h"
+#include "UAVPreProcess.h"
 int main(int argc,char* argv[])
 {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    std::string sfm_data="/home/wuwei/Data/UAVData/1/sfm.json";
+    std::string dFeature="/home/wuwei/Data/UAVData/1/feats/";
+    std::string strMatchList="/home/wuwei/Data/UAVData/1/matches.txt";
+    std::string strMatch="/home/wuwei/Data/UAVData/1/feats/matches.txt";
+
+    UAVProcessFeatureSIFT *feats=new UAVProcessFeatureSIFT();
+    UAVErr err=0;
+    err=feats->UAVProcessFeatList(sfm_data,dFeature);
+    err=feats->UAVProcessFeatExtract(true);
+    return err;
+    //testing::InitGoogleTest(&argc, argv);
+    //return RUN_ALL_TESTS();
 }
 

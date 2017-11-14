@@ -3,7 +3,7 @@
 //
 
 #include <memory>
-#include <thread>
+
 #include "UAVPreProcess.h"
 #include "openMVG/system/timer.hpp"
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
@@ -860,6 +860,10 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessFeatExtractEach(FeatureParam fParam){
     // Compute features and descriptors and export them to files
     std::unique_ptr<openMVG::features::Regions> regions;
     image_describer->Describe(imageGray, regions, mask);
+
+    exportFile_lock.lock();
     image_describer->Save(regions.get(), feats, descs);
+    threadProcNumber++;
+    exportFile_lock.unlock();
     return 0;
 }
