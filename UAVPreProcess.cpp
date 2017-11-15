@@ -14,8 +14,8 @@
 #include "openMVG/sfm/sfm.hpp"
 
 #include "openMVG/stl/stl.hpp"
-#include "nonFree/sift/SIFT_describer.hpp"
 #include "openMVG/features/regions_factory.hpp"
+#include "nonFree/sift/SIFT_describer.hpp"
 #include "openMVG/features/sift/SIFT_Anatomy_Image_Describer.hpp"
 #include "openMVG/matching_image_collection/Matcher_Regions_AllInMemory.hpp"
 #include "openMVG/matching_image_collection/Cascade_Hashing_Matcher_Regions_AllInMemory.hpp"
@@ -837,33 +837,44 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessFeatExtractEach(FeatureParam fParam){
     std::string img=fParam._image_in_;
     std::string feats=fParam._feature_out_;
     std::string descs=fParam._descs_out_;
-    openMVG::image::Image<unsigned char> imageGray, globalMask;
+    openMVG::image::Image<unsigned char> imageGray;
 
     if(!stlplus::file_exists(img))
     {
         return 1;
     }
-    std::unique_ptr<openMVG::features::Image_describer> image_describer;
-    image_describer.reset(new openMVG::features::SIFT_Image_describer
-                                      (openMVG::features::SIFT_Image_describer::Params(), true));
-    if (!image_describer)
     {
-        std::cerr << "Cannot create the designed Image_describer:"
-                  << "SIFT" << "." << std::endl;
-        return 5;
+        std::unique_ptr<openMVG::features::Image_describer> image_describer;
+        image_describer.reset(new openMVG::features::SIFT_Image_describer
+                                      (openMVG::features::SIFT_Image_describer::Params(), true));
+//
+//
+//    openMVG::features::Image_describer *image_describer = new openMVG::features::SIFT_Image_describer
+//                                      (openMVG::features::SIFT_Image_describer::Params());
+
+//        openMVG::features::SIFT_Image_describer image_describer(openMVG::features::SIFT_Image_describer::Params());
+        if (!image_describer) {
+            std::cerr << "Cannot create the designed Image_describer:"
+                      << "SIFT" << "." << std::endl;
+            return 5;
+        }
+
+        if (!openMVG::image::ReadImage(img.c_str(), &imageGray))
+            return 1;
+
+        openMVG::image::Image<unsigned char> *mask = nullptr;
+        // Compute features and descriptors and export them to files
+        std::unique_ptr<openMVG::features::Regions> regions;
+        image_describer->Describe(imageGray, regions, mask);
+        //exportFile_lock.lock();
+        image_describer->Save(regions.get(), feats, descs);
+
+        regions.release();
+        image_describer.release();
     }
+    //threadProcNumber++;
+    //exportFile_lock.unlock();
 
-    if (!openMVG::image::ReadImage(img.c_str(), &imageGray))
-        return 1;
-
-    openMVG::image::Image<unsigned char> * mask = nullptr;
-    // Compute features and descriptors and export them to files
-    std::unique_ptr<openMVG::features::Regions> regions;
-    image_describer->Describe(imageGray, regions, mask);
-
-    exportFile_lock.lock();
-    image_describer->Save(regions.get(), feats, descs);
-    threadProcNumber++;
-    exportFile_lock.unlock();
+    //delete image_describer;
     return 0;
 }

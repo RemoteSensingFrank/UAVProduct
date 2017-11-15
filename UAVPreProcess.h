@@ -20,13 +20,13 @@ public:
 			return 5;
 
 		UAVErr err=0;
+        UAVProcessThreadPool threadPool(2);
 		if(!bThread)
 		{
 			for(const auto iter:feature){
 				err=err|UAVProcessFeatExtractEach(iter.second);
 			}
 		} else{
-            UAVProcessThreadPool threadPool(4);
             for(const auto iter:feature)
 			{
                 threadPool.UAVProcess_Enterqueue(&UAVProcessFeatureSIFT::UAVProcessFeatExtractEach,this,iter.second);
@@ -38,7 +38,6 @@ public:
 
 protected:
 	virtual UAVErr UAVProcessFeatExtractEach(FeatureParam fParam);
-
     int threadProcNumber = 0;
     std::mutex exportFile_lock;
 };
