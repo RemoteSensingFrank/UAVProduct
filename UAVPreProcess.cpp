@@ -664,13 +664,25 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
         return 1;
 
     //读取matchlist
-    std::unique_ptr<openMVG::features::Regions> regions_type;
-    regions_type.reset(new openMVG::features::SIFT_Regions());
+    ;
     std::unique_ptr<openMVG::features::Image_describer> image_describer;
     image_describer.reset(new openMVG::features::SIFT_Image_describer
                                   (openMVG::features::SIFT_Image_describer::Params(), true));
     std::shared_ptr<openMVG::sfm::Regions_Provider> regions_provider;
-    regions_provider = std::make_shared<openMVG::sfm::Regions_Provider>();
+    const std::string sImage_describer="tmp.json";
+
+    {
+        std::ofstream stream(sImage_describer.c_str());
+        if (!stream.is_open())
+            return 6;
+        cereal::JSONOutputArchive archive(stream);
+        archive(cereal::make_nvp("image_describer", image_describer));
+        std::unique_ptr<openMVG::features::Regions> regions_type_out;
+        image_describer->Allocate(regions_type_out);
+        archive(cereal::make_nvp("regions_type", regions_type_out));
+    }
+
+    std::unique_ptr<openMVG::features::Regions> regions_type_in = openMVG::features::Init_region_type_from_file(sImage_describer);
     bool bContinue = true;
 
     openMVG::sfm::SfM_Data sfm_data;
@@ -679,33 +691,33 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
                   << "The input SfM_Data file \""<< pSfmList << "\" cannot be read." << std::endl;
         return false;
     }
-
-    //regions_provider->load(sfm_data,stlplus::folder_part(feature[0]._feature_out_),regions_type);
+    regions_provider = std::make_shared<openMVG::sfm::Regions_Provider>();
+    regions_provider->load(sfm_data,stlplus::folder_part(feature[0]._feature_out_),regions_type_in);
     //获取特征点
-    for (auto iter:feature)
-    {
-#ifdef OPENMVG_USE_OPENMP
-#pragma omp single nowait
-#endif
-        {
-            const std::string sImageName = iter.second._image_in_;
-            const std::string featFile = iter.second._feature_out_;
-            const std::string descFile = iter.second._descs_out_;
-
-            std::unique_ptr<openMVG::features::Regions> regions_ptr(regions_type->EmptyClone());
-            if (!regions_ptr->Load(featFile, descFile))
-            {
-                std::cerr << "Invalid regions files for the view: " << sImageName << std::endl;
-#ifdef OPENMVG_USE_OPENMP
-#pragma omp critical
-#endif
-                bContinue = false;
-            }
-#ifdef OPENMVG_USE_OPENMP
-#pragma omp critical
-#endif
-        }
-    }
+//    for (auto iter:feature)
+//    {
+//#ifdef OPENMVG_USE_OPENMP
+//#pragma omp single nowait
+//#endif
+//        {
+//            const std::string sImageName = iter.second._image_in_;
+//            const std::string featFile = iter.second._feature_out_;
+//            const std::string descFile = iter.second._descs_out_;
+//
+//            std::unique_ptr<openMVG::features::Regions> regions_ptr(regions_type_in->EmptyClone());
+//            if (!regions_ptr->Load(featFile, descFile))
+//            {
+//                std::cerr << "Invalid regions files for the view: " << sImageName << std::endl;
+//#ifdef OPENMVG_USE_OPENMP
+//#pragma omp critical
+//#endif
+//                bContinue = false;
+//            }
+//#ifdef OPENMVG_USE_OPENMP
+//#pragma omp critical
+//#endif
+//        }
+//    }
 
     //进行匹配
     openMVG::matching::PairWiseMatches map_PutativesMatches;
@@ -715,13 +727,13 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
         if(openMVG::matching::Load(map_PutativesMatches,pMatchData))
             return 0;
     }
-
+    string tmp1=typeid(unsigned char).name();
+    string tmp2=regions_type_in->Type_id();
     //不存在则需要重新匹配 SIFT对应的不需要进行判断了
     float fDistRatio=0.6f;
     std::unique_ptr<openMVG::matching_image_collection::Matcher> collectionMatcher;
     std::cout << "Using FAST_CASCADE_HASHING_L2 matcher" << std::endl;
     collectionMatcher.reset(new openMVG::matching_image_collection::Cascade_Hashing_Matcher_Regions_AllInMemory(fDistRatio));
-
     openMVG::system::Timer timer;
     {
         // From matching mode compute the pair list that have to be matched:
