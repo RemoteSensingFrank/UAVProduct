@@ -32,6 +32,8 @@
 #define LOG( format, args... ) NULL;
 #endif
 
+
+
 UAVErr UAVProcessPOS::UAVProcessPOSExtractXYZ(double &centerx, double &centery, double &centerz) {
     size_t size = posList.size();
     if(size==0)
@@ -656,6 +658,23 @@ UAVErr UAVProcessFeature::UAVProcessFeatList(std::string sfmList, std::string dF
     return 0;
 }
 
+struct UAVRegions_Provider:public openMVG::sfm::Regions_Provider{
+    void set_type(std::unique_ptr<openMVG::features::Regions>& region_type){
+        region_type_.reset(region_type->EmptyClone());
+    }
+
+    virtual bool load_pre(    const std::string features,
+                              const std::string describe,
+                              const int viewId,
+                              std::unique_ptr<openMVG::features::Regions>& region_type) {
+        std::unique_ptr<openMVG::features::Regions> regions_ptr(region_type->EmptyClone());
+        if (!regions_ptr->Load(features, describe))
+            return false;
+        cache_[viewId] = std::move(regions_ptr);
+        return true;
+    }
+};
+
 UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData) {
     std::string pList = pMatchList;
     std::string pMatchDir = stlplus::folder_part(pMatchData);
@@ -668,7 +687,7 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
     std::unique_ptr<openMVG::features::Image_describer> image_describer;
     image_describer.reset(new openMVG::features::SIFT_Image_describer
                                   (openMVG::features::SIFT_Image_describer::Params(), true));
-    std::shared_ptr<openMVG::sfm::Regions_Provider> regions_provider;
+    std::shared_ptr<UAVRegions_Provider> regions_provider;
     const std::string sImage_describer="tmp.json";
 
     {
@@ -691,33 +710,14 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
                   << "The input SfM_Data file \""<< pSfmList << "\" cannot be read." << std::endl;
         return false;
     }
-    regions_provider = std::make_shared<openMVG::sfm::Regions_Provider>();
-    regions_provider->load(sfm_data,stlplus::folder_part(feature[0]._feature_out_),regions_type_in);
+    regions_provider = std::make_shared<UAVRegions_Provider>();
+    regions_provider->set_type(regions_type_in);
+    //regions_provider->load(sfm_data,stlplus::folder_part(feature[0]._feature_out_),regions_type_in);
     //获取特征点
-//    for (auto iter:feature)
-//    {
-//#ifdef OPENMVG_USE_OPENMP
-//#pragma omp single nowait
-//#endif
-//        {
-//            const std::string sImageName = iter.second._image_in_;
-//            const std::string featFile = iter.second._feature_out_;
-//            const std::string descFile = iter.second._descs_out_;
-//
-//            std::unique_ptr<openMVG::features::Regions> regions_ptr(regions_type_in->EmptyClone());
-//            if (!regions_ptr->Load(featFile, descFile))
-//            {
-//                std::cerr << "Invalid regions files for the view: " << sImageName << std::endl;
-//#ifdef OPENMVG_USE_OPENMP
-//#pragma omp critical
-//#endif
-//                bContinue = false;
-//            }
-//#ifdef OPENMVG_USE_OPENMP
-//#pragma omp critical
-//#endif
-//        }
-//    }
+    for (auto iter:feature)
+    {
+        regions_provider->load_pre(iter.second._feature_out_,iter.second._descs_out_,iter.first,regions_type_in);
+    }
 
     //进行匹配
     openMVG::matching::PairWiseMatches map_PutativesMatches;
