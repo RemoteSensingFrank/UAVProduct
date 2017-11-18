@@ -52,39 +52,6 @@ public:
 	virtual double UAVProcessListSize(std::string dImage){return 0;}
 };
 
-//∆•≈‰
-class UAVProcessMatches:public UAVProcessList
-{
-public:
-	virtual UAVErr UAVProcessMatchesList(std::string imageList,int neighbor_count,bool bGeo,std::string pMatch);
-    virtual void UAVProcessAdjacencyMatrixToSVG(const size_t NbImages,
-                                                const MatchesList & corresponding_indexes,
-                                                const std::string & sOutName);
-	virtual UAVErr UAVProcessMatchesExport(MatchesList list,std::string pMatch);
-	virtual UAVErr UAVProcessMatchesImport(MatchesList &list,std::string pMatch);
-
-protected:
-	struct FeatureParam
-	{
-		std::string _image_in_;
-		std::string _feature_out_;
-		std::string _descs_out_;
-	};
-	std::map<int,FeatureParam> feature;
-};
-
-class UAVProcessFeature:public UAVProcessMatches
-{
-public:
-	virtual UAVErr UAVProcessFeatList(std::string sfmList,std::string dFeats);
-	virtual UAVErr UAVProcessFeatExtract(bool bThread) = 0;
-protected:
-	virtual UAVErr UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData)=0;
-
-	std::string pSfmList;
-
-};
-
 class UAVProcessDense:public UAV
 {
 public:

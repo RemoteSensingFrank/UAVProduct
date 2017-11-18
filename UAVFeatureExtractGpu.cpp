@@ -289,7 +289,5 @@ bool UAVFeatsSIFTGpu::UAVMatchesExtract() {
                     putativeGraph);
         }
     }
-
-
     return true;
 }

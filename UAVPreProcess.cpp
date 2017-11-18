@@ -11,7 +11,7 @@
 
 #include "openMVG/matching/matcher_brute_force.hpp"
 #include "openMVG/exif/exif_IO_EasyExif.hpp"
-#include "openMVG/sfm/sfm.hpp"
+
 
 #include "openMVG/stl/stl.hpp"
 #include "openMVG/features/regions_factory.hpp"
@@ -32,6 +32,22 @@
 #define LOG( format, args... ) NULL;
 #endif
 
+struct UAVRegions_Provider:public openMVG::sfm::Regions_Provider{
+    void set_type(std::unique_ptr<openMVG::features::Regions>& region_type){
+        region_type_.reset(region_type->EmptyClone());
+    }
+
+    virtual bool load_pre(    const std::string features,
+                              const std::string describe,
+                              const int viewId,
+                              std::unique_ptr<openMVG::features::Regions>& region_type) {
+        std::unique_ptr<openMVG::features::Regions> regions_ptr(region_type->EmptyClone());
+        if (!regions_ptr->Load(features, describe))
+            return false;
+        cache_[viewId] = std::move(regions_ptr);
+        return true;
+    }
+};
 
 
 UAVErr UAVProcessPOS::UAVProcessPOSExtractXYZ(double &centerx, double &centery, double &centerz) {
@@ -658,23 +674,6 @@ UAVErr UAVProcessFeature::UAVProcessFeatList(std::string sfmList, std::string dF
     return 0;
 }
 
-struct UAVRegions_Provider:public openMVG::sfm::Regions_Provider{
-    void set_type(std::unique_ptr<openMVG::features::Regions>& region_type){
-        region_type_.reset(region_type->EmptyClone());
-    }
-
-    virtual bool load_pre(    const std::string features,
-                              const std::string describe,
-                              const int viewId,
-                              std::unique_ptr<openMVG::features::Regions>& region_type) {
-        std::unique_ptr<openMVG::features::Regions> regions_ptr(region_type->EmptyClone());
-        if (!regions_ptr->Load(features, describe))
-            return false;
-        cache_[viewId] = std::move(regions_ptr);
-        return true;
-    }
-};
-
 UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData) {
     std::string pList = pMatchList;
     std::string pMatchDir = stlplus::folder_part(pMatchData);
@@ -889,6 +888,21 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessFeatExtractEach(FeatureParam fParam){
 
     //delete image_describer;
     return 0;
+}
+
+unique_ptr<openMVG::sfm::Features_Provider> UAVProcessFeatureSIFT::UAVProcessFeatsProvide()
+{
+    if(feature.size()==0)
+        return nullptr;
+
+    std::unique_ptr<openMVG::sfm::Features_Provider> featprovide_ptr;
+    featprovide_ptr.reset(new Features_Provider_Cpu());
+
+    bool res=true;
+    for(auto iter:feature){
+        res=res&&((Features_Provider_Cpu*)featprovide_ptr.get())->load_pre(iter.first,iter.second._feature_out_);
+    }
+    return featprovide_ptr;
 }
 
 UAVErr UAVProcessFeatureSIFTGpu::UAVProcessFeatExtract(bool bThread){
@@ -1119,4 +1133,18 @@ UAVErr UAVProcessFeatureSIFTGpu::UAVProcessMatchesExtract(std::string pMatchList
                     putativeGraph);
         }
     }
+}
+
+unique_ptr<openMVG::sfm::Features_Provider> UAVProcessFeatureSIFTGpu::UAVProcessFeatsProvide(){
+    if(feature.size()==0)
+        return nullptr;
+
+    std::unique_ptr<openMVG::sfm::Features_Provider> featprovide_ptr;
+    featprovide_ptr.reset(new Features_Provider_Gpu());
+
+    bool res=true;
+    for(auto iter:feature){
+        res=res&&((Features_Provider_Gpu*)featprovide_ptr.get())->load_pre(iter.first,iter.second._feature_out_);
+    }
+    return featprovide_ptr;
 }
