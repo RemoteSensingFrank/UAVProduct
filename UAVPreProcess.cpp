@@ -740,7 +740,7 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
         openMVG::Pair_Set pairs;
         if(!openMVG::loadPairs(feature.size(), pList, pairs))
         {
-            return false;
+            return 5;
         }
 
         // Photometric matching of putative pairs
@@ -889,4 +889,234 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessFeatExtractEach(FeatureParam fParam){
 
     //delete image_describer;
     return 0;
+}
+
+UAVErr UAVProcessFeatureSIFTGpu::UAVProcessFeatExtract(bool bThread){
+    //GPU的算法不考虑多线程
+    if(feature.size()<=0)
+        return 5;
+
+
+    std::unique_ptr<SiftGPU>sift;
+    sift.reset(new SiftGPU);
+
+    if (sift->CreateContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
+        return 5;
+
+    //遍历
+    UAVErr err=0;
+    for(auto iter:feature) {
+        const std::string image = iter.second._image_in_,
+                feats = iter.second._feature_out_,
+                descs = iter.second._descs_out_;
+
+        vector<float> descriptor(1);
+        vector<SiftGPU::SiftKeypoint> keys(1);
+
+        if (sift->RunSIFT(image.c_str())) {
+            //get feature count
+            int num1 = sift->GetFeatureNum();
+            //allocate memory
+            keys.resize(num1);
+            descriptor.resize(128 * num1);
+            sift->GetFeatureVector(&keys[0], &descriptor[0]);
+            //this can be used to write your own sift file.
+            //将特征点和特征描述写入文件中
+            err=err|UAVProcessExportFeatsToFile(feats, descs, keys, descriptor);
+        }
+    }
+    if(err==0)
+        return 0;
+    else
+        return 5;
+}
+
+UAVErr UAVProcessFeatureSIFTGpu::UAVProcessExportFeatsToFile(std::string pathfeats,std::string pathdesc,
+                                                             std::vector<SiftKeypoint> feats, std::vector<float> desc)
+{
+    string feats_path=pathfeats;
+    string descs_path=pathdesc;
+
+    ofstream ofs_feats(feats_path,ios_base::binary);
+    ofstream ofs_descs(descs_path,ios_base::binary);
+
+    if(!ofs_feats.is_open()||!ofs_descs.is_open())
+        return false;
+    int num = feats.size();
+    ofs_feats.write((const char*)&num,sizeof(int));
+    ofs_descs.write((const char*)&num,sizeof(int));
+    for (int i = 0; i < num; ++i) {
+        float x = feats[i].x;
+        float y = feats[i].y;
+        float descf[128];
+        for(int j=0;j<128;++j)
+        {
+            descf[j]=desc[128*i+j];
+        }
+        ofs_feats.write((const char*)&x,sizeof(float));
+        ofs_feats.write((const char*)&y,sizeof(float));
+        ofs_descs.write((const char*)descf,sizeof(float)*128);
+    }
+    ofs_feats.close();
+    ofs_descs.close();
+    return 0;
+}
+
+
+bool UAVProcessFeatureSIFTGpu::UAVImportFeatsToFile(string pathdesc, vector<float> &desc)
+{
+    ifstream ifs(pathdesc,ios_base::binary|ios_base::in);
+    if(!ifs.is_open())
+        return false;
+
+    int num;
+    ifs.read((char*)&num,sizeof(int));
+    try
+    {
+        float* descf=new float[128*num];
+        ifs.read((char*)descf,sizeof(float)*num*128);
+
+        desc.resize(128*num);
+        for (int i = 0; i <128*num ; ++i) {
+            desc[i]=descf[i];
+        }
+        delete[]descf;descf=NULL;
+        return true;
+    }catch (std::bad_alloc e)
+    {
+        printf(e.what());
+        return false;
+    }
+}
+
+bool UAVProcessFeatureSIFTGpu::UAVExportMatchesToFile(string path,int srcImg,int desImg,int matchnum,int (*matches)[2])
+{
+    ofstream ofs(path,ios_base::app);
+    ofs<<srcImg<<"  "<<desImg<<"  "<<matchnum<<endl;
+    for(int i=0;i<matchnum;++i){
+        ofs<<matches[i][0]<<"  "<<matches[i][1]<<endl;
+    }
+    return true;
+}
+
+/// Display pair wises matches as an Adjacency matrix in svg format
+void PairMatchingToAdjacencyMatrixSVG
+        (
+                const size_t NbImages,
+                const MatchesList & map_Matches,
+                const std::string & sOutName
+        )
+{
+    if ( !map_Matches.empty())
+    {
+        const float scaleFactor = 5.0f;
+        svg::svgDrawer svgStream((NbImages+3)*5, (NbImages+3)*5);
+        // Go along all possible pair
+        for (size_t I = 0; I < NbImages; ++I) {
+            for (size_t J = 0; J < NbImages; ++J) {
+                // If the pair have matches display a blue boxes at I,J position.
+                auto iterSearch = map_Matches.find(std::make_pair(I,J));
+                if (iterSearch != map_Matches.end())
+                {
+                    // Display as a tooltip: (IndexI, IndexJ NbMatches)
+                    std::ostringstream os;
+                    svgStream.drawSquare(J*scaleFactor, I*scaleFactor, scaleFactor/2.0f,
+                                         svg::svgStyle().fill("blue").noStroke());
+                } // HINT : THINK ABOUT OPACITY [0.4 -> 1.0] TO EXPRESS MATCH COUNT
+            }
+        }
+        // Display axes with 0 -> NbImages annotation : _|
+        std::ostringstream osNbImages;
+        osNbImages << NbImages;
+        svgStream.drawText((NbImages+1)*scaleFactor, scaleFactor, scaleFactor, "0", "black");
+        svgStream.drawText((NbImages+1)*scaleFactor,
+                           (NbImages)*scaleFactor - scaleFactor, scaleFactor, osNbImages.str(), "black");
+        svgStream.drawLine((NbImages+1)*scaleFactor, 2*scaleFactor,
+                           (NbImages+1)*scaleFactor, (NbImages)*scaleFactor - 2*scaleFactor,
+                           svg::svgStyle().stroke("black", 1.0));
+
+        svgStream.drawText(scaleFactor, (NbImages+1)*scaleFactor, scaleFactor, "0", "black");
+        svgStream.drawText((NbImages)*scaleFactor - scaleFactor,
+                           (NbImages+1)*scaleFactor, scaleFactor, osNbImages.str(), "black");
+        svgStream.drawLine(2*scaleFactor, (NbImages+1)*scaleFactor,
+                           (NbImages)*scaleFactor - 2*scaleFactor, (NbImages+1)*scaleFactor,
+                           svg::svgStyle().stroke("black", 1.0));
+
+        std::ofstream svgFileStream( sOutName.c_str());
+        svgFileStream << svgStream.closeSvgFile().str();
+    }
+}
+UAVErr UAVProcessFeatureSIFTGpu::UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData)
+{
+    SiftMatchGPU *matcher = new SiftMatchGPU(4096);
+    SiftGPU *sift = new SiftGPU;
+    if (sift->CreateContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
+        return false;
+    matcher->VerifyContextGL();
+
+    int iMatchingVideoMode = -1;
+
+    openMVG::sfm::SfM_Data sfm_data;
+    if (!Load(sfm_data, pSfmList, openMVG::sfm::ESfM_Data(openMVG::sfm::VIEWS|openMVG::sfm::INTRINSICS))) {
+        std::cerr << std::endl
+                  << "The input SfM_Data file \""<< pSfmList << "\" cannot be read." << std::endl;
+        return false;
+    }
+
+    openMVG::system::Timer timer;
+    {
+        MatchesList pairs;
+        MatchesList pairs_filter;
+        if(!openMVG::loadPairs(feature.size(), pMatchList, pairs))
+        {
+            return 5;
+        }
+        int matchpairs=pairs.size();
+        C_Progress_display my_progress_bar( matchpairs,
+                                            std::cout, "\n- EXTRACT Matches -\n" );
+        for ( const auto & cur_pair : pairs )
+        {
+            int img1 = cur_pair.first, img2 = cur_pair.second;
+
+            //load feats and describes;
+            const std::string sDesc1 = feature[img1]._descs_out_,
+                                sDesc2 = feature[img2]._descs_out_;
+
+            std::vector<float> desc1,desc2;
+            if(!UAVImportFeatsToFile(sDesc1,desc1)||!UAVImportFeatsToFile(sDesc2,desc2))
+            {
+                continue;
+            }
+            int num1 = desc1.size()/128;
+            int num2 = desc2.size()/128;
+            //matches
+            matcher->SetDescriptors(0, num1, &desc1[0]); //image 1
+            matcher->SetDescriptors(1, num2, &desc2[0]); //image 2
+            int (*match_buf)[2] = new int[num1][2];
+            int num_match = matcher->GetSiftMatch(num1, match_buf);
+            if(num_match>10)
+            {
+                UAVExportMatchesToFile(pMatchData,img1,img2,num_match,match_buf);
+                pairs_filter.insert(std::make_pair(img1,img2));
+            }
+            ++my_progress_bar;
+        }
+
+
+        PairMatchingToAdjacencyMatrixSVG(sfm_data.GetViews().size(),
+                                         pairs_filter,
+                                         stlplus::create_filespec(stlplus::folder_part(pMatchData), "GeometricAdjacencyMatrix", "svg"));
+
+
+        //-- export view pair graph once geometric filter have been done
+        {
+            std::set< openMVG::IndexT> set_ViewIds;
+            std::transform(sfm_data.GetViews().begin(), sfm_data.GetViews().end(),
+                           std::inserter(set_ViewIds, set_ViewIds.begin()), stl::RetrieveKey());
+            openMVG::graph::indexedGraph putativeGraph(set_ViewIds, pairs_filter);
+            openMVG::graph::exportToGraphvizData(
+                    stlplus::create_filespec(stlplus::folder_part(pMatchData), "GeometricAdjacencyMatrix"),
+                    putativeGraph);
+        }
+    }
 }

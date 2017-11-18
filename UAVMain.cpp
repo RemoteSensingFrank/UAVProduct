@@ -9,11 +9,11 @@ int main(int argc,char* argv[])
     std::string strMatchList="/home/wuwei/Data/UAVData/1/matches.txt";
     std::string strMatch="/home/wuwei/Data/UAVData/1/feats/matches.txt";
 
-    UAVProcessFeatureSIFT *feats=new UAVProcessFeatureSIFT();
+    UAVProcessFeatureSIFTGpu *feats=new UAVProcessFeatureSIFTGpu();
     std::unique_ptr<UAVProcessMatches> match(new UAVProcessMatches());
     UAVErr err=0;
     err=feats->UAVProcessFeatList(sfm_data,dFeature);
-    //err=feats->UAVProcessFeatExtract(true);
+    err=feats->UAVProcessFeatExtract(true);
     err=match->UAVProcessMatchesList(sfm_data,3,false,strMatchList);
     err=feats->UAVProcessMatchesExtract(strMatchList,strMatch);
     return err;

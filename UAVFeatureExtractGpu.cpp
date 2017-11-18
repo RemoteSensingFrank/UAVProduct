@@ -271,6 +271,7 @@ bool UAVFeatsSIFTGpu::UAVMatchesExtract() {
                 pairs_filter.insert(std::make_pair(img1,img2));
             }
             ++my_progress_bar;
+            delete[]  match_buf;
         }
         PairMatchingToAdjacencyMatrixSVG(sfm_data.GetViews().size(),
                                          pairs_filter,

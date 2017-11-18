@@ -4,6 +4,8 @@
 #include <thread>
 #include <mutex>
 #include "UAVProcessThreadPool.h"
+#include "SiftGPU/SiftGPU.h"
+
 
 class UAVProcessPOSSimple:public UAVProcessPOS
 {
@@ -47,4 +49,11 @@ class UAVProcessFeatureSIFTGpu:public UAVProcessFeature
 public:
 	virtual UAVErr UAVProcessFeatExtract(bool bThread);
 	virtual UAVErr UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData);
+
+protected:
+	virtual UAVErr UAVProcessExportFeatsToFile(std::string pathfeats,std::string pathdesc, std::vector<SiftKeypoint> feats, std::vector<float> desc);
+
+	bool UAVImportFeatsToFile(std::string pathdesc, std::vector<float> &desc);
+
+	bool UAVExportMatchesToFile(std::string path,int srcImg,int desImg,int matchnum,int (*matches)[2]);
 };
