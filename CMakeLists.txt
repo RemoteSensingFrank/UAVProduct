@@ -47,7 +47,7 @@ LINK_DIRECTORIES(SiftGPU)
 
 #set(SOURCE_FILES ${SIFTLIST} UAVMain.cpp UAVICPProc.h UAVMapCalculate.cpp UAVMapCalculate.h UAVXYZToLatLonWGS84.cpp UAVXYZToLatLonWGS84.h UAVGeoProc.h UAVGeoProc.cpp UAVGeoMosaic.h UAVGeoMosaic.cpp UAVDataList.cpp UAVDataList.h UAVAuxiliary.h UAVAuxiliary.cpp UAVBundle.cpp UAVBundle.h UAVFeatureExtract.cpp UAVDMatch.h UAVDenseProcess.cpp UAVDenseProcess.h UAVDenseExtract.cpp UAVCommon.h UAVCommon.cpp UAVFeatureExtractGpu.cpp UAVTest.cpp UAVICPProc.cpp)
 set(INTERFACE common_header.h common_header.cpp UAVInterface.h UAVBundler.h UAVPreProcess.h UAVProcessThreadPool.h)
-set(SOURCE_FILES ${SIFTLIST} ${INTERFACE} UAVMain.cpp UAVPreProcess.cpp UAVProcessGeometry.h UAVProcessGeometry.cpp)
+set(SOURCE_FILES ${SIFTLIST} ${INTERFACE} UAVMain.cpp UAVPreProcess.cpp UAVProcessGeometry.h UAVProcessGeometry.cpp UAVBundler.cpp)
 
 add_executable(UAVProcess ${SOURCE_FILES})
 target_link_libraries(UAVProcess ${OPENMVG_LIBRARIES})

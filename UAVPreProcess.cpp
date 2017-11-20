@@ -1146,5 +1146,8 @@ unique_ptr<openMVG::sfm::Features_Provider> UAVProcessFeatureSIFTGpu::UAVProcess
     for(auto iter:feature){
         res=res&&((Features_Provider_Gpu*)featprovide_ptr.get())->load_pre(iter.first,iter.second._feature_out_);
     }
-    return featprovide_ptr;
+    if(res)
+        return featprovide_ptr;
+    else
+        return nullptr;
 }

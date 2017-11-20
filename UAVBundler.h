@@ -4,9 +4,9 @@
 class UAVProcessBundle:public UAV
 {
 public:
-	virtual UAVErr UAVProcessBundleGlobal(std::unique_ptr<UAVProcessFeature> feats_ptr,std::string sfm_dout);
+	virtual UAVErr UAVProcessBundleGlobal(std::unique_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_dout);
 
-	virtual UAVErr UAVProcessBundleSquence(std::unique_ptr<UAVProcessFeature> feats_ptr,std::string sfm_dout);
+	virtual UAVErr UAVProcessBundleSquence(std::unique_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_dout);
 };
 
 
@@ -22,4 +22,4 @@ public:
 	virtual UAVErr UAVProcessBundleSquence(std::string dImage,std::string dFeatures,std::string pGPS,
 		UAVProcessPOS* pPorc,CoordiListType typeCoordi,UAVCalibParams &cParam,
 		std::string sfm_out);
-}
+};
