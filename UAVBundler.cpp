@@ -4,7 +4,7 @@
 #include "openMVG/system/timer.hpp"
 #include "UAVBundler.h"
 
-UAVErr UAVProcessBundle::UAVProcessBundleGlobal(std::unique_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_out) {
+UAVErr UAVProcessBundle::UAVProcessBundleGlobal(std::shared_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_out) {
     if(feats_ptr== nullptr)
         return 7;
     unique_ptr<openMVG::sfm::Features_Provider> feat_provider = feats_ptr->UAVProcessFeatsProvide();
@@ -12,7 +12,7 @@ UAVErr UAVProcessBundle::UAVProcessBundleGlobal(std::unique_ptr<UAVProcessFeatur
         return 7;
 
     openMVG::sfm::SfM_Data sfm_data;
-    if (!Load(sfm_data,sfm_in,  openMVG::sfm::ESfM_Data(openMVG::sfm::VIEWS|openMVG::sfm::INTRINSICS))) {
+    if (!Load(sfm_data,sfm_in,  openMVG::sfm::ESfM_Data(openMVG::sfm::ALL))) {
         std::cerr << std::endl
                   << "The input SfM_Data file \""<< sfm_in << "\" cannot be read." << std::endl;
         return false;
@@ -37,7 +37,11 @@ UAVErr UAVProcessBundle::UAVProcessBundleGlobal(std::unique_ptr<UAVProcessFeatur
     sfmEngine.SetMatchesProvider(matches_provider.get());
     bool b_use_motion_priors=true;
     for(auto iter:sfm_data.GetViews()){
-        b_use_motion_priors=b_use_motion_priors&&sfm_data.IsPoseAndIntrinsicDefined(iter.second.get());
+        //b_use_motion_priors=b_use_motion_priors&&
+        const openMVG::sfm::View *viewT=iter.second.get();
+        int i=0;
+        b_use_motion_priors=b_use_motion_priors&((openMVG::sfm::ViewPriors*)viewT)->b_use_pose_center_;
+
     }
     // Configure reconstruction parameters
     const openMVG::cameras::Intrinsic_Parameter_Type intrinsic_refinement_options = openMVG::cameras::Intrinsic_Parameter_Type::ADJUST_ALL;
@@ -63,12 +67,12 @@ UAVErr UAVProcessBundle::UAVProcessBundleGlobal(std::unique_ptr<UAVProcessFeatur
              stlplus::create_filespec(stlplus::folder_part(sfm_out), "cloud_and_poses", ".ply"),
              openMVG::sfm::ESfM_Data(openMVG::sfm::ALL));
 
-        return 7;
+        return 0;
     }
-    return 0;
+    return 7;
 }
 
-UAVErr UAVProcessBundle::UAVProcessBundleSquence(std::unique_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_out)
+UAVErr UAVProcessBundle::UAVProcessBundleSquence(std::shared_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_out)
 {
     if(feats_ptr== nullptr)
         return 7;
@@ -102,7 +106,11 @@ UAVErr UAVProcessBundle::UAVProcessBundleSquence(std::unique_ptr<UAVProcessFeatu
     sfmEngine.SetMatchesProvider(matches_provider.get());
     bool b_use_motion_priors=true;
     for(auto iter:sfm_data.GetViews()){
-        b_use_motion_priors=b_use_motion_priors&&sfm_data.IsPoseAndIntrinsicDefined(iter.second.get());
+        //b_use_motion_priors=b_use_motion_priors&&
+        const openMVG::sfm::View *viewT=iter.second.get();
+        int i=0;
+        b_use_motion_priors=b_use_motion_priors&((openMVG::sfm::ViewPriors*)viewT)->b_use_pose_center_;
+
     }
     // Configure reconstruction parameters
     const openMVG::cameras::Intrinsic_Parameter_Type intrinsic_refinement_options = openMVG::cameras::Intrinsic_Parameter_Type::ADJUST_ALL;

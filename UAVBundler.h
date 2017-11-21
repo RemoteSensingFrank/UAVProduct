@@ -4,9 +4,9 @@
 class UAVProcessBundle:public UAV
 {
 public:
-	virtual UAVErr UAVProcessBundleGlobal(std::unique_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_dout);
+	virtual UAVErr UAVProcessBundleGlobal(std::shared_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_dout);
 
-	virtual UAVErr UAVProcessBundleSquence(std::unique_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_dout);
+	virtual UAVErr UAVProcessBundleSquence(std::shared_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_dout);
 };
 
 
