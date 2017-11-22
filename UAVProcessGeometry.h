@@ -6,5 +6,7 @@
 #define UAVPRODUCT_UAVPROCESSGEOMETRY_H
 
 #include "UAVInterface.h"
+class UAVProcessGeoCorrect:public UAVProcessGeometry{
 
+};
 #endif //UAVPRODUCT_UAVPROCESSGEOMETRY_H
