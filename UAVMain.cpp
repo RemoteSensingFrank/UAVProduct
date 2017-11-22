@@ -1,42 +1,36 @@
 #include<stdlib.h>
 #include<stdio.h>
-#include "UAVCommon.h"
-#include "UAVGeoProc.h"
+//./UAVProcess#include "gtest/gtest.h"
+#include "UAVPreProcess.h"
+#include "UAVBundler.h"
 #include "UAVDenseProcess.h"
-
-
-void InitialData()
-{
-    _info_._g_image_dir_="/home/wuwei/Data/UAVData/10/Img/";
-    _info_._g_SFM_data="/home/wuwei/Data/UAVData/10/SFM_Data.json";
-    _info_._g_match_dir_="/home/wuwei/Data/UAVData/10/Matches/";
-    _info_._g_feature_dir_="/home/wuwei/Data/UAVData/10/Features/";
-    _info_._g_point_cloud_dir="/home/wuwei/Data/UAVData/10/Points/";
-    _info_._g_Pos_data = "";
-    _info_._g_Pos_bias = 0;
-    _info_._g_auxiliary_dir = "/home/wuwei/Data/UAVData/10/Auxiliary/";
-    _info_._g_geocorrect_dir_="/home/wuwei/Data/UAVData/10/Geocorrect/";
-    _info_._g_mosaic_path = "/home/wuwei/Data/UAVData/10/mosaic.tif";
-    _info_._g_Map_dir = "/home/wuwei/Data/UAVData/10/Map/";
-    _info_._g_focal_x = _info_._g_focal_y = 5616;
-    _info_._g_ccdsize = 1;
-    _info_._g_Has_Pos = false;
-}
 
 int main(int argc,char* argv[])
 {
-    InitialData();
-    _info_._g_run("GPU","Sequence",0,0);
+    std::string sfm_data="/home/wuwei/Data/UAVData/1/sfm.json";
+    std::string dFeature="/home/wuwei/Data/UAVData/1/feats/";
+    std::string strMatchList="/home/wuwei/Data/UAVData/1/matches.txt";
+    std::string strMatch="/home/wuwei/Data/UAVData/1/feats/matches.txt";
+    std::string bunder_out = "/home/wuwei/Data/UAVData/1/bunder.bin";
+    std::string trans_mvs = "/home/wuwei/Data/UAVData/1/mvs/trans.mvs";
+    std::string densemvs = "/home/wuwei/Data/UAVData/1/mvs/dense.ply";
 
-    //UAVICPExtract extract;
-    //extract.UAVICPExtractMatchesEnvi("/home/wuwei/Data/UAVData/9/Img/0001.jpg","/home/wuwei/Data/UAVData/9/Img/0002.jpg","/home/wuwei/Data/UAVData/9/Img/1-2.pts",EXTRACT_GPU);
+    std::shared_ptr< UAVProcessFeatureSIFTGpu> feats=std::make_shared<UAVProcessFeatureSIFTGpu>();
+    std::unique_ptr<UAVProcessMatches> match(new UAVProcessMatches());
+    std::unique_ptr<UAVProcessBundle> bundler(new UAVProcessBundle());
+    std::unique_ptr<UAVDenseProcess> dense(new UAVDenseProcess());
 
-    //UAVDenseProcess dense;
-    //dense.UAVDPCloud_ToDSM("/home/wuwei/Data/UAVData/1/Points/dense.ply","/home/wuwei/Data/UAVData/1/Points/dem.tif",124,41,0.5);
-
-    //UAVGeoProc geo;
-    //geo.UAVGeoProc_GeoProcDEM("/home/wuwei/Data/UAVData/1/Points/sfm_data.bin","/home/wuwei/Data/UAVData/1/Points/dem.tif","/home/wuwei/Data/UAVData/1/Geocorrect/",0.5,124,41);
-    return 0;
-
+    UAVErr err=0;
+    /*
+    err=feats->UAVProcessFeatList(sfm_data,dFeature);
+    err=feats->UAVProcessFeatExtract(true);
+    err=match->UAVProcessMatchesList(sfm_data,3,false,strMatchList);
+    err=feats->UAVProcessMatchesExtract(strMatchList,strMatch);
+    err=bundler->UAVProcessBundleSquence(feats,strMatch,sfm_data,bunder_out);
+    err=bundler->UAVProcessBundleToMVS(bunder_out,trans_mvs);*/
+    err=dense->UAVDP_MVSProc(trans_mvs,densemvs);
+    return err;
+    //testing::InitGoogleTest(&argc, argv);
+    //return RUN_ALL_TESTS();
 }
 

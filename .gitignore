@@ -1,4 +1,5 @@
 #clion configure files
 .idea/*
-/Map/*
-
+Map/*
+*.pyc
+将删除 .idea/

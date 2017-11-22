@@ -4,24 +4,22 @@
 
 #ifndef UAVPRODUCT_UAVDENSEPROCESS_H
 #define UAVPRODUCT_UAVDENSEPROCESS_H
+
+#include "UAVInterface.h"
+#include "common_header.h"
 #include <string>
-using namespace std;
 
 
-class UAVDenseProcess {
+class UAVDenseProcess : public UAV
+{
 public:
-    /**
-     * 将光束法平差得到的点云输出为MVS的格式方便调用openMVS构建点云
-     */
-    void UAVDP_ExportMVS();
-
     /**
      * 调用openMVS库得到密集匹配的点云数据
      */
-    void UAVDP_MVSProc();
+    UAVErr UAVDP_MVSProc(std::string mvs,std::string dense);
 
 
-    void UAVDPCloud_ToDSM(string pathPly,string pathDsm,double dL,double dB,double dGround);
+    //void UAVDPCloud_ToDSM(string pathPly,string pathDsm,double dL,double dB,double dGround);
 
 private:
     /*
