@@ -1,18 +1,10 @@
-#include"UAVMapCalculate.h"
-#include "UAVCommon.h"
 #include "gdal_priv.h"
-
-//#include "openMVG/sfm/sfm.hpp"
 #include "Python.h"
-#include "UAVXYZToLatLonWGS84.h"
+#include "UAVProcessGeometry.h"
 
-#include <stdio.h>
-using namespace openMVG;
-using namespace openMVG::sfm;
 
-static  UAVXYZToLatLonWGS84 CooridinateTrans;
 
-vector<MapUnit> UAVMapCalculate::UAVMapCalculateUnit(double centerUTMx,double centerUTMy,double width,double height,int level)
+MapCalculateUnits UAVMapCalculate::UAVMapCalculateUnit(double centerUTMx,double centerUTMy,double width,double height,int level)
 {
       int left, top;
       Vec3 latlonwgs1 = CooridinateTrans.UTMToLatLonWMT(centerUTMx-width/2,centerUTMy-height/2,0);

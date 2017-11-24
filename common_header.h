@@ -77,7 +77,6 @@ typedef enum ePairMode
 }MATCHMODEL;
 
 
-
 //½ø¶ÈÌõ
 typedef int (*UAVProgressFunc)(double dfComplete, const char *pszMessage, void *pProgressArg);
 
