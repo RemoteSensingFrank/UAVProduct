@@ -217,9 +217,9 @@ bool UAVMapCalculateGoogle::UAVMapGoogleRun(std::string sfm,std::string dMap)
             if(!prior->b_use_pose_center_)
                 continue;
             int ind_ptr = prior->id_intrinsic;
-            int inptr = ;
-            double focalx = sfm_data.intrinsics;
-            double focaly = _info_._g_focal_y;
+           const openMVG::cameras::Pinhole_Intrinsic* intrinsic =dynamic_cast<openMVG::cameras::Pinhole_Intrinsic*> (sfm_data.GetIntrinsics().at(ind_ptr).get());
+            double focalx = (intrinsic)->K()(0,0);
+            double focaly = (intrinsic)->K()(1,1);
             //计算范围
             openMVG::Vec3 pnt0=UAVProcessGeometry::UAVProcessGeoXYZToLatLon(position(0),position(1),position(2));
             openMVG::Vec3 wmt0=UAVProcessGeometry::UAVProcessGeoLatLonToUTMWMT(pnt0(0),pnt0(1),pnt0(2));

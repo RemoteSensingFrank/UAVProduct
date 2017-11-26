@@ -7,6 +7,34 @@
 #include "UAVInterface.h"
 #include "gdal_priv.h"
 
+#define MINXBound -20037508
+#define MINYBound -20037508
+#define MAXXBound 20037508
+#define MAXYBound 20037508.34
+#define MAPUNITSIZE 256
+
+const double Lods[20][3]={
+        {0,156543.03392800014,591657527.591555},
+        {1,78271.516963999937,295828763.79577702},
+        {2,39135.758482000092,147914381.89788899},
+        {3,19567.879240999919,73957190.948944002},
+        {4,9783.9396204999593,36978595.474472001},
+        {5,4891.9698102499797,18489297.737236001},
+        {6,2445.9849051249898,9244648.8686180003},
+        {7,1222.9924525624949,4622324.4343090001},
+        {8,611.49622628138,2311162.217155},
+        {9,305.748113140558,1155581.108577},
+        {10,152.874056570411,577790.554289},
+        {11,76.4370282850732,288895.277144},
+        {12,38.2185141425366,144447.638572},
+        {13,19.1092570712683,72223.819286},
+        {14,9.55462853563415,36111.909643},
+        {15,4.7773142679493699,18055.954822},
+        {16,2.3886571339746849,9027.9774109999998},
+        {17,1.1943285668550503,4513.9887049999998},
+        {18,0.59716428355981721,2256.994353},
+        {19,0.298582142,1128.4971765}};
+
 typedef struct mapunit{
     int row;
     int col;
@@ -58,10 +86,12 @@ private:
 class UAVProcessGeoCorrect:public UAVProcessGeometry{
 public:
     //通过控制点进行校正
-    UAVErr UAVGeoCorrectGcps(std::string pathImg, GDAL_GCP* gcps,int gcpNumber ,std::string pathGeo);
+    UAVErr UAVGeoCorrectGcps(std::string pathImg, GDAL_GCP* gcps,int gcpNumber ,std::string pathGeo,
+                                            double dGroundSize,double dL,double dB);
 
     //通过外参进行校正
-    UAVErr UAVGeoCorrectExterior(std::string pathImg, openMVG::Mat34 P, double avgHeight, std::string pathGeo);
+    UAVErr UAVGeoCorrectExterior(std::string pathImg, openMVG::Mat34 P, double avgHeight, std::string pathGeo,
+                                            double dGroundSize,double dL,double dB);
 
     //DEM几何精校正
     UAVErr UAVGeoCorrectDEM(std::string pathGeo, openMVG::Mat34 P, std::string pathDEM, std::string pathGeoAccur);
