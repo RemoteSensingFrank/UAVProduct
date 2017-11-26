@@ -36,14 +36,14 @@ public:
     virtual bool UAVMapUnitData(MapCalculateUnits units)=0;
 };
 
-class UAVMapCalculateGoogle:public UAVProcessGeometry{
+class UAVMapCalculateGoogle:public UAVMapCalculate{
 public:
     UAVMapCalculateGoogle(){
         Google_URL="http://mt3.google.cn/vt/lyrs=s@110&hl=zh-CN&gl=cn&src=app&";
     }
 
     //直接根据全局变量得到影像对应的瓦片地图
-    bool UAVMapGoogleRun(std::string dMap);
+    bool UAVMapGoogleRun(std::string sfm,std::string dMap);
 
     //根据url解析得到影像坐标并拼装起来
     virtual bool UAVMapUnitURL(MapCalculateUnits &units);
@@ -88,6 +88,6 @@ public:
 protected:
     UAVErr UAVGeoIndex();
     UAVErr UAVGeoDenseInterpolation();
-}
+};
 
 #endif //UAVPRODUCT_UAVPROCESSGEOMETRY_H

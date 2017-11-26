@@ -1,49 +1,64 @@
+#include <stlplus3/filesystemSimplified/file_system.hpp>
+#include "openMVG/sfm/sfm.hpp"
 #include "gdal_priv.h"
 #include "Python.h"
 #include "UAVProcessGeometry.h"
 
+inline void toTile(int zoom,double Lng,double lat,int &x,int &y) {
+    double n = pow(2, zoom);
+    double tileX = ((Lng + 180) / 360) * n;
+    double tileY = (1 - (log(tan(lat*M_PI/180) + (1 / cos(lat*M_PI/180))) / M_PI)) / 2 * n;
+    x=tileX;
+    y=tileY;
+}
 
+void toLnglat(int zoom,double &lng,double &lat,int x,int y) {
+    double n = pow(2, zoom);
+    lng =x / n * 360.0 - 180.0;
+    lat = atan(sinh(M_PI * (1 - 2 * y / n)));
+    lat = lat * 180.0 / M_PI;
+}
 
 MapCalculateUnits UAVMapCalculate::UAVMapCalculateUnit(double centerUTMx,double centerUTMy,double width,double height,int level)
 {
-      int left, top;
-      Vec3 latlonwgs1 = CooridinateTrans.UTMToLatLonWMT(centerUTMx-width/2,centerUTMy-height/2,0);
-      if(!CooridinateTrans.OutOfChina(latlonwgs1(1),latlonwgs1(0)))
-      {
+    int left, top;
+    openMVG::Vec3 latlonwgs1 = UAVProcessGeometry::UAVProcessGeoUTMToLatLonWMT(centerUTMx-width/2,centerUTMy-height/2,0);
+    if(!UAVProcessGeometry::OutOfChina(latlonwgs1(1),latlonwgs1(0)))
+    {
         double lat,lon;
-        CooridinateTrans.WGSLatLonToGCJ(latlonwgs1(0),latlonwgs1(1),lon,lat);
+        UAVProcessGeometry::UAVProcessGeoWGSLatLonToGCJ(latlonwgs1(0),latlonwgs1(1),lon,lat);
         toTile(level,lon,lat,left,top);
 
-      }else{
+    }else{
         toTile(level,latlonwgs1(0),latlonwgs1(1),left,top);
-      }
+    }
 
-      int right,bottom;
-      Vec3 latlonwgs2 = CooridinateTrans.UTMToLatLonWMT(centerUTMx+width/2,centerUTMy+height/2,0);
-      if(!CooridinateTrans.OutOfChina(latlonwgs2(1),latlonwgs2(0)))
-      {
+    int right,bottom;
+    openMVG::Vec3 latlonwgs2 = UAVProcessGeometry::UAVProcessGeoUTMToLatLonWMT(centerUTMx+width/2,centerUTMy+height/2,0);
+    if(!UAVProcessGeometry::OutOfChina(latlonwgs2(1),latlonwgs2(0)))
+    {
         double lat,lon;
-        CooridinateTrans.WGSLatLonToGCJ(latlonwgs2(0),latlonwgs2(1),lon,lat);
+        UAVProcessGeometry::UAVProcessGeoWGSLatLonToGCJ(latlonwgs2(0),latlonwgs2(1),lon,lat);
         toTile(level,lon,lat,right,bottom);
 
-      }else{
+    }else{
         toTile(level,latlonwgs2(0),latlonwgs2(1),right,bottom);
-      }
+    }
 
-      vector<MapUnit> vec_mapUnits;
-      for(int i=left;i<=right;++i){
+    MapCalculateUnits vec_mapUnits;
+    for(int i=left;i<=right;++i){
         for(int j=bottom;j<=top;++j){
-          MapUnit unit;
-          unit.row=i;
-          unit.col=j;
-          unit.level=level;
-          vec_mapUnits.push_back(unit);
+            MAPUNIT unit;
+            unit.row=i;
+            unit.col=j;
+            unit.level=level;
+            vec_mapUnits.push_back(unit);
         }
-      }
-      return vec_mapUnits;
-  }
+    }
+    return vec_mapUnits;
+}
 
-bool UAVMapCalculate::UAVMapUnitCorner(MapUnit unitMap,double &cornerx,double &cornery)
+bool UAVMapCalculate::UAVMapUnitCorner(MAPUNIT unitMap,double &cornerx,double &cornery)
 {
       if(unitMap.level>18)
         return false;
@@ -53,7 +68,7 @@ bool UAVMapCalculate::UAVMapUnitCorner(MapUnit unitMap,double &cornerx,double &c
       return true;
 }
 
-bool UAVMapCalculate::UAVMapUnitCombie(vector<MapUnit> units,string dest)
+bool UAVMapCalculate::UAVMapUnitCombie(MapCalculateUnits units,std::string dest)
 {
       //
       int minx ,maxx,miny,maxy;
@@ -62,22 +77,21 @@ bool UAVMapCalculate::UAVMapUnitCombie(vector<MapUnit> units,string dest)
 
       for(size_t i=0;i<units.size();++i)
       {
-        minx=min(minx,units[i].row);
-        maxx=max(maxx,units[i].row);
-        miny=min(miny,units[i].col);
-        maxy=max(maxy,units[i].col);
+          minx=std::min(minx,units[i].row);
+          maxx=std::max(maxx,units[i].row);
+          miny=std::min(miny,units[i].col);
+          maxy=std::max(maxy,units[i].col);
       }
 
       int width = (maxx-minx+1)*MAPUNITSIZE;
       int height= (maxy-miny+1)*MAPUNITSIZE;
       unsigned char* dstData = NULL;
       try {
-        dstData= new unsigned char[width*height];
+          dstData= new unsigned char[width*height];
       }catch(std::bad_alloc e){
-        printf(e.what());
-        return false;
+          printf(e.what());
+          return false;
       }
-
 
       //构建GDAL输出文件
       GDALAllRegister();
@@ -92,27 +106,26 @@ bool UAVMapCalculate::UAVMapUnitCombie(vector<MapUnit> units,string dest)
       adfGeoTransform[5] = Lods[units[0].level][1];
 
       for (int k = 0; k <3 ; ++k) {
+          for (size_t j = 0; j < units.size(); ++j) {
+              GDALDatasetH m_datasrc = GDALOpen(units[j].unit_save.c_str(),GA_ReadOnly);
+              //数据不大 不用做内存申请检查
+              int widthsc  = GDALGetRasterXSize(m_datasrc);
+              int heightsc = GDALGetRasterYSize(m_datasrc);
+              unsigned char *data=new unsigned char[width*height];
+              GDALRasterIO(GDALGetRasterBand(m_datasrc,k+1),GF_Read,0,0,widthsc,heightsc,data,widthsc,heightsc,GDT_Byte,0,0);
 
-        for (size_t j = 0; j < units.size(); ++j) {
-          GDALDatasetH m_datasrc = GDALOpen(units[j].unit_save.c_str(),GA_ReadOnly);
-          //数据不大 不用做内存申请检查
-          int widthsc  = GDALGetRasterXSize(m_datasrc);
-          int heightsc = GDALGetRasterYSize(m_datasrc);
-          unsigned char *data=new unsigned char[width*height];
-          GDALRasterIO(GDALGetRasterBand(m_datasrc,k+1),GF_Read,0,0,widthsc,heightsc,data,widthsc,heightsc,GDT_Byte,0,0);
+              int orix = (units[j].row-minx)*MAPUNITSIZE;
+              int oriy = (units[j].col-miny)*MAPUNITSIZE;
 
-          int orix = (units[j].row-minx)*MAPUNITSIZE;
-          int oriy = (units[j].col-miny)*MAPUNITSIZE;
-
-          for (int l = 0; l < widthsc; ++l) {
-            for (int n = 0; n < heightsc; ++n) {
-              dstData[(oriy+n)*width+orix+l]=data[n*widthsc+l];
-            }
+              for (int l = 0; l < widthsc; ++l) {
+                  for (int n = 0; n < heightsc; ++n) {
+                      dstData[(oriy+n)*width+orix+l]=data[n*widthsc+l];
+                  }
+              }
+              delete[]data;data=NULL;
+              GDALClose(m_datasrc);
           }
-          delete[]data;data=NULL;
-            GDALClose(m_datasrc);
-        }
-        GDALRasterIO(GDALGetRasterBand(m_dataset,k+1),GF_Write,0,0,width,height,dstData,width,height,GDT_Byte,NULL,NULL);
+          GDALRasterIO(GDALGetRasterBand(m_dataset,k+1),GF_Write,0,0,width,height,dstData,width,height,GDT_Byte,NULL,NULL);
       }
       GDALSetGeoTransform(m_dataset,adfGeoTransform);
       GDALClose(m_dataset);
@@ -125,111 +138,108 @@ bool UAVMapCalculate::UAVMapUnitCombie(vector<MapUnit> units,string dest)
 }
 
 //===================================================================================================================
-bool UAVMapCalculateGoogle::UAVMapUnitURL(vector<MapUnit> &units)
+bool UAVMapCalculateGoogle::UAVMapUnitURL(MapCalculateUnits &units)
 {
-      for(size_t i=0;i<units.size();++i)
-      {
-        char tile_url[256];
-        sprintf(tile_url,"&x=%d&y=%d&z=%d",units[i].row,units[i].col,units[i].level);
-        units[i].unit_url = Google_URL+string(tile_url);
-        sprintf(tile_url,"./UAVProduct/Map/%d%d%d.jpg",units[i].row,units[i].col,units[i].level);
-        units[i].unit_save = string(tile_url);
-      }
-      return true;
-
+     for(size_t i=0;i<units.size();++i)
+     {
+         char tile_url[256];
+         sprintf(tile_url,"&x=%d&y=%d&z=%d",units[i].row,units[i].col,units[i].level);
+         units[i].unit_url = Google_URL+std::string(tile_url);
+         sprintf(tile_url,"./UAVProduct/Map/%d%d%d.jpg",units[i].row,units[i].col,units[i].level);
+         units[i].unit_save = std::string(tile_url);
+     }
+     return true;
 }
 
-bool UAVMapCalculateGoogle::UAVMapUnitData(vector<MapUnit> units)
+bool UAVMapCalculateGoogle::UAVMapUnitData(MapCalculateUnits units)
 {
       for(size_t i=0;i<units.size();++i)
       {
-          if(stlplus::file_exists(units[i].unit_save))
-              continue;
+            if(stlplus::file_exists(units[i].unit_save))
+                continue;
 
-          Py_Initialize();
-          //PyRun_SimpleString("print 'hello'");
-          PyRun_SimpleString("import sys");
-          PyRun_SimpleString("sys.path.append('./UAVProduct/')");
+            Py_Initialize();
+            //PyRun_SimpleString("print 'hello'");
+            PyRun_SimpleString("import sys");
+            PyRun_SimpleString("sys.path.append('./UAVProduct/')");
 
-          //导入模块
-          PyObject *pModule = PyImport_ImportModule("GoogleMap");
-          if (pModule==NULL)
-          {
-              printf("Python get module failed.\n");
-              return 0;
-          }
+            //导入模块
+            PyObject *pModule = PyImport_ImportModule("GoogleMap");
+            if (pModule==NULL)
+            {
+                printf("Python get module failed.\n");
+                return 0;
+            }
 
-          //获取Insert模块内_add函数
-          PyObject* pv = PyObject_GetAttrString(pModule, "GetImageForGoogleUrl");
-          if (!pv || !PyCallable_Check(pv))
-          {
-              printf("Python get func failed.\n");
-              return 0;
-          }
-          //初始化要传入的参数，args配置成传入两个参数的模式
-          PyObject* args = PyTuple_New(2);
-          //将Long型数据转换成Python可接收的类型
-          PyObject* arg1 = PyString_FromString(units[i].unit_url.c_str());
-          PyObject* arg2 =  PyString_FromString(units[i].unit_save.c_str());
+            //获取Insert模块内_add函数
+            PyObject* pv = PyObject_GetAttrString(pModule, "GetImageForGoogleUrl");
+            if (!pv || !PyCallable_Check(pv))
+            {
+                printf("Python get func failed.\n");
+                return 0;
+            }
+            //初始化要传入的参数，args配置成传入两个参数的模式
+            PyObject* args = PyTuple_New(2);
+            //将Long型数据转换成Python可接收的类型
+            PyObject* arg1 = PyString_FromString(units[i].unit_url.c_str());
+            PyObject* arg2 =  PyString_FromString(units[i].unit_save.c_str());
 
-          //将arg1配置为arg带入的第一个参数
-          PyTuple_SetItem(args, 0, arg1);
-          //将arg1配置为arg带入的第二个参数
-          PyTuple_SetItem(args, 1, arg2);
+            //将arg1配置为arg带入的第一个参数
+            PyTuple_SetItem(args, 0, arg1);
+            //将arg1配置为arg带入的第二个参数
+            PyTuple_SetItem(args, 1, arg2);
 
-          //传入参数调用函数，并获取返回值
-          PyObject_CallObject(pv,args);
+            //传入参数调用函数，并获取返回值
+            PyObject_CallObject(pv,args);
 
-          Py_Finalize();
+            Py_Finalize();
       }
       return true;
 }
 
 //封装得太好了反而失去灵活性了，但是调用方便
-bool UAVMapCalculateGoogle::UAVMapGoogleRun()
+bool UAVMapCalculateGoogle::UAVMapGoogleRun(std::string sfm,std::string dMap)
 {
-      if(_info_._g_Has_Pos==false||_info_._g_Map_dir=="")
+      openMVG::sfm::SfM_Data sfm_data;
+      if (!Load(sfm_data, sfm, openMVG::sfm::ESfM_Data(openMVG::sfm::ALL)))
       {
-          return false;
-      }
-
-      SfM_Data sfm_data;
-      if (!Load(sfm_data, _info_._g_SFM_data, ESfM_Data(ALL)))
-      {
-          std::cerr << std::endl
-                    << "The input SfM_Data file \"" << _info_._g_SFM_data << "\" cannot be read." << std::endl;
-          return -1;
+            std::cerr << std::endl
+                    << "The input SfM_Data file \"" << sfm << "\" cannot be read." << std::endl;
+            return -1;
       }
 
       for (const auto & viewIter : sfm_data.GetViews())
       {
-          const sfm::ViewPriors * prior = dynamic_cast<sfm::ViewPriors*>(viewIter.second.get());
-          //中心点的坐标
-          Vec3 position=prior->pose_center_;
-          //Vec3 utmPosition = coordiTrans.LatLonToUTM(position(0),position(1),0);
+            const openMVG::sfm::ViewPriors * prior = dynamic_cast<openMVG::sfm::ViewPriors*>(viewIter.second.get());
+            //中心点的坐标
+            openMVG::Vec3 position=prior->pose_center_;
+            //Vec3 utmPosition = coordiTrans.LatLonToUTM(position(0),position(1),0);
+            if(!prior->b_use_pose_center_)
+                continue;
+            int ind_ptr = prior->id_intrinsic;
+            int inptr = ;
+            double focalx = sfm_data.intrinsics;
+            double focaly = _info_._g_focal_y;
+            //计算范围
+            openMVG::Vec3 pnt0=UAVProcessGeometry::UAVProcessGeoXYZToLatLon(position(0),position(1),position(2));
+            openMVG::Vec3 wmt0=UAVProcessGeometry::UAVProcessGeoLatLonToUTMWMT(pnt0(0),pnt0(1),pnt0(2));
+            double xrange = pnt0(2)*(prior->ui_width) /focalx;
+            double yrange = pnt0(2)*(prior->ui_height)/focaly;
+            MapCalculateUnits vec_mapUnits;
+            vec_mapUnits = UAVMapCalculateUnit(wmt0(0),wmt0(1),xrange,yrange,19);
 
-          double focalx = _info_._g_focal_x;
-          double focaly = _info_._g_focal_y;
-          //计算范围
-          Vec3 pnt0=CooridinateTrans.XYZToLatLon(position(0),position(1),position(2));
-          Vec3 wmt0=CooridinateTrans.LatLonToUTMWMT(pnt0(0),pnt0(1),pnt0(2));
-          double xrange = pnt0(2)*(prior->ui_width) /focalx;
-          double yrange = pnt0(2)*(prior->ui_height)/focaly;
-          vector<MapUnit> vec_mapUnits;
-          vec_mapUnits = UAVMapCalculateUnit(wmt0(0),wmt0(1),xrange,yrange,19);
-
-          if(vec_mapUnits.empty())
-              continue;
-          else
-          {
-              if(!UAVMapUnitURL(vec_mapUnits))
-                  continue;
-              if(!UAVMapUnitData(vec_mapUnits))
-                  continue;
-              if(!UAVMapUnitCombie(vec_mapUnits,_info_._g_Map_dir+prior->s_Img_path+string(".tif")))
+            if(vec_mapUnits.empty())
+                continue;
+            else
+            {
+                if(!UAVMapUnitURL(vec_mapUnits))
+                    continue;
+                if(!UAVMapUnitData(vec_mapUnits))
+                    continue;
+                if(!UAVMapUnitCombie(vec_mapUnits,dMap+prior->s_Img_path+string(".tif")))
                   continue;
           }
-      }
+     }
 
-      return true;
+     return true;
 }
