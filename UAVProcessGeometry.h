@@ -61,7 +61,7 @@ public:
     UAVErr UAVGeoCorrectGcps(std::string pathImg, GDAL_GCP* gcps,int gcpNumber ,std::string pathGeo);
 
     //通过外参进行校正
-    UAVErr UAVGeoCorrectExterior(std::string pathImg, openMVG::Mat34 P, double avgHeight, std::string pathGeo);
+    UAVErr UAVGeoCorrectExteriorgit (std::string pathImg, openMVG::Mat34 P, double avgHeight, std::string pathGeo);
 
     //DEM几何精校正
     UAVErr UAVGeoCorrectDEM(std::string pathGeo, openMVG::Mat34 P, std::string pathDEM, std::string pathGeoAccur);
