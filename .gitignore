@@ -2,4 +2,4 @@
 .idea/*
 Map/*
 *.pyc
-/build
+build/

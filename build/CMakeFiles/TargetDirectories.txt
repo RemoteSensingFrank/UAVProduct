@@ -1,6 +1,0 @@
-/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/edit_cache.dir
-/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/rebuild_cache.dir
-/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/UAVProcess.dir
-/home/yan/Desktop/UAV ortho/UAVProduct/build/SiftGPU/CMakeFiles/rebuild_cache.dir
-/home/yan/Desktop/UAV ortho/UAVProduct/build/SiftGPU/CMakeFiles/edit_cache.dir
-/home/yan/Desktop/UAV ortho/UAVProduct/build/SiftGPU/CMakeFiles/siftgpu.dir
