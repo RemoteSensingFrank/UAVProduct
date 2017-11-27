@@ -282,7 +282,7 @@ UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVG/install/lib/libopenMVG_multivie
 UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVG/install/lib/libopenMVG_lInftyComputerVision.a
 UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVG/install/lib/libopenMVG_system.a
 UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVG/install/lib/libopenMVG_sfm.a
-UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVS/buildOpenMVS/lib/libMVS.a
+UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVS/install/lib/OpenMVS/libMVS.a
 UAVProcess: /usr/local/lib/libgtest.a
 UAVProcess: /usr/lib/x86_64-linux-gnu/libexpat.so
 UAVProcess: /usr/lib/x86_64-linux-gnu/libz.so
@@ -325,12 +325,12 @@ UAVProcess: /usr/lib/libatlas.so
 UAVProcess: /usr/lib/libf77blas.so
 UAVProcess: /usr/lib/libatlas.so
 UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVG/install/lib/libcxsparse.a
-UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVS/buildOpenMVS/lib/libMath.a
-UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVS/buildOpenMVS/lib/libIO.a
+UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVS/install/lib/OpenMVS/libMath.a
+UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVS/install/lib/OpenMVS/libIO.a
 UAVProcess: /usr/lib/x86_64-linux-gnu/libjpeg.so
 UAVProcess: /usr/lib/x86_64-linux-gnu/libpng.so
 UAVProcess: /usr/lib/x86_64-linux-gnu/libtiff.so
-UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVS/buildOpenMVS/lib/libCommon.a
+UAVProcess: /home/yan/Desktop/UAV\ ortho/openMVS/install/lib/OpenMVS/libCommon.a
 UAVProcess: /usr/lib/x86_64-linux-gnu/libboost_iostreams.so
 UAVProcess: /usr/lib/x86_64-linux-gnu/libboost_program_options.so
 UAVProcess: /usr/lib/x86_64-linux-gnu/libboost_serialization.so

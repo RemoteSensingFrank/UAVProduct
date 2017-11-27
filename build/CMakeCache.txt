@@ -247,7 +247,7 @@ OpenMP_C_FLAGS:STRING=-fopenmp
 OpenMVG_DIR:PATH=/home/yan/Desktop/UAV ortho/openMVG/install/share/openMVG/cmake
 
 //The directory containing a CMake configuration file for OpenMVS.
-OpenMVS_DIR:PATH=/home/yan/Desktop/UAV ortho/openMVS/buildOpenMVS
+OpenMVS_DIR:PATH=/home/yan/Desktop/UAV ortho/openMVS/install/lib/CMake/OpenMVS
 
 //Path to a file.
 PYTHON_INCLUDE_DIR:PATH=/usr/include/python2.7

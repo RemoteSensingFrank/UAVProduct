@@ -31,8 +31,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/yan/Desktop/UAV ortho/openMVG/install/include/openMVG/third_party/flann/src/cpp"
   "/home/yan/Desktop/UAV ortho/openMVG/install/include/openMVG"
   "/usr/include/gdal"
-  "/home/yan/Desktop/UAV ortho/openMVS"
-  "/home/yan/Desktop/UAV ortho/openMVS/buildOpenMVS"
+  "/home/yan/Desktop/UAV ortho/openMVS/install/lib/CMake/OpenMVS/../../../include/OpenMVS"
   "/usr/lib/x86_64-linux-gnu/cmake/libkml/../../../../include/kml"
   "/usr/include/python2.7"
   )

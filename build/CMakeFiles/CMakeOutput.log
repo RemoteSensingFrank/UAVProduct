@@ -28,28 +28,28 @@ The CXX compiler identification is GNU, found in "/home/yan/Desktop/UAV ortho/UA
 Determining if the C compiler works passed with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_cae5f/fast"
-/usr/bin/make -f CMakeFiles/cmTC_cae5f.dir/build.make CMakeFiles/cmTC_cae5f.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_c1886/fast"
+/usr/bin/make -f CMakeFiles/cmTC_c1886.dir/build.make CMakeFiles/cmTC_c1886.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_cae5f.dir/testCCompiler.c.o
-/usr/bin/cc     -o CMakeFiles/cmTC_cae5f.dir/testCCompiler.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/testCCompiler.c"
-Linking C executable cmTC_cae5f
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cae5f.dir/link.txt --verbose=1
-/usr/bin/cc       CMakeFiles/cmTC_cae5f.dir/testCCompiler.c.o  -o cmTC_cae5f 
+Building C object CMakeFiles/cmTC_c1886.dir/testCCompiler.c.o
+/usr/bin/cc     -o CMakeFiles/cmTC_c1886.dir/testCCompiler.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/testCCompiler.c"
+Linking C executable cmTC_c1886
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c1886.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_c1886.dir/testCCompiler.c.o  -o cmTC_c1886 
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 
 Detecting C compiler ABI info compiled with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_b045d/fast"
-/usr/bin/make -f CMakeFiles/cmTC_b045d.dir/build.make CMakeFiles/cmTC_b045d.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_6bd6a/fast"
+/usr/bin/make -f CMakeFiles/cmTC_6bd6a.dir/build.make CMakeFiles/cmTC_6bd6a.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_b045d.dir/CMakeCCompilerABI.c.o
-/usr/bin/cc     -o CMakeFiles/cmTC_b045d.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-3.5/Modules/CMakeCCompilerABI.c
-Linking C executable cmTC_b045d
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b045d.dir/link.txt --verbose=1
-/usr/bin/cc      -v CMakeFiles/cmTC_b045d.dir/CMakeCCompilerABI.c.o  -o cmTC_b045d  
+Building C object CMakeFiles/cmTC_6bd6a.dir/CMakeCCompilerABI.c.o
+/usr/bin/cc     -o CMakeFiles/cmTC_6bd6a.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-3.5/Modules/CMakeCCompilerABI.c
+Linking C executable cmTC_6bd6a
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6bd6a.dir/link.txt --verbose=1
+/usr/bin/cc      -v CMakeFiles/cmTC_6bd6a.dir/CMakeCCompilerABI.c.o  -o cmTC_6bd6a  
 Using built-in specs.
 COLLECT_GCC=/usr/bin/cc
 COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper
@@ -59,8 +59,8 @@ Thread model: posix
 gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.5) 
 COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/
 LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../:/lib/:/usr/lib/
-COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_b045d' '-mtune=generic' '-march=x86-64'
- /usr/lib/gcc/x86_64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/ccZ2c5rl.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --sysroot=/ --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -z relro -o cmTC_b045d /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/x86_64-linux-gnu/5 -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/5/../../.. CMakeFiles/cmTC_b045d.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-linux-gnu/5/crtend.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crtn.o
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_6bd6a' '-mtune=generic' '-march=x86-64'
+ /usr/lib/gcc/x86_64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/cc3brKkm.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --sysroot=/ --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -z relro -o cmTC_6bd6a /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/x86_64-linux-gnu/5 -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/5/../../.. CMakeFiles/cmTC_6bd6a.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-linux-gnu/5/crtend.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crtn.o
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 
@@ -68,14 +68,14 @@ Parsed C implicit link information from above output:
   link line regex: [^( *|.*[/\])(ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
   ignore line: [Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp]
   ignore line: []
-  ignore line: [Run Build Command:"/usr/bin/make" "cmTC_b045d/fast"]
-  ignore line: [/usr/bin/make -f CMakeFiles/cmTC_b045d.dir/build.make CMakeFiles/cmTC_b045d.dir/build]
+  ignore line: [Run Build Command:"/usr/bin/make" "cmTC_6bd6a/fast"]
+  ignore line: [/usr/bin/make -f CMakeFiles/cmTC_6bd6a.dir/build.make CMakeFiles/cmTC_6bd6a.dir/build]
   ignore line: [make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp']
-  ignore line: [Building C object CMakeFiles/cmTC_b045d.dir/CMakeCCompilerABI.c.o]
-  ignore line: [/usr/bin/cc     -o CMakeFiles/cmTC_b045d.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-3.5/Modules/CMakeCCompilerABI.c]
-  ignore line: [Linking C executable cmTC_b045d]
-  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b045d.dir/link.txt --verbose=1]
-  ignore line: [/usr/bin/cc      -v CMakeFiles/cmTC_b045d.dir/CMakeCCompilerABI.c.o  -o cmTC_b045d  ]
+  ignore line: [Building C object CMakeFiles/cmTC_6bd6a.dir/CMakeCCompilerABI.c.o]
+  ignore line: [/usr/bin/cc     -o CMakeFiles/cmTC_6bd6a.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-3.5/Modules/CMakeCCompilerABI.c]
+  ignore line: [Linking C executable cmTC_6bd6a]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6bd6a.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/cc      -v CMakeFiles/cmTC_6bd6a.dir/CMakeCCompilerABI.c.o  -o cmTC_6bd6a  ]
   ignore line: [Using built-in specs.]
   ignore line: [COLLECT_GCC=/usr/bin/cc]
   ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper]
@@ -85,13 +85,13 @@ Parsed C implicit link information from above output:
   ignore line: [gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.5) ]
   ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/]
   ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../:/lib/:/usr/lib/]
-  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_b045d' '-mtune=generic' '-march=x86-64']
-  link line: [ /usr/lib/gcc/x86_64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/ccZ2c5rl.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --sysroot=/ --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -z relro -o cmTC_b045d /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/x86_64-linux-gnu/5 -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/5/../../.. CMakeFiles/cmTC_b045d.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-linux-gnu/5/crtend.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crtn.o]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_6bd6a' '-mtune=generic' '-march=x86-64']
+  link line: [ /usr/lib/gcc/x86_64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/cc3brKkm.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --sysroot=/ --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -z relro -o cmTC_6bd6a /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/x86_64-linux-gnu/5 -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/5/../../.. CMakeFiles/cmTC_6bd6a.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-linux-gnu/5/crtend.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crtn.o]
     arg [/usr/lib/gcc/x86_64-linux-gnu/5/collect2] ==> ignore
     arg [-plugin] ==> ignore
     arg [/usr/lib/gcc/x86_64-linux-gnu/5/liblto_plugin.so] ==> ignore
     arg [-plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper] ==> ignore
-    arg [-plugin-opt=-fresolution=/tmp/ccZ2c5rl.res] ==> ignore
+    arg [-plugin-opt=-fresolution=/tmp/cc3brKkm.res] ==> ignore
     arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
     arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
     arg [-plugin-opt=-pass-through=-lc] ==> ignore
@@ -108,7 +108,7 @@ Parsed C implicit link information from above output:
     arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
     arg [-zrelro] ==> ignore
     arg [-o] ==> ignore
-    arg [cmTC_b045d] ==> ignore
+    arg [cmTC_6bd6a] ==> ignore
     arg [/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crt1.o] ==> ignore
     arg [/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crti.o] ==> ignore
     arg [/usr/lib/gcc/x86_64-linux-gnu/5/crtbegin.o] ==> ignore
@@ -120,7 +120,7 @@ Parsed C implicit link information from above output:
     arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
     arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
     arg [-L/usr/lib/gcc/x86_64-linux-gnu/5/../../..] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/5/../../..]
-    arg [CMakeFiles/cmTC_b045d.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [CMakeFiles/cmTC_6bd6a.dir/CMakeCCompilerABI.c.o] ==> ignore
     arg [-lgcc] ==> lib [gcc]
     arg [--as-needed] ==> ignore
     arg [-lgcc_s] ==> lib [gcc_s]
@@ -154,14 +154,14 @@ Parsed C implicit link information from above output:
 Detecting C [-std=c11] compiler features compiled with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_1eece/fast"
-/usr/bin/make -f CMakeFiles/cmTC_1eece.dir/build.make CMakeFiles/cmTC_1eece.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_7409b/fast"
+/usr/bin/make -f CMakeFiles/cmTC_7409b.dir/build.make CMakeFiles/cmTC_7409b.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_1eece.dir/feature_tests.c.o
-/usr/bin/cc    -std=c11 -o CMakeFiles/cmTC_1eece.dir/feature_tests.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/feature_tests.c"
-Linking C executable cmTC_1eece
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1eece.dir/link.txt --verbose=1
-/usr/bin/cc       CMakeFiles/cmTC_1eece.dir/feature_tests.c.o  -o cmTC_1eece 
+Building C object CMakeFiles/cmTC_7409b.dir/feature_tests.c.o
+/usr/bin/cc    -std=c11 -o CMakeFiles/cmTC_7409b.dir/feature_tests.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/feature_tests.c"
+Linking C executable cmTC_7409b
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7409b.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_7409b.dir/feature_tests.c.o  -o cmTC_7409b 
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 
@@ -174,14 +174,14 @@ make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFi
 Detecting C [-std=c99] compiler features compiled with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_b4d6b/fast"
-/usr/bin/make -f CMakeFiles/cmTC_b4d6b.dir/build.make CMakeFiles/cmTC_b4d6b.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_fb32c/fast"
+/usr/bin/make -f CMakeFiles/cmTC_fb32c.dir/build.make CMakeFiles/cmTC_fb32c.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_b4d6b.dir/feature_tests.c.o
-/usr/bin/cc    -std=c99 -o CMakeFiles/cmTC_b4d6b.dir/feature_tests.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/feature_tests.c"
-Linking C executable cmTC_b4d6b
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b4d6b.dir/link.txt --verbose=1
-/usr/bin/cc       CMakeFiles/cmTC_b4d6b.dir/feature_tests.c.o  -o cmTC_b4d6b 
+Building C object CMakeFiles/cmTC_fb32c.dir/feature_tests.c.o
+/usr/bin/cc    -std=c99 -o CMakeFiles/cmTC_fb32c.dir/feature_tests.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/feature_tests.c"
+Linking C executable cmTC_fb32c
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fb32c.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_fb32c.dir/feature_tests.c.o  -o cmTC_fb32c 
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 
@@ -194,14 +194,14 @@ make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFi
 Detecting C [-std=c90] compiler features compiled with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_4f393/fast"
-/usr/bin/make -f CMakeFiles/cmTC_4f393.dir/build.make CMakeFiles/cmTC_4f393.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_3a955/fast"
+/usr/bin/make -f CMakeFiles/cmTC_3a955.dir/build.make CMakeFiles/cmTC_3a955.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_4f393.dir/feature_tests.c.o
-/usr/bin/cc    -std=c90 -o CMakeFiles/cmTC_4f393.dir/feature_tests.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/feature_tests.c"
-Linking C executable cmTC_4f393
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4f393.dir/link.txt --verbose=1
-/usr/bin/cc       CMakeFiles/cmTC_4f393.dir/feature_tests.c.o  -o cmTC_4f393 
+Building C object CMakeFiles/cmTC_3a955.dir/feature_tests.c.o
+/usr/bin/cc    -std=c90 -o CMakeFiles/cmTC_3a955.dir/feature_tests.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/feature_tests.c"
+Linking C executable cmTC_3a955
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3a955.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_3a955.dir/feature_tests.c.o  -o cmTC_3a955 
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 
@@ -212,28 +212,28 @@ make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFi
 Determining if the CXX compiler works passed with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_2959b/fast"
-/usr/bin/make -f CMakeFiles/cmTC_2959b.dir/build.make CMakeFiles/cmTC_2959b.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_fcd1c/fast"
+/usr/bin/make -f CMakeFiles/cmTC_fcd1c.dir/build.make CMakeFiles/cmTC_fcd1c.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_2959b.dir/testCXXCompiler.cxx.o
-/usr/bin/c++      -o CMakeFiles/cmTC_2959b.dir/testCXXCompiler.cxx.o -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
-Linking CXX executable cmTC_2959b
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2959b.dir/link.txt --verbose=1
-/usr/bin/c++        CMakeFiles/cmTC_2959b.dir/testCXXCompiler.cxx.o  -o cmTC_2959b 
+Building CXX object CMakeFiles/cmTC_fcd1c.dir/testCXXCompiler.cxx.o
+/usr/bin/c++      -o CMakeFiles/cmTC_fcd1c.dir/testCXXCompiler.cxx.o -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTC_fcd1c
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fcd1c.dir/link.txt --verbose=1
+/usr/bin/c++        CMakeFiles/cmTC_fcd1c.dir/testCXXCompiler.cxx.o  -o cmTC_fcd1c 
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 
 Detecting CXX compiler ABI info compiled with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_9aac7/fast"
-/usr/bin/make -f CMakeFiles/cmTC_9aac7.dir/build.make CMakeFiles/cmTC_9aac7.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_70a34/fast"
+/usr/bin/make -f CMakeFiles/cmTC_70a34.dir/build.make CMakeFiles/cmTC_70a34.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_9aac7.dir/CMakeCXXCompilerABI.cpp.o
-/usr/bin/c++      -o CMakeFiles/cmTC_9aac7.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.5/Modules/CMakeCXXCompilerABI.cpp
-Linking CXX executable cmTC_9aac7
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9aac7.dir/link.txt --verbose=1
-/usr/bin/c++       -v CMakeFiles/cmTC_9aac7.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_9aac7  
+Building CXX object CMakeFiles/cmTC_70a34.dir/CMakeCXXCompilerABI.cpp.o
+/usr/bin/c++      -o CMakeFiles/cmTC_70a34.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.5/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTC_70a34
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_70a34.dir/link.txt --verbose=1
+/usr/bin/c++       -v CMakeFiles/cmTC_70a34.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_70a34  
 Using built-in specs.
 COLLECT_GCC=/usr/bin/c++
 COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper
@@ -243,8 +243,8 @@ Thread model: posix
 gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.5) 
 COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/
 LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../:/lib/:/usr/lib/
-COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_9aac7' '-shared-libgcc' '-mtune=generic' '-march=x86-64'
- /usr/lib/gcc/x86_64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/ccnq1lAE.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --sysroot=/ --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -z relro -o cmTC_9aac7 /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/x86_64-linux-gnu/5 -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/5/../../.. CMakeFiles/cmTC_9aac7.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/5/crtend.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crtn.o
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_70a34' '-shared-libgcc' '-mtune=generic' '-march=x86-64'
+ /usr/lib/gcc/x86_64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/ccCLazyF.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --sysroot=/ --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -z relro -o cmTC_70a34 /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/x86_64-linux-gnu/5 -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/5/../../.. CMakeFiles/cmTC_70a34.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/5/crtend.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crtn.o
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 
@@ -252,14 +252,14 @@ Parsed CXX implicit link information from above output:
   link line regex: [^( *|.*[/\])(ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
   ignore line: [Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp]
   ignore line: []
-  ignore line: [Run Build Command:"/usr/bin/make" "cmTC_9aac7/fast"]
-  ignore line: [/usr/bin/make -f CMakeFiles/cmTC_9aac7.dir/build.make CMakeFiles/cmTC_9aac7.dir/build]
+  ignore line: [Run Build Command:"/usr/bin/make" "cmTC_70a34/fast"]
+  ignore line: [/usr/bin/make -f CMakeFiles/cmTC_70a34.dir/build.make CMakeFiles/cmTC_70a34.dir/build]
   ignore line: [make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp']
-  ignore line: [Building CXX object CMakeFiles/cmTC_9aac7.dir/CMakeCXXCompilerABI.cpp.o]
-  ignore line: [/usr/bin/c++      -o CMakeFiles/cmTC_9aac7.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.5/Modules/CMakeCXXCompilerABI.cpp]
-  ignore line: [Linking CXX executable cmTC_9aac7]
-  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9aac7.dir/link.txt --verbose=1]
-  ignore line: [/usr/bin/c++       -v CMakeFiles/cmTC_9aac7.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_9aac7  ]
+  ignore line: [Building CXX object CMakeFiles/cmTC_70a34.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/usr/bin/c++      -o CMakeFiles/cmTC_70a34.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.5/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Linking CXX executable cmTC_70a34]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_70a34.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/c++       -v CMakeFiles/cmTC_70a34.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_70a34  ]
   ignore line: [Using built-in specs.]
   ignore line: [COLLECT_GCC=/usr/bin/c++]
   ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper]
@@ -269,13 +269,13 @@ Parsed CXX implicit link information from above output:
   ignore line: [gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.5) ]
   ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/]
   ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../:/lib/:/usr/lib/]
-  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_9aac7' '-shared-libgcc' '-mtune=generic' '-march=x86-64']
-  link line: [ /usr/lib/gcc/x86_64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/ccnq1lAE.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --sysroot=/ --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -z relro -o cmTC_9aac7 /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/x86_64-linux-gnu/5 -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/5/../../.. CMakeFiles/cmTC_9aac7.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/5/crtend.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crtn.o]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_70a34' '-shared-libgcc' '-mtune=generic' '-march=x86-64']
+  link line: [ /usr/lib/gcc/x86_64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/ccCLazyF.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --sysroot=/ --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -z relro -o cmTC_70a34 /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/x86_64-linux-gnu/5 -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/5/../../.. CMakeFiles/cmTC_70a34.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/5/crtend.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crtn.o]
     arg [/usr/lib/gcc/x86_64-linux-gnu/5/collect2] ==> ignore
     arg [-plugin] ==> ignore
     arg [/usr/lib/gcc/x86_64-linux-gnu/5/liblto_plugin.so] ==> ignore
     arg [-plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper] ==> ignore
-    arg [-plugin-opt=-fresolution=/tmp/ccnq1lAE.res] ==> ignore
+    arg [-plugin-opt=-fresolution=/tmp/ccCLazyF.res] ==> ignore
     arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
     arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
     arg [-plugin-opt=-pass-through=-lc] ==> ignore
@@ -292,7 +292,7 @@ Parsed CXX implicit link information from above output:
     arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
     arg [-zrelro] ==> ignore
     arg [-o] ==> ignore
-    arg [cmTC_9aac7] ==> ignore
+    arg [cmTC_70a34] ==> ignore
     arg [/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crt1.o] ==> ignore
     arg [/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crti.o] ==> ignore
     arg [/usr/lib/gcc/x86_64-linux-gnu/5/crtbegin.o] ==> ignore
@@ -304,7 +304,7 @@ Parsed CXX implicit link information from above output:
     arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
     arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
     arg [-L/usr/lib/gcc/x86_64-linux-gnu/5/../../..] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/5/../../..]
-    arg [CMakeFiles/cmTC_9aac7.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [CMakeFiles/cmTC_70a34.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
     arg [-lstdc++] ==> lib [stdc++]
     arg [-lm] ==> lib [m]
     arg [-lgcc_s] ==> lib [gcc_s]
@@ -336,14 +336,14 @@ Parsed CXX implicit link information from above output:
 Detecting CXX [-std=c++14] compiler features compiled with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_56f6c/fast"
-/usr/bin/make -f CMakeFiles/cmTC_56f6c.dir/build.make CMakeFiles/cmTC_56f6c.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_0a175/fast"
+/usr/bin/make -f CMakeFiles/cmTC_0a175.dir/build.make CMakeFiles/cmTC_0a175.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_56f6c.dir/feature_tests.cxx.o
-/usr/bin/c++     -std=c++14 -o CMakeFiles/cmTC_56f6c.dir/feature_tests.cxx.o -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/feature_tests.cxx"
-Linking CXX executable cmTC_56f6c
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_56f6c.dir/link.txt --verbose=1
-/usr/bin/c++        CMakeFiles/cmTC_56f6c.dir/feature_tests.cxx.o  -o cmTC_56f6c 
+Building CXX object CMakeFiles/cmTC_0a175.dir/feature_tests.cxx.o
+/usr/bin/c++     -std=c++14 -o CMakeFiles/cmTC_0a175.dir/feature_tests.cxx.o -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/feature_tests.cxx"
+Linking CXX executable cmTC_0a175
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0a175.dir/link.txt --verbose=1
+/usr/bin/c++        CMakeFiles/cmTC_0a175.dir/feature_tests.cxx.o  -o cmTC_0a175 
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 
@@ -409,14 +409,14 @@ make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFi
 Detecting CXX [-std=c++11] compiler features compiled with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_dbc53/fast"
-/usr/bin/make -f CMakeFiles/cmTC_dbc53.dir/build.make CMakeFiles/cmTC_dbc53.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_4917b/fast"
+/usr/bin/make -f CMakeFiles/cmTC_4917b.dir/build.make CMakeFiles/cmTC_4917b.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_dbc53.dir/feature_tests.cxx.o
-/usr/bin/c++     -std=c++11 -o CMakeFiles/cmTC_dbc53.dir/feature_tests.cxx.o -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/feature_tests.cxx"
-Linking CXX executable cmTC_dbc53
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_dbc53.dir/link.txt --verbose=1
-/usr/bin/c++        CMakeFiles/cmTC_dbc53.dir/feature_tests.cxx.o  -o cmTC_dbc53 
+Building CXX object CMakeFiles/cmTC_4917b.dir/feature_tests.cxx.o
+/usr/bin/c++     -std=c++11 -o CMakeFiles/cmTC_4917b.dir/feature_tests.cxx.o -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/feature_tests.cxx"
+Linking CXX executable cmTC_4917b
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4917b.dir/link.txt --verbose=1
+/usr/bin/c++        CMakeFiles/cmTC_4917b.dir/feature_tests.cxx.o  -o cmTC_4917b 
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 
@@ -482,14 +482,14 @@ make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFi
 Detecting CXX [-std=c++98] compiler features compiled with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_4fdf7/fast"
-/usr/bin/make -f CMakeFiles/cmTC_4fdf7.dir/build.make CMakeFiles/cmTC_4fdf7.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_b22d7/fast"
+/usr/bin/make -f CMakeFiles/cmTC_b22d7.dir/build.make CMakeFiles/cmTC_b22d7.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_4fdf7.dir/feature_tests.cxx.o
-/usr/bin/c++     -std=c++98 -o CMakeFiles/cmTC_4fdf7.dir/feature_tests.cxx.o -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/feature_tests.cxx"
-Linking CXX executable cmTC_4fdf7
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4fdf7.dir/link.txt --verbose=1
-/usr/bin/c++        CMakeFiles/cmTC_4fdf7.dir/feature_tests.cxx.o  -o cmTC_4fdf7 
+Building CXX object CMakeFiles/cmTC_b22d7.dir/feature_tests.cxx.o
+/usr/bin/c++     -std=c++98 -o CMakeFiles/cmTC_b22d7.dir/feature_tests.cxx.o -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/feature_tests.cxx"
+Linking CXX executable cmTC_b22d7
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b22d7.dir/link.txt --verbose=1
+/usr/bin/c++        CMakeFiles/cmTC_b22d7.dir/feature_tests.cxx.o  -o cmTC_b22d7 
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 
@@ -553,14 +553,14 @@ make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFi
 Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED succeeded with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_097e9/fast"
-/usr/bin/make -f CMakeFiles/cmTC_097e9.dir/build.make CMakeFiles/cmTC_097e9.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_b671d/fast"
+/usr/bin/make -f CMakeFiles/cmTC_b671d.dir/build.make CMakeFiles/cmTC_b671d.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_097e9.dir/src.c.o
-/usr/bin/cc    -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTC_097e9.dir/src.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/src.c"
-Linking C executable cmTC_097e9
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_097e9.dir/link.txt --verbose=1
-/usr/bin/cc   -DOpenMP_FLAG_DETECTED -fopenmp    CMakeFiles/cmTC_097e9.dir/src.c.o  -o cmTC_097e9 
+Building C object CMakeFiles/cmTC_b671d.dir/src.c.o
+/usr/bin/cc    -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTC_b671d.dir/src.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/src.c"
+Linking C executable cmTC_b671d
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b671d.dir/link.txt --verbose=1
+/usr/bin/cc   -DOpenMP_FLAG_DETECTED -fopenmp    CMakeFiles/cmTC_b671d.dir/src.c.o  -o cmTC_b671d 
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 Source file was:
@@ -577,14 +577,14 @@ int main() {
 Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED succeeded with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_5cf87/fast"
-/usr/bin/make -f CMakeFiles/cmTC_5cf87.dir/build.make CMakeFiles/cmTC_5cf87.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_9369a/fast"
+/usr/bin/make -f CMakeFiles/cmTC_9369a.dir/build.make CMakeFiles/cmTC_9369a.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_5cf87.dir/src.cxx.o
-/usr/bin/c++     -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTC_5cf87.dir/src.cxx.o -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/src.cxx"
-Linking CXX executable cmTC_5cf87
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5cf87.dir/link.txt --verbose=1
-/usr/bin/c++    -DOpenMP_FLAG_DETECTED -fopenmp    CMakeFiles/cmTC_5cf87.dir/src.cxx.o  -o cmTC_5cf87 
+Building CXX object CMakeFiles/cmTC_9369a.dir/src.cxx.o
+/usr/bin/c++     -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTC_9369a.dir/src.cxx.o -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/src.cxx"
+Linking CXX executable cmTC_9369a
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9369a.dir/link.txt --verbose=1
+/usr/bin/c++    -DOpenMP_FLAG_DETECTED -fopenmp    CMakeFiles/cmTC_9369a.dir/src.cxx.o  -o cmTC_9369a 
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 Source file was:
@@ -601,28 +601,28 @@ int main() {
 Determining if the include file pthread.h exists passed with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_a6158/fast"
-/usr/bin/make -f CMakeFiles/cmTC_a6158.dir/build.make CMakeFiles/cmTC_a6158.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_20736/fast"
+/usr/bin/make -f CMakeFiles/cmTC_20736.dir/build.make CMakeFiles/cmTC_20736.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_a6158.dir/CheckIncludeFile.c.o
-/usr/bin/cc    -fopenmp    -o CMakeFiles/cmTC_a6158.dir/CheckIncludeFile.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c"
-Linking C executable cmTC_a6158
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a6158.dir/link.txt --verbose=1
-/usr/bin/cc   -fopenmp      CMakeFiles/cmTC_a6158.dir/CheckIncludeFile.c.o  -o cmTC_a6158 
+Building C object CMakeFiles/cmTC_20736.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fopenmp    -o CMakeFiles/cmTC_20736.dir/CheckIncludeFile.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c"
+Linking C executable cmTC_20736
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_20736.dir/link.txt --verbose=1
+/usr/bin/cc   -fopenmp      CMakeFiles/cmTC_20736.dir/CheckIncludeFile.c.o  -o cmTC_20736 
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 
 Determining if the pthread_create exist passed with the following output:
 Change Dir: /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_15af9/fast"
-/usr/bin/make -f CMakeFiles/cmTC_15af9.dir/build.make CMakeFiles/cmTC_15af9.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_dfebf/fast"
+/usr/bin/make -f CMakeFiles/cmTC_dfebf.dir/build.make CMakeFiles/cmTC_dfebf.dir/build
 make[1]: Entering directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_15af9.dir/CheckSymbolExists.c.o
-/usr/bin/cc    -fopenmp    -o CMakeFiles/cmTC_15af9.dir/CheckSymbolExists.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c"
-Linking C executable cmTC_15af9
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_15af9.dir/link.txt --verbose=1
-/usr/bin/cc   -fopenmp      CMakeFiles/cmTC_15af9.dir/CheckSymbolExists.c.o  -o cmTC_15af9 
+Building C object CMakeFiles/cmTC_dfebf.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -fopenmp    -o CMakeFiles/cmTC_dfebf.dir/CheckSymbolExists.c.o   -c "/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c"
+Linking C executable cmTC_dfebf
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_dfebf.dir/link.txt --verbose=1
+/usr/bin/cc   -fopenmp      CMakeFiles/cmTC_dfebf.dir/CheckSymbolExists.c.o  -o cmTC_dfebf 
 make[1]: Leaving directory '/home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp'
 
 File /home/yan/Desktop/UAV ortho/UAVProduct/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:

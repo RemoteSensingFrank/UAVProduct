@@ -3,6 +3,7 @@
 //
 #define _USE_EIGEN
 #include "openMVG/system/timer.hpp"
+#include "openMVG/image/image_io.hpp"
 #include "UAVBundler.h"
 #include "UAVDMatch.h"
 
