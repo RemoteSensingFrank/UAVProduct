@@ -1,7 +1,7 @@
 # UAVProduct处理说明
 处理无人机影像的代码，使用了OpenMVG，openMVS以及GDAL库等，实现影像几何校正，影像拼接，点云生成等功能
 
-https://travis-ci.org/Yannnnnnnnnnnn/UAVProduct.svg?branch=master
+[![Build Status](https://travis-ci.org/Yannnnnnnnnnnn/UAVProduct.svg?branch=master)](https://travis-ci.org/Yannnnnnnnnnnn/UAVProduct)
 
 ## 1 处理流程  
 * 构建全局影像参数
