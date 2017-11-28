@@ -1,0 +1,58 @@
+language: cpp
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      sudo: required
+
+
+addons:
+  apt:
+    packages:
+      - git
+      - mercurial
+      - cmake
+      - libpng-dev
+      - libjpeg-dev
+      - libtiff-dev
+      - libglu1-mesa-dev
+      - libboost-iostreams-dev
+      - libboost-program-options-dev
+      - libboost-system-dev
+      - libboost-serialization-dev
+      - libopencv-dev
+      - libcgal-dev
+      - libatlas-base-dev
+      - libsuitesparse-dev
+      - freeglut3-dev
+      - libglew-dev
+      - libglfw3-dev
+      - libeigen3-dev
+      - libkml-dev
+      - libgtest-dev
+
+intsall:
+  - git clone https://github.com/openMVG/openMVG.git /openMVG
+  - mkdir /openMVG/build && mkdir /openMVG/install
+  - cd /openMVG/build 
+  - cmake .. -DCMAKE_INSTALL_PREFIX=/openMVG/install
+  - make -j4 && sudo make install
+
+  - git clone https://github.com/UAVOrtho/openMVS.git /openMVS
+  - mkdir /openMVS/buildOpenMVS && mkdir /opneMVS/install
+  - cd /openMVS/buildOpenMVS
+  - cmake .. -DCMAKE_INSTALL_PREFIX=/openMVS/install -DCMAKE_BUILD_TYPE=release
+  - make -j4 && sudo make install
+
+  - git clone 
+
+
+before_script:
+  - cd ..
+  - mkdir build
+  - cd build
+  - cmake .. -DOpenMVG_DIR=/openMVG/install/share/openMVG/cmake -DopenMVS_DIR=/openMVS/install/lib/openMVS -DEXIF_LIBRARY=/openMVG/install/lib/libeasyexif.a -DSIFT_LIBRARY=/openMVG/install/lib/libvlsift.a
+
+script:
+  - make -j4 
