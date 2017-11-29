@@ -7,6 +7,10 @@
 #include "SiftGPU/SiftGPU.h"
 #include "openMVG/sfm/sfm.hpp"
 
+#include <fstream>
+#include <string>
+using namespace std;
+
 struct Features_Provider_Gpu:public openMVG::sfm::Features_Provider
 {
 	/***

@@ -1,5 +1,8 @@
 # UAVProduct处理说明
-处理无人机影像的代码，使用了OpenMVG，openMVS以及GDAL库等，实现影像几何校正，影像拼接，点云生成等功能  
+处理无人机影像的代码，使用了OpenMVG，openMVS以及GDAL库等，实现影像几何校正，影像拼接，点云生成等功能
+
+[![Build Status](https://travis-ci.org/UAVOrtho/UAVProduct.svg?branch=master)](https://travis-ci.org/UAVOrtho/UAVProduct)
+
 ## 1 处理流程  
 * 构建全局影像参数
 * 影像列表的构建以及各个文件夹的生成
@@ -46,3 +49,77 @@
 这一章理论上是不用介绍的，因为代码量比较少大家看看就明白了，但是鉴于注释不太清楚而且测试用例不全，所以还是介绍一下，首先需要初始化参数，全局变量中提供的所有哦参数都需要进行初始化，初始化之后调用UAVList_CreateSFMList函数创建需要进行处理的影像集，得到一些参数，如果想要粗略的显示影像位置可以调用UAVList_CreateImageRange函数进行显示，结果会以KML文件的形式给出在 Google Earth上导入可以直接看，次此功能必须在具有POS数据的情况才能够使用，在缺少POS数据的情况下无法使用，得到影像list之后调用特征点提取和解算函数进行特征点的提取和解算，在这里特征点提取和解算可以选取CPU计算也可以选用GPU进行计算，如果存在像控点则可以在这一步添加像控点，最后对结果进行光束法平差．
 ## 4 安装与编译  
 [编译参考](http://wuweiblog.com/2017/08/24/%E7%A8%8B%E5%BA%8F%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/)
+
+# How to Compile the UAV Product
+
+------
+Show How to compile the UAV Product step by step under Ubuntu16.04:
+
+ 1. openMVG
+ 2. openMVS
+ 3. DevIl
+ 4. gTest
+ 5. other third party library
+ 6. UAV Product
+
+
+1.openMVG
+compile the openMVG and install
+---
+
+    git clone https://github.com/openMVG/openMVG.git
+    git submodule update -i
+    cd ./src
+    mkdir build
+    cd build
+    cmake ..
+    make -j4
+    sudo make install
+2.openMVS
+---
+be careful the verison of the eigen used by openMVS must be 3.2;
+and make sure you build the release version
+    git clone https://github.com/cdcseacave/openMVS.git
+    mkdir buildOpenMVS
+    cd buildOpenMVS
+    cmake ..
+    make -j4
+    sudo make install
+
+3.DevIL
+---
+
+    git clone https://github.com/DentonW/DevIL.git
+    mkdir build
+    cmake ..
+    make 
+    sudo make install
+
+4.gTest
+---
+    sudo apt-get install libgtest-dev
+    cd /usr/src/gtest
+    sudo cmake .
+    sudo make
+    sudo cp libgtest*.a /usr/local/lib
+    
+5.other third party library
+---
+    cgal:`sudo apt-get install libcgal-qt5-dev`
+    opencv:`sudo apt-get install libopencv-dev`
+    gdal:`sudo apt-get install libgdal-dev`
+    boost:`sudo apt-get install libboost-all-dev`
+    libkml:`sudo apt-get install libkml-dev`
+    glew
+5.UAV
+---
+    set openMVG_DIR
+    set openMVS_DIR
+    set SIFT_LIBRARY
+    set EXIF_LIBRARY
+
+
+    
+
+ 
+

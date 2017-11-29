@@ -1,4 +1,4 @@
-#include <stlplus3/filesystemSimplified/file_system.hpp>
+
 #include "openMVG/sfm/sfm.hpp"
 #include "gdal_priv.h"
 #include "Python.h"
@@ -236,7 +236,7 @@ bool UAVMapCalculateGoogle::UAVMapGoogleRun(std::string sfm,std::string dMap)
                     continue;
                 if(!UAVMapUnitData(vec_mapUnits))
                     continue;
-                if(!UAVMapUnitCombie(vec_mapUnits,dMap+prior->s_Img_path+string(".tif")))
+                if(!UAVMapUnitCombie(vec_mapUnits,dMap+prior->s_Img_path+".tif"))
                   continue;
           }
      }

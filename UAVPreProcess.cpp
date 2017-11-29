@@ -2,7 +2,10 @@
 // Created by wuwei on 17-11-6.
 //
 
+#include <omp.h>
 #include <memory>
+
+#include "cereal/archives/json.hpp"
 
 #include "UAVPreProcess.h"
 #include "openMVG/system/timer.hpp"
@@ -12,19 +15,23 @@
 #include "openMVG/matching/matcher_brute_force.hpp"
 #include "openMVG/exif/exif_IO_EasyExif.hpp"
 
-
 #include "openMVG/stl/stl.hpp"
 #include "openMVG/features/regions_factory.hpp"
 #include "nonFree/sift/SIFT_describer.hpp"
+#include "nonFree/sift/SIFT_describer_io.hpp"
 #include "openMVG/features/sift/SIFT_Anatomy_Image_Describer.hpp"
-#include "openMVG/matching_image_collection/Matcher_Regions_AllInMemory.hpp"
-#include "openMVG/matching_image_collection/Cascade_Hashing_Matcher_Regions_AllInMemory.hpp"
+#include "openMVG/matching_image_collection/Matcher_Regions.hpp"
+#include "openMVG/matching_image_collection/Cascade_Hashing_Matcher_Regions.hpp"
 #include "openMVG/matching/pairwiseAdjacencyDisplay.hpp"
 #include "openMVG/matching_image_collection/E_ACRobust.hpp"
 
+#include "openMVG/image/image_io.hpp"
+
+#include "openMVG/graph/graph.hpp"
+
 #include "openMVG/matching_image_collection/GeometricFilter.hpp"
 
-#include <omp.h>
+
 
 #ifdef _DEBUG
 #define LOG( format, args... )  printf( format, ##args )
@@ -695,8 +702,7 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
             return 6;
         cereal::JSONOutputArchive archive(stream);
         archive(cereal::make_nvp("image_describer", image_describer));
-        std::unique_ptr<openMVG::features::Regions> regions_type_out;
-        image_describer->Allocate(regions_type_out);
+        auto regions_type_out= image_describer->Allocate();
         archive(cereal::make_nvp("regions_type", regions_type_out));
     }
 
@@ -732,7 +738,7 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
     float fDistRatio=0.6f;
     std::unique_ptr<openMVG::matching_image_collection::Matcher> collectionMatcher;
     std::cout << "Using FAST_CASCADE_HASHING_L2 matcher" << std::endl;
-    collectionMatcher.reset(new openMVG::matching_image_collection::Cascade_Hashing_Matcher_Regions_AllInMemory(fDistRatio));
+    collectionMatcher.reset(new openMVG::matching_image_collection::Cascade_Hashing_Matcher_Regions(fDistRatio));
     openMVG::system::Timer timer;
     {
         // From matching mode compute the pair list that have to be matched:
