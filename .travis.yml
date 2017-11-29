@@ -1,14 +1,16 @@
 language: cpp
+sudo: required
 
 matrix:
   include:
     - os: linux
+      dist: trusty
       compiler: gcc
-      sudo: required
-
 
 addons:
   apt:
+    sources:
+      - libglfw3-dev
     packages:
       - git
       - mercurial
@@ -23,36 +25,51 @@ addons:
       - libboost-serialization-dev
       - libopencv-dev
       - libcgal-dev
+      - libgdal-dev
       - libatlas-base-dev
       - libsuitesparse-dev
       - freeglut3-dev
       - libglew-dev
-      - libglfw3-dev
       - libeigen3-dev
-      - libkml-dev
       - libgtest-dev
 
-intsall:
-  - git clone https://github.com/openMVG/openMVG.git /openMVG
-  - mkdir /openMVG/build && mkdir /openMVG/install
-  - cd /openMVG/build 
-  - cmake .. -DCMAKE_INSTALL_PREFIX=/openMVG/install
+before_script: 
+  - cmake --version
+  - cd /usr/src/gtest
+  - sudo cmake .
+  - sudo make
+  - sudo cp libgtest*.a /usr/local/lib
+
+  - git clone https://github.com/DentonW/DevIL.git ${TRAVIS_BUILD_DIR}/DevIL
+  - cd ${TRAVIS_BUILD_DIR}/DevIL/
+  - mkdir build
+  - cd build/
+  - cmake . ${TRAVIS_BUILD_DIR}/DevIL/DevIL
+  - make -j4
+  - sudo make install
+
+  - git clone --branch=develop  https://github.com/openMVG/openMVG.git ${TRAVIS_BUILD_DIR}/openMVG
+  - cd ${TRAVIS_BUILD_DIR}/openMVG/
+  - git submodule update -i
+  - mkdir build install
+  - cd build/
+  - cmake -D OpenMVG_BUILD_EXAMPLES=OFF -D OpenMVG_BUILD_SOFTWARES=OFF -D OpenMVG_BUILD_GUI_SOFTWARES=OFF -D CMAKE_INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/openMVG/install . ${TRAVIS_BUILD_DIR}/openMVG/src
   - make -j4 && sudo make install
+  - cd ../../
+  - sudo mv ${TRAVIS_BUILD_DIR}/openMVG/install/include/openMVG/third_party/lemon/config.h ${TRAVIS_BUILD_DIR}/openMVG/install/include/openMVG/third_party/lemon/lemon/
 
-  - git clone https://github.com/UAVOrtho/openMVS.git /openMVS
-  - mkdir /openMVS/buildOpenMVS && mkdir /opneMVS/install
-  - cd /openMVS/buildOpenMVS
-  - cmake .. -DCMAKE_INSTALL_PREFIX=/openMVS/install -DCMAKE_BUILD_TYPE=release
+  - git clone --branch=master https://github.com/UAVOrtho/openMVS.git ${TRAVIS_BUILD_DIR}/openMVS
+  - cd ${TRAVIS_BUILD_DIR}/openMVS/
+  - mkdir buildOpenMVS install
+  - cd buildOpenMVS/
+  - cmake  -D CMAKE_INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/openMVS/install -D CMAKE_BUILD_TYPE=release . ${TRAVIS_BUILD_DIR}/openMVS/
   - make -j4 && sudo make install
+  - cd ../../
 
-  - git clone 
-
-
-before_script:
-  - cd ..
   - mkdir build
   - cd build
-  - cmake .. -DOpenMVG_DIR=/openMVG/install/share/openMVG/cmake -DopenMVS_DIR=/openMVS/install/lib/openMVS -DEXIF_LIBRARY=/openMVG/install/lib/libeasyexif.a -DSIFT_LIBRARY=/openMVG/install/lib/libvlsift.a
+  - cmake -D OpenMVG_DIR=${TRAVIS_BUILD_DIR}/openMVG/install/share/openMVG/cmake -D OpenMVS_DIR=${TRAVIS_BUILD_DIR}/openMVS/install/lib/CMake/OpenMVS -D EXIF_LIBRARY=${TRAVIS_BUILD_DIR}/openMVG/install/lib/libeasyexif.a -D SIFT_LIBRARY=${TRAVIS_BUILD_DIR}/openMVG/install/lib/libvlsift.a . ${TRAVIS_BUILD_DIR} 
+
 
 script:
-  - make -j4 
+- make -j4 
