@@ -1,8 +1,8 @@
 # UAVProduct处理说明
 处理无人机影像的代码，使用了OpenMVG，openMVS以及GDAL库等，实现影像几何校正，影像拼接，点云生成等功能
 
-[![Build Status](https://travis-ci.org/UAVOrtho/UAVProduct.svg?branch=master)](https://travis-ci.org/UAVOrtho/UAVProduct)
-
+[![Build Status](https://travis-ci.org/RemoteSensingFrank/UAVProduct.svg?branch=master)](https://travis-ci.org/RemoteSensingFrank/UAVProduct)
+[![Waffle.io](https://img.shields.io/waffle/label/evancohen/smart-mirror/in%80progress.svg)](https://travis-ci.org/RemoteSensingFrank/UAVProduct)
 ## 1 处理流程  
 * 构建全局影像参数
 * 影像列表的构建以及各个文件夹的生成
@@ -54,7 +54,6 @@
 
 ------
 Show How to compile the UAV Product step by step under Ubuntu16.04:
-
  1. openMVG
  2. openMVS
  3. DevIl
@@ -64,8 +63,9 @@ Show How to compile the UAV Product step by step under Ubuntu16.04:
 
 
 1.openMVG
-compile the openMVG and install
 ---
+
+compile the openMVG and install
 
     git clone https://github.com/openMVG/openMVG.git
     git submodule update -i
@@ -79,6 +79,7 @@ compile the openMVG and install
 ---
 be careful the verison of the eigen used by openMVS must be 3.2;
 and make sure you build the release version
+
     git clone https://github.com/cdcseacave/openMVS.git
     mkdir buildOpenMVS
     cd buildOpenMVS
@@ -111,7 +112,7 @@ and make sure you build the release version
     boost:`sudo apt-get install libboost-all-dev`
     libkml:`sudo apt-get install libkml-dev`
     glew
-5.UAV
+6.UAV
 ---
     set openMVG_DIR
     set openMVS_DIR
