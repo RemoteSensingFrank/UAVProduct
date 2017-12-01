@@ -5,7 +5,7 @@
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 #include <boost/program_options.hpp>
 #include <omp.h>
-#include <OpenMVS/MVS.h>
+#include "MVS.h"
 
 void UAVDenseProcess::UAVDP_MVSProcInitialize() {
 
