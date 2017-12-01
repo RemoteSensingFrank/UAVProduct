@@ -2,10 +2,8 @@
 处理无人机影像的代码，使用了OpenMVG，openMVS以及GDAL库等，实现影像几何校正，影像拼接，点云生成等功能
 
 [![Build Status](https://travis-ci.org/RemoteSensingFrank/UAVProduct.svg?branch=master)](https://travis-ci.org/RemoteSensingFrank/UAVProduct)
-[![Waffle.io](https://img.shields.io/waffle/label/evancohen/smart-mirror/in%20progress.svg)](https://github.com/RemoteSensingFrank/UAVProduct)
-[![GitHub forks](https://img.shields.io/github/forks/badges/shields.svg?style=social&label=Fork)](https://github.com/RemoteSensingFrank/UAVProduct)
-[![Mozilla Add-on](https://img.shields.io/amo/stars/dustman.svg)](https://github.com/RemoteSensingFrank/UAVProduct)
-
+[![GitHub forks](https://img.shields.io/github/forks/RemoteSensingFrank/UAVProduct.svg?style=social&label=Fork)](https://github.com/RemoteSensingFrank/UAVProduct)
+[![Maintainability](https://api.codeclimate.com/v1/badges/3cc410f321d1ebf2fe5e/maintainability)](https://codeclimate.com/github/RemoteSensingFrank/UAVProduct/maintainability)
 ## 1 处理流程  
 * 构建全局影像参数
 * 影像列表的构建以及各个文件夹的生成
@@ -96,7 +94,7 @@ and make sure you build the release version
     git clone https://github.com/DentonW/DevIL.git
     mkdir build
     cmake ..
-    make 
+    make
     sudo make install
 
 4.gTest
@@ -106,7 +104,7 @@ and make sure you build the release version
     sudo cmake .
     sudo make
     sudo cp libgtest*.a /usr/local/lib
-    
+
 5.other third party library
 ---
     cgal:`sudo apt-get install libcgal-qt5-dev`
@@ -121,9 +119,3 @@ and make sure you build the release version
     set openMVS_DIR
     set SIFT_LIBRARY
     set EXIF_LIBRARY
-
-
-    
-
- 
-
