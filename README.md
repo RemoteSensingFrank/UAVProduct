@@ -2,7 +2,10 @@
 处理无人机影像的代码，使用了OpenMVG，openMVS以及GDAL库等，实现影像几何校正，影像拼接，点云生成等功能
 
 [![Build Status](https://travis-ci.org/RemoteSensingFrank/UAVProduct.svg?branch=master)](https://travis-ci.org/RemoteSensingFrank/UAVProduct)
-[![Waffle.io](https://img.shields.io/waffle/label/evancohen/smart-mirror/in%80progress.svg)](https://travis-ci.org/RemoteSensingFrank/UAVProduct)
+[![Waffle.io](https://img.shields.io/waffle/label/evancohen/smart-mirror/in%20progress.svg)](https://github.com/RemoteSensingFrank/UAVProduct)
+[![GitHub forks](https://img.shields.io/github/forks/badges/shields.svg?style=social&label=Fork)](https://github.com/RemoteSensingFrank/UAVProduct)
+[![Mozilla Add-on](https://img.shields.io/amo/stars/dustman.svg)](https://github.com/RemoteSensingFrank/UAVProduct)
+
 ## 1 处理流程  
 * 构建全局影像参数
 * 影像列表的构建以及各个文件夹的生成
