@@ -89,22 +89,30 @@ public:
     UAVErr UAVGeoCorrectGcps(std::string pathImg, GDAL_GCP* gcps,int gcpNumber ,std::string pathGeo,
                                             double dGroundSize,double dL,double dB);
 
-
+    //还是只计算五个点，而不是所有点都计算，所有点都计算存在两个问题：１．效率太低；２．不同的像素有不同的偏差
     UAVErr UAVGeoCorrectExterior(std::string pathImg, openMVG::Mat34 P, double avgHeight, std::string pathGeo,
                                             double dGroundSize,double dL,double dB);
 
     UAVErr UAVGeoCorrectDEM(std::string pathGeo, openMVG::Mat34 P, std::string pathDEM, std::string pathGeoAccur);
+
+protected:
+    /***
+     * unsigned char* pDataSrc:输入影像数据
+     * xMap：ｘ映射
+     * yMap：ｙ映射
+     * double dGroundSize：地面点分辨率
+     * int xsrc，int ysrc：源影像大小
+     * int xre,int yre　：采样后影像大小
+     * unsigned char* pDataRe：采样后数据
+     */
+    virtual void UAVGeoProc_ImageResample(unsigned char *pDataSrc, float *xMap, float *yMap, double maxpt[], double minpt[],
+                                  double dGroundSize, int xsrc, int ysrc, int xre, int yre, unsigned char *pDataRe);
 };
 
-class UAVProcessGeoBundler:UAVProcessGeoCorrect{
-public:
-    //对SFM结果进行几何校正
-    UAVErr UAVGeoCorrectSFM(std::string sfm,std::string dGeo);
-
-    //通过密集匹配点进行几何校正
-    UAVErr UAVGeoCorrectDense(std::string sfm,std::string dGeo,std::string pDense);
-};
-
+/***
+ * 密集点解算
+ * Dense Points calculate
+ */
 class UAVProcessGeoDense:UAVProcessGeometry{
     friend class UAVProcessGeoBundler;
 public:
@@ -118,5 +126,19 @@ protected:
     UAVErr UAVGeoIndex();
     UAVErr UAVGeoDenseInterpolation();
 };
+
+/***
+ * 光束法平差结果进行几何校正
+ * Geo correction using bundler result
+ */
+class UAVProcessGeoBundler:UAVProcessGeoCorrect{
+public:
+    //对SFM结果进行几何校正
+    UAVErr UAVGeoCorrectSFM(std::string sfm,std::string dGeo,CoordiListType typeCoordi,double dGroundSize);
+
+    //通过密集匹配点进行几何校正
+    UAVErr UAVGeoCorrectDense(std::string sfm,std::string dGeo,std::string pDense);
+};
+
 
 #endif //UAVPRODUCT_UAVPROCESSGEOMETRY_H
