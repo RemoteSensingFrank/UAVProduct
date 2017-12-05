@@ -34,10 +34,10 @@
 // @@    @@   @@     @@   @@@@     @@        @@   @@   @@     @@@  @@@     @ @@@           @@       @@
 // @@@@@@@@  @@      @@    @@@     @@        @@    @@   @@@@@@@@    @@@@@@@@ @@@@@@@  @@@@@@@ @@@@@@@@
 // 
-//´íÎó´úÂë
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 typedef long UAVErr;
 
-//±ê¶¨½á¹¹Ìå
+//ï¿½ê¶¨ï¿½á¹¹ï¿½ï¿½
 typedef struct calib{
     double _flen_x_;
     double _flen_y_;
@@ -46,7 +46,20 @@ typedef struct calib{
     double _ccd_size_;
 }UAVCalibParams;
 
-//POSÊý¾Ý½á¹¹Ìå
+//Camera Model
+//I get this from the openMVG
+//but I remove the fisheye and spherical
+enum EINTRINSIC
+{
+  PINHOLE_CAMERA_START = 0,
+  PINHOLE_CAMERA = 1,         // No distortion
+  PINHOLE_CAMERA_RADIAL1 = 2, // radial distortion K1
+  PINHOLE_CAMERA_RADIAL3 = 3, // radial distortion K1,K2,K3
+  PINHOLE_CAMERA_BROWN = 4,   // radial distortion K1,K2,K3, tangential distortion T1,T2
+  PINHOLE_CAMERA_END = 5
+};
+
+//POSï¿½ï¿½ï¿½Ý½á¹¹ï¿½ï¿½
 typedef struct uavposst{
 	double dL;
     double dB;
@@ -56,7 +69,8 @@ typedef struct uavposst{
     double dHeading;
 }UAVPOSSt;
 
-typedef enum coordilisttype{
+typedef enum coordilisttype
+{
 	CoordinateUTM,
 	CoordinateXYZ,
 	CoordinateLocal,
@@ -77,7 +91,7 @@ typedef enum ePairMode
 }MATCHMODEL;
 
 
-//½ø¶ÈÌõ
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 typedef int (*UAVProgressFunc)(double dfComplete, const char *pszMessage, void *pProgressArg);
 
  

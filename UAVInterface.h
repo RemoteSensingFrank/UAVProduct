@@ -47,7 +47,9 @@ public:
 class UAVProcessList:public UAV
 {
 public:
-	virtual UAVErr UAVProcessListGet(std::string dImage,std::string pPos,UAVCalibParams &cParam,bool group_camera_model,std::string sfm_out,UAVProcessPOS* pPorc,CoordiListType typeCoordi);
+	virtual UAVErr UAVProcessListGet(std::string image_dir,std::string sfm_out,
+									 UAVCalibParams &cParam,EINTRINSIC camera_model_type,bool group_camera_model,
+									 std::string pos_file,UAVProcessPOS* pPorc,CoordiListType typeCoordi);
 	virtual UAVErr UAVProcessListRange(UAVCalibParams cParam,POSPair posList){return 0;}
 	virtual double UAVProcessListSize(std::string dImage){return 0;}
 };

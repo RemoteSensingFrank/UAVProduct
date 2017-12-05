@@ -25,9 +25,9 @@ int main(int argc,char* argv[])
 
     UAVCalibParams calibCameras;
     UndefinedCalibParam(calibCameras);
-    err=list->UAVProcessListGet(image_dir,"",calibCameras,true,sfm_data,posSimple,CoordinateUTM);
-
-
+    err=list->UAVProcessListGet(image_dir,sfm_data,
+                               calibCameras,PINHOLE_CAMERA_RADIAL3,true,
+                                "",posSimple,CoordinateUTM);
 
     // std::shared_ptr< UAVProcessFeatureSIFTGpu> feats=std::make_shared<UAVProcessFeatureSIFTGpu>();
     // std::unique_ptr<UAVProcessMatches> match(new UAVProcessMatches());
