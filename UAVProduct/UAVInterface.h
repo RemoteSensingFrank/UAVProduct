@@ -1,6 +1,5 @@
 #pragma once
 #include"common_header.h"
-
 #include "openMVG/numeric/numeric.h"
 #include<stdexcept>
 #include<string>
@@ -29,7 +28,7 @@ public:
 };
 
 
-//½âÎöPOSÊý¾Ý
+//ï¿½ï¿½ï¿½ï¿½POSï¿½ï¿½ï¿½ï¿½
 class UAVProcessPOS:public UAV
 {
 public:
@@ -43,11 +42,13 @@ public:
 	POSPair posList;
 };
 
-//list ²Ù×÷
+//list ï¿½ï¿½ï¿½ï¿½
 class UAVProcessList:public UAV
 {
 public:
-	virtual UAVErr UAVProcessListGet(std::string dImage,std::string pPos,UAVCalibParams &cParam,std::string sfm_out,UAVProcessPOS* pPorc,CoordiListType typeCoordi);
+	virtual UAVErr UAVProcessListGet(std::string image_dir,std::string sfm_out,
+									 UAVCalibParams &cParam,EINTRINSIC camera_model_type,bool group_camera_model,
+									 std::string pos_file,UAVProcessPOS* pPorc,CoordiListType typeCoordi);
 	virtual UAVErr UAVProcessListRange(UAVCalibParams cParam,POSPair posList){return 0;}
 	virtual double UAVProcessListSize(std::string dImage){return 0;}
 };

@@ -4,7 +4,9 @@ Map/*
 *.pyc
 build/
 CMakeFiles/
+SiftGPU/
 *.cmake
 *.cbp
 Makefile
 
+/.vscode

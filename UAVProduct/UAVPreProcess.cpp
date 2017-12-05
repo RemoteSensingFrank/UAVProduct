@@ -139,7 +139,8 @@ UAVErr UAVProcessPOS::UAVProcessPOSExtractLocal(double &centerx, double &centery
     return 0;
 }
 
-UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps) {
+UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps) 
+{
     UAVErr err = 0;
     //整理数据获取影像数和POS数据行数
     if(!bGps)
@@ -165,17 +166,23 @@ UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps) {
                     tmpPos.dB=latitude;tmpPos.dL=longitude;tmpPos.dH=altitude;
                     tmpPos.dRoll=tmpPos.dPitch=tmpPos.dHeading=0;
                     posList.insert(std::make_pair(i+1,tmpPos));
-                } else{
+                } 
+                else
+                {
                     return 1;
                 }
-            }else
+            }
+            else
                 return 1;
         }
         return 0;
-    } else{
+    } 
+    else
+    {
         if(!stlplus::file_exists(file))
             return 1;
-        else{
+        else
+        {
             FILE* ptrfile=NULL;
             ptrfile = fopen(file.c_str(),"r+");
             if(ptrfile==NULL)
@@ -197,142 +204,99 @@ UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps) {
     }
 }
 
-//TODO:POS数据导出的功能暂时先不做
-UAVErr UAVProcessPOSSimple::UAVProcessExport(std::string file, bool rLoc) {
+
+//TODO:
+//POS数据导出的功能暂时先不做
+UAVErr UAVProcessPOSSimple::UAVProcessExport(std::string file, bool rLoc) 
+{
     return 0;
 }
 
-UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, UAVCalibParams &cParam,std::string sfm_out,
-                                         UAVProcessPOS *pPorc, CoordiListType typeCoordi) {
+UAVErr UAVProcessList::UAVProcessListGet(std::string image_dir,std::string sfm_out,
+                                         UAVCalibParams &cParam,EINTRINSIC camera_model_type,bool group_camera_model,
+                                         std::string pos_file, UAVProcessPOS *pPorc, CoordiListType typeCoordi) 
+{
     //检查数据
     //特征点解算列表
-    std::string image_dir = dImage;
     if(!stlplus::folder_exists(image_dir))
     {
+        std::cerr<<"The input directory doesn't exist"<<std::endl;
         return 1;
     }
+
+    //check sfm_out path
+    if(stlplus::extension_part(sfm_out)!="json")//although the sfm_data support others format, I only add ".json" to make the program simple
+    {
+        std::cerr<<"invalid file format"<<std::endl;
+        return 1;
+    }
+    if(!stlplus::folder_exists(stlplus::folder_part(sfm_out)))//check whether the sfm_out folder exist, if not create it
+    {
+        if(!stlplus::folder_create(stlplus::folder_part(sfm_out)))
+        {
+            std::cerr<<"cannot create output directory"<<std::endl;
+            return 1;
+        }
+    }
+
     std::vector<std::string> vec_image = stlplus::folder_files(image_dir);
     std::sort(vec_image.begin(), vec_image.end());
 
     using namespace openMVG::sfm;
-    std::string sfm_in = sfm_out;
+
+    //sfm data
     SfM_Data sfm_data;
     sfm_data.s_root_path =  image_dir;
     Views & views = sfm_data.views;
     Intrinsics & intrinsics = sfm_data.intrinsics;
 
+
     //获取POS数据
-    bool bPos=true;
-    if(stlplus::file_exists(pPos))
+    bool have_no_pose=true;
+    if(stlplus::file_exists(pos_file))
     {
-        bPos=pPorc->UAVPorcessPOSGet(pPos,true);
-    } else{
-        bPos=pPorc->UAVPorcessPOSGet(dImage,false);
+        //get pos from file
+        have_no_pose=pPorc->UAVPorcessPOSGet(pos_file,true);
+    } 
+    else
+    {
+        //get pos from image
+        have_no_pose=pPorc->UAVPorcessPOSGet(image_dir,false);
     }
-    double X,Y,Z;
-    if(!bPos){
+    double center_X,center_Y,center_Z;
+    if(!have_no_pose)
+    {
         switch (typeCoordi)
         {
             case CoordinateXYZ:
-                pPorc->UAVProcessPOSExtractXYZ(X,Y,Z);
+                pPorc->UAVProcessPOSExtractXYZ(center_X,center_Y,center_Z);
                 break;
             case CoordinateUTM:
-                pPorc->UAVProcessPOSExtractUTM(X,Y,Z);
+                pPorc->UAVProcessPOSExtractUTM(center_X,center_Y,center_Z);
                 break;
             case CoordinateLocal:
-                pPorc->UAVProcessPOSExtractLocal(X,Y,Z);
+                pPorc->UAVProcessPOSExtractLocal(center_X,center_Y,center_Z);
                 break;
             default:
-                bPos=true;
+                have_no_pose=true;
         }
     }
+  
+    //check pos's number
+    if(!have_no_pose && pPorc->posList.size()!=vec_image.size())
+        return 1;
+
     bool bCalibParam=IsUndefineCalibParam(cParam);
     double width,height,ppx,ppy,focal;
-    if(!bPos&&pPorc->posList.size()<vec_image.size())
-        return 1;
-    POSPair::iterator iter = pPorc->posList.begin();
-    int i=0;
 
-    /*
-    for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin();
-          iter_image != vec_image.end(); ++iter_image,++i)
-    {
-        const std::string sImageFilename = stlplus::create_filespec(image_dir, vec_image[i]);
-        const std::string sImFilenamePart = stlplus::filename_part(sImageFilename);
-
-        openMVG::image::ImageHeader imgHeader;
-        if (!openMVG::image::ReadImageHeader(sImageFilename.c_str(), &imgHeader))
-            continue;
-
-        width = imgHeader.width;
-        height = imgHeader.height;
-        std::unique_ptr<openMVG::exif::Exif_IO> exifReader(new openMVG::exif::Exif_IO_EasyExif);
-
-        if(bCalibParam)
-        {
-
-            ppx=cParam._ppx_;
-            ppy=cParam._ppy_;
-            focal=std::max(cParam._flen_x_,cParam._flen_y_);
-        } else{
-            ppx=width/2.0;
-            ppy=height/2.0;
-            if(exifReader->open( sImageFilename ))
-                focal = std::max ( width, height ) * exifReader->getFocal() / exifReader->getFocal();
-            else
-                focal=std::max(width,height);
-        }
-
-        std::shared_ptr<openMVG::cameras::IntrinsicBase> intrinsic(NULL);
-        if(focal>0&&ppx>0&& ppy&&height>0&&width>0)
-        {
-            //initial intrinsic
-            intrinsic = std::make_shared<openMVG::cameras::Pinhole_Intrinsic_Radial_K3>
-                    (width, height, focal, ppx, ppy, 0.0, 0.0, 0.0);  // setup no distortion as initial guess
-        }
-
-        if(bPos)
-        {
-            ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
-            // Add intrinsic related to the image (if any)
-            if (intrinsic == NULL)
-            {
-                v.id_intrinsic = openMVG::UndefinedIndexT;
-            }
-            else
-            {
-                intrinsics[v.id_intrinsic] = intrinsic;
-            }
-            views[v.id_view] = std::make_shared<ViewPriors>(v);
-        }
-        else
-        {
-
-            ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
-            // Add intrinsic related to the image (if any)
-            if (intrinsic == NULL)
-            {
-                v.id_intrinsic = openMVG::UndefinedIndexT;
-            }
-            else
-            {
-                intrinsics[v.id_intrinsic] = intrinsic;
-            }
-            v.b_use_pose_center_ = true;
-            double x = iter->second.dL;
-            double y = iter->second.dB;
-            double z = iter->second.dH;
-            v.pose_center_ = openMVG::Vec3(x,y,z);
-            views[v.id_view] = std::make_shared<ViewPriors>(v);
-            iter++;
-        }
-    }
-     */
+    POSPair::iterator pos_iter = pPorc->posList.begin();
     for (std::vector<std::string>::const_iterator iter_image = vec_image.begin();
-         iter_image != vec_image.end(); ++iter_image,++i)
+        iter_image != vec_image.end();
+        ++iter_image,++pos_iter)
     {
-        ppx=ppy= width = height= focal = -1;
-        const std::string sImageFilename = stlplus::create_filespec(dImage, *iter_image );
+        ppx = ppy = width = height = focal = -1;
+
+        const std::string sImageFilename = stlplus::create_filespec(image_dir, *iter_image );
         const std::string sImFilenamePart = stlplus::filename_part(sImageFilename);
 
         openMVG::image::ImageHeader imgHeader;
@@ -348,7 +312,9 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
             ppx=cParam._ppx_;
             ppy=cParam._ppy_;
             focal=std::max(cParam._flen_x_,cParam._flen_y_);
-        } else{
+        }
+        else
+        {
             ppx=width/2.0;
             ppy=height/2.0;
             std::unique_ptr<openMVG::exif::Exif_IO> exifPosReader(new openMVG::exif::Exif_IO_EasyExif);
@@ -357,19 +323,41 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
             else
                 focal=std::max(width,height);
         }
+
         std::unique_ptr<openMVG::exif::Exif_IO> exifReader(new openMVG::exif::Exif_IO_EasyExif);
         exifReader->open( sImageFilename );
-            focal = std::max ( width, height );
+        focal = std::max ( width, height );
 
         std::shared_ptr<openMVG::cameras::IntrinsicBase> intrinsic(NULL);
-        if(focal>0&&ppx>0&& ppy&&height>0&&width>0)
+        if( focal>0 && ppx>0 && ppy>0 && height>0 && width>0 )
         {
             //initial intrinsic
-            intrinsic = std::make_shared<openMVG::cameras::Pinhole_Intrinsic_Radial_K3>
+            //get from openMVG
+            switch (camera_model_type)
+            {
+                case PINHOLE_CAMERA:
+                intrinsic = std::make_shared<openMVG::cameras::Pinhole_Intrinsic>
+                    (width, height, focal, ppx, ppy);
+                break;
+                case PINHOLE_CAMERA_RADIAL1:
+                intrinsic = std::make_shared<openMVG::cameras::Pinhole_Intrinsic_Radial_K1>
+                    (width, height, focal, ppx, ppy, 0.0); // setup no distortion as initial guess
+                break;
+                case PINHOLE_CAMERA_RADIAL3:
+                intrinsic = std::make_shared<openMVG::cameras::Pinhole_Intrinsic_Radial_K3>
                     (width, height, focal, ppx, ppy, 0.0, 0.0, 0.0);  // setup no distortion as initial guess
+                break;
+                case PINHOLE_CAMERA_BROWN:
+                intrinsic = std::make_shared<openMVG::cameras::Pinhole_Intrinsic_Brown_T2>
+                    (width, height, focal, ppx, ppy, 0.0, 0.0, 0.0, 0.0, 0.0); // setup no distortion as initial guess
+                break;
+                default:
+                std::cerr << "Error: unknown camera model: " << (int) camera_model_type << std::endl;
+                return 1;
+            }
         }
 
-        if(bPos)
+        if(have_no_pose)
         {
             View v(*iter_image, views.size(), views.size(), views.size(), width, height);
             if (intrinsic == NULL)
@@ -391,19 +379,25 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
             // Add the view to the sfm_container
             views[v.id_view] = std::make_shared<View>(v);
             v.b_use_pose_center_ = true;
-            double x = iter->second.dL;
-            double y = iter->second.dB;
-            double z = iter->second.dH;
+            double x = pos_iter->second.dL;
+            double y = pos_iter->second.dB;
+            double z = pos_iter->second.dH;
             v.pose_center_ = openMVG::Vec3(x,y,z);
             views[v.id_view] = std::make_shared<ViewPriors>(v);
-            iter++;
         }
 
     }
 
+    //group camera that share common properties
+    //make BS more stable and faster
+    if(group_camera_model)
+    {
+        openMVG::sfm::GroupSharedIntrinsics(sfm_data);
+    }
+
     if (!Save(
             sfm_data,
-            sfm_in.c_str(),
+            sfm_out.c_str(),
             ESfM_Data(VIEWS|INTRINSICS)))
     {
         return 3;
