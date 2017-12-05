@@ -3,3 +3,8 @@
 Map/*
 *.pyc
 build/
+CMakeFiles/
+*.cmake
+*.cbp
+Makefile
+

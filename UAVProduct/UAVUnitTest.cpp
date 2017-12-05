@@ -6,6 +6,9 @@
 #include <memory>
 #include <iostream>
 
+//TODO:1．构造测试数据　
+//TODO:2．将所有测试用例用测试数据进行重新编写
+//TODO:3．测试用例对所有分支进行覆盖
 TEST(UAVUnitTest,UnitTestListPOS)
 {
     UAVProcessList* list=new UAVProcessList();
@@ -18,6 +21,7 @@ TEST(UAVUnitTest,UnitTestListPOS)
     err=list->UAVProcessListGet("/home/wuwei/Data/UAVData/small_test/Img/","",calibCameras,"/home/wuwei/Data/UAVData/small_test/sfm.json",posSimple,CoordinateUTM);
     EXPECT_EQ(err,0);
 }
+
 TEST(UAVUnitTest,UnitTestListNoPOS)
 {
     UAVProcessList* list=new UAVProcessList();
@@ -32,6 +36,7 @@ TEST(UAVUnitTest,UnitTestListNoPOS)
     err=list->UAVProcessListGet("/home/wuwei/Data/UAVData/8/Img/","",calibCameras,"/home/wuwei/Data/UAVData/8/sfm.json",posSimple,CoordinateUTM);
     EXPECT_EQ(err,0);
 }
+
 TEST(UAVUnitTest,UnitTestListError)
 {
     UAVProcessList* list=new UAVProcessList();
@@ -68,6 +73,7 @@ TEST(UAVUnitTest,UnitTestMatch)
     err=match->UAVProcessMatchesList(strList,8,true,strMatch);
     EXPECT_EQ(0,err);
 }
+
 TEST(UAVUnitTest,UnitTestMatchError)
 {
     std::string strList = "/home/wuwei/Data/UAVData/1/sfm.json";
@@ -100,7 +106,6 @@ TEST(UAVUnitTest,UnitTestMatchError)
     EXPECT_EQ(1,err);
 }
 
-
 TEST(UAVUnitTest,UnitTestFeature)
 {
     std::string sfm_data="/home/wuwei/Data/UAVData/1/sfm.json";
@@ -122,6 +127,7 @@ TEST(UAVUnitTest,UnitTestFeature)
     err=feats->UAVProcessMatchesExtract(strMatchList,strMatch);
     EXPECT_EQ(0,err);
 }
+
 TEST(UAVUniTest,UnitTestFeatureErr)
 {
     std::string sfm_data="/home/wuwei/Data/UAVData/1/sfm.json";

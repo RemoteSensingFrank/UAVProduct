@@ -2,9 +2,9 @@
 // Created by wuwei on 17-4-2.
 //
 
-#include "UAVGeoMosaic.h"
+#include "UAVProcessGeoMosaic.h"
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
-inline string UAVGeoMosaic::GDALTool_GetFileName(const char* pszFile)
+inline string UAVProcessGeoMosaicGDAL::UAVGeoMosaic_GetFileName(const char* pszFile)
 {
     string temp = pszFile;
     size_t a = temp.find_last_of('\\');
@@ -20,7 +20,7 @@ inline string UAVGeoMosaic::GDALTool_GetFileName(const char* pszFile)
     return strLayerName;
 }
 GDALDatasetH
-UAVGeoMosaic::GDALTool_GDALWarpCreateOutput(char **papszSrcFiles, const char *pszFilename,
+UAVProcessGeoMosaicGDAL::UAVGeoMosaic_GDALWarpCreateOutput(char **papszSrcFiles, const char *pszFilename,
                                          const char *pszFormat, char **papszTO,
                                          char ***ppapszCreateOptions, GDALDataType eDT)
 {
@@ -373,7 +373,7 @@ UAVGeoMosaic::GDALTool_GDALWarpCreateOutput(char **papszSrcFiles, const char *ps
     CPLFree(pszThisTargetSRS);
     return hDstDS;
 }
-void UAVGeoMosaic::GDALTool_TransformCutlineToSource(GDALDatasetH hSrcDS, void *hCutline,
+void UAVProcessGeoMosaicGDAL::UAVGeoMosaic_TransformCutlineToSource(GDALDatasetH hSrcDS, void *hCutline,
                                                   char ***ppapszWarpOptions, char **papszTO_In)
 {
     OGRGeometryH hMultiPolygon = OGR_G_Clone((OGRGeometryH)hCutline);
@@ -466,7 +466,7 @@ void UAVGeoMosaic::GDALTool_TransformCutlineToSource(GDALDatasetH hSrcDS, void *
                                          "CUTLINE", pszWKT);
     CPLFree(pszWKT);
 }
-long UAVGeoMosaic::GDALTool_LoadCutline(const char *pszCutlineDSName, const char *pszCLayer,
+long UAVProcessGeoMosaicGDAL::UAVGeoMosaic_LoadCutline(const char *pszCutlineDSName, const char *pszCLayer,
                                      const char *pszCWHERE, const char *pszCSQL, void **phCutlineRet)
 {
     OGRRegisterAll();
@@ -560,7 +560,7 @@ long UAVGeoMosaic::GDALTool_LoadCutline(const char *pszCutlineDSName, const char
     OGR_DS_Destroy(hSrcDS);
     return 0;
 }
-long UAVGeoMosaic::GDALTool_ImageMosaicing(vector<string> vStrSrcFiles, const char* pszCutLineFile, const char* pszOutFile,
+long UAVProcessGeoMosaicGDAL::UAVGeoMosaic_ImageMosaicing(vector<string> vStrSrcFiles, const char* pszCutLineFile, const char* pszOutFile,
                                         GDALResampleAlg eResampleMethod, const char *pszFormat)
 {
     //输入输出文件
@@ -640,7 +640,7 @@ long UAVGeoMosaic::GDALTool_ImageMosaicing(vector<string> vStrSrcFiles, const ch
     if (hDstDS == NULL)
     {
         int iResult = 0;
-        hDstDS = GDALTool_GDALWarpCreateOutput(papszSrcFiles, pszDstFilename, pszFormat,
+        hDstDS = UAVGeoMosaic_GDALWarpCreateOutput(papszSrcFiles, pszDstFilename, pszFormat,
                                                papszTO, &papszCreateOptions, eOutputType);
 
         if (iResult != 0)
@@ -964,14 +964,14 @@ long UAVGeoMosaic::GDALTool_ImageMosaicing(vector<string> vStrSrcFiles, const ch
         void *hCutline = NULL;
         if (pszCutlineDSName != NULL)
         {
-            string strFileName = GDALTool_GetFileName(papszSrcFiles[iSrc]);
+            string strFileName = UAVGeoMosaic_GetFileName(papszSrcFiles[iSrc]);
             string strWhere = "影像路径=\"" + strFileName + "\"";
-            GDALTool_LoadCutline(pszCutlineDSName, NULL, strWhere.c_str(), NULL, &hCutline);
+            UAVGeoMosaic_LoadCutline(pszCutlineDSName, NULL, strWhere.c_str(), NULL, &hCutline);
         }
 
         if (hCutline != NULL)
         {
-            GDALTool_TransformCutlineToSource(hSrcDS, hCutline, &(psWO->papszWarpOptions), papszTO);
+            UAVGeoMosaic_TransformCutlineToSource(hSrcDS, hCutline, &(psWO->papszWarpOptions), papszTO);
         }
 
         /* -------------------------------------------------------------------- */
@@ -1036,7 +1036,7 @@ long UAVGeoMosaic::GDALTool_ImageMosaicing(vector<string> vStrSrcFiles, const ch
     return 0;
 }
 
-void UAVGeoMosaic::GDALTool_GetMosaicVector(string pszImageDir, vector<string> &vStrSrcFiles)
+void UAVProcessGeoMosaicGDAL::UAVGeoMosaic_GetMosaicVector(string pszImageDir, vector<string> &vStrSrcFiles)
 {
     if ( !stlplus::folder_exists( pszImageDir ) )
     {

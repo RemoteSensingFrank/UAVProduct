@@ -197,8 +197,7 @@ UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps) {
     }
 }
 
-//TODO:
-//POS数据导出的功能暂时先不做
+//TODO:POS数据导出的功能暂时先不做
 UAVErr UAVProcessPOSSimple::UAVProcessExport(std::string file, bool rLoc) {
     return 0;
 }

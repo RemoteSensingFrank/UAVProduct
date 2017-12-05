@@ -140,5 +140,8 @@ public:
     UAVErr UAVGeoCorrectDense(std::string sfm,std::string dGeo,std::string pDense);
 };
 
+class UAVProcessGeoMosaicGDAL:UAVProcessGeometry{
+
+};
 
 #endif //UAVPRODUCT_UAVPROCESSGEOMETRY_H

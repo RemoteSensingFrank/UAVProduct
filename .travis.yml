@@ -32,7 +32,7 @@ addons:
       - libglew-dev
       - libeigen3-dev
       - libgtest-dev
-
+      - qtbase5-dev
 before_script: 
   - cmake --version
   - cd /usr/src/gtest

@@ -4,6 +4,8 @@
 
 #ifndef UAVPRODUCT_UAVGEOMOSAIC_H
 #define UAVPRODUCT_UAVGEOMOSAIC_H
+
+#include "UAVInterface.h"
 #include "gdal_priv.h"
 #include "gdalwarper.h"
 #include "gdal_alg_priv.h"
@@ -17,7 +19,8 @@
 
 using namespace std;
 
-class UAVGeoMosaic {
+class UAVProcessGeoMosaicGDAL: public UAVProcessGeometry
+{
 private:
 
     //图像范围
@@ -30,7 +33,7 @@ private:
     int             bEnableDstAlpha, bEnableSrcAlpha;
 
 public:
-    UAVGeoMosaic() :dfMinX(0.0), dfMinY(0.0), dfMaxX(0.0), dfMaxY(0.0), dfXRes(0.0), dfYRes(0.0),
+    UAVProcessGeoMosaicGDAL() :dfMinX(0.0), dfMinY(0.0), dfMaxX(0.0), dfMaxY(0.0), dfXRes(0.0), dfYRes(0.0),
                  nForceLines(0), nForcePixels(0), bEnableDstAlpha(FALSE), bEnableSrcAlpha(FALSE)
     {
 
@@ -102,7 +105,7 @@ public:
     功能：获取文件名除去后缀
     参数：1.const char* pszFile：输入影像名称
     */
-    inline string GDALTool_GetFileName(const char* pszFile);
+    inline string UAVGeoMosaic_GetFileName(const char* pszFile);
 
 
     /*
@@ -114,7 +117,7 @@ public:
     5.char ***ppapszCreateOptions: 创建文件选项
     6.GDALDataType eDT			：创建文件数据类型
     */
-    GDALDatasetH GDALTool_GDALWarpCreateOutput(char **papszSrcFiles, const char *pszFilename,
+    GDALDatasetH UAVGeoMosaic_GDALWarpCreateOutput(char **papszSrcFiles, const char *pszFilename,
                                                const char *pszFormat, char **papszTO,
                                                char ***ppapszCreateOptions, GDALDataType eDT);
 
@@ -127,7 +130,7 @@ public:
     4.char **papszTO		     : 转换选项
     5.char **papszTO_In		 : 转换选项
     */
-    void GDALTool_TransformCutlineToSource(GDALDatasetH hSrcDS, void *hCutline,
+    void UAVGeoMosaic_TransformCutlineToSource(GDALDatasetH hSrcDS, void *hCutline,
                                            char ***ppapszWarpOptions, char **papszTO_In);
 
 
@@ -140,13 +143,13 @@ public:
     5.const char *pszCSQL	: 镶嵌块SQL过滤字段
     6.void **phCutlineRet : 返回的镶嵌块数据指针
     */
-    long GDALTool_LoadCutline(const char *pszCutlineDSName, const char *pszCLayer,
+    long UAVGeoMosaic_LoadCutline(const char *pszCutlineDSName, const char *pszCLayer,
                               const char *pszCWHERE, const char *pszCSQL,
                               void **phCutlineRet);
 
 
     //获取影像数据集
-    void GDALTool_GetMosaicVector(string pszImageDir,vector<string> &vStrSrcFiles);
+    void UAVGeoMosaic_GetMosaicVector(string pszImageDir,vector<string> &vStrSrcFiles);
 
     /*
     功能：影像镶嵌
@@ -161,12 +164,12 @@ public:
     *		   const char *pszCSQL	: 镶嵌块SQL过滤字段								*
     *		   const char *pszFormat:输出文件格式，详细参考GDAL支持数据类型			*
     */
-    long GDALTool_ImageMosaicing(vector<string> vStrSrcFiles, const char* pszCutLineFile, const char* pszOutFile,
+    long UAVGeoMosaic_ImageMosaicing(vector<string> vStrSrcFiles, const char* pszCutLineFile, const char* pszOutFile,
                                  GDALResampleAlg eResampleMethod, const char *pszFormat);
 
 
     //TODO:影像拼接的过程需要添加拼接线处理和影像色调调整的步骤，
-    // 拼接线具体的处理方式可以参考openCV对于拼接线处理的方式
+    // 拼接线具体的处理方式可以参考openCV对于拼接线处理的方式(主要问题)
     // 色调调整的方法可以参考openMVG的色调调整方法
 };
 
