@@ -1,7 +1,7 @@
 # ==============================================================================
 # Generic CMake File for QTBased project
 # ==============================================================================
-set(Qt5Widgets_DIR /usr/local/Qt-5.9.0/lib/cmake/Qt5Widgets)
+#set(Qt5Widgets_DIR /usr/local/Qt-5.9.0/lib/cmake/Qt5Widgets)
 find_package( Qt5Widgets )
 
 if(Qt5Widgets_FOUND)
