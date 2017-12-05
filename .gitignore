@@ -3,3 +3,4 @@
 Map/*
 *.pyc
 build/
+/.vscode
