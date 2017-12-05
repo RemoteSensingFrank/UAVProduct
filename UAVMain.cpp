@@ -7,7 +7,9 @@
 
 int main(int argc,char* argv[])
 {
-    std::string sfm_data="/home/wuwei/Data/UAVData/1/sfm.json";
+    std::string image_dir="/home/yan/Desktop/odm_data_aukerman/images/";
+
+    std::string sfm_data="/home/yan/Desktop/odm_data_aukerman/result/sfm.json";
     std::string dFeature="/home/wuwei/Data/UAVData/1/feats/";
     std::string strMatchList="/home/wuwei/Data/UAVData/1/matches.txt";
     std::string strMatch="/home/wuwei/Data/UAVData/1/feats/matches.txt";
@@ -15,12 +17,24 @@ int main(int argc,char* argv[])
     std::string trans_mvs = "/home/wuwei/Data/UAVData/1/mvs/trans.mvs";
     std::string densemvs = "/home/wuwei/Data/UAVData/1/mvs/dense.ply";
 
-    std::shared_ptr< UAVProcessFeatureSIFTGpu> feats=std::make_shared<UAVProcessFeatureSIFTGpu>();
-    std::unique_ptr<UAVProcessMatches> match(new UAVProcessMatches());
-    std::unique_ptr<UAVProcessBundle> bundler(new UAVProcessBundle());
-    std::unique_ptr<UAVDenseProcess> dense(new UAVDenseProcess());
 
     UAVErr err=0;
+
+    UAVProcessList* list=new UAVProcessList();
+    UAVProcessPOSSimple* posSimple = new UAVProcessPOSSimple();
+
+    UAVCalibParams calibCameras;
+    UndefinedCalibParam(calibCameras);
+    err=list->UAVProcessListGet(image_dir,"",calibCameras,true,sfm_data,posSimple,CoordinateUTM);
+
+
+
+    // std::shared_ptr< UAVProcessFeatureSIFTGpu> feats=std::make_shared<UAVProcessFeatureSIFTGpu>();
+    // std::unique_ptr<UAVProcessMatches> match(new UAVProcessMatches());
+    // std::unique_ptr<UAVProcessBundle> bundler(new UAVProcessBundle());
+    // std::unique_ptr<UAVDenseProcess> dense(new UAVDenseProcess());
+
+    
     /*
     err=feats->UAVProcessFeatList(sfm_data,dFeature);
     err=feats->UAVProcessFeatExtract(true);
@@ -28,7 +42,7 @@ int main(int argc,char* argv[])
     err=feats->UAVProcessMatchesExtract(strMatchList,strMatch);
     err=bundler->UAVProcessBundleSquence(feats,strMatch,sfm_data,bunder_out);
     err=bundler->UAVProcessBundleToMVS(bunder_out,trans_mvs);*/
-    err=dense->UAVDP_MVSProc(trans_mvs,densemvs);
+    //err=dense->UAVDP_MVSProc(trans_mvs,densemvs);
     return err;
     //testing::InitGoogleTest(&argc, argv);
     //return RUN_ALL_TESTS();

@@ -203,8 +203,10 @@ UAVErr UAVProcessPOSSimple::UAVProcessExport(std::string file, bool rLoc) {
     return 0;
 }
 
-UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, UAVCalibParams &cParam,std::string sfm_out,
-                                         UAVProcessPOS *pPorc, CoordiListType typeCoordi) {
+UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, UAVCalibParams &cParam,bool group_camera_model,
+                                         std::string sfm_out,
+                                         UAVProcessPOS *pPorc, CoordiListType typeCoordi) 
+{
     //检查数据
     //特征点解算列表
     std::string image_dir = dImage;
@@ -254,81 +256,7 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
     POSPair::iterator iter = pPorc->posList.begin();
     int i=0;
 
-    /*
-    for ( std::vector<std::string>::const_iterator iter_image = vec_image.begin();
-          iter_image != vec_image.end(); ++iter_image,++i)
-    {
-        const std::string sImageFilename = stlplus::create_filespec(image_dir, vec_image[i]);
-        const std::string sImFilenamePart = stlplus::filename_part(sImageFilename);
 
-        openMVG::image::ImageHeader imgHeader;
-        if (!openMVG::image::ReadImageHeader(sImageFilename.c_str(), &imgHeader))
-            continue;
-
-        width = imgHeader.width;
-        height = imgHeader.height;
-        std::unique_ptr<openMVG::exif::Exif_IO> exifReader(new openMVG::exif::Exif_IO_EasyExif);
-
-        if(bCalibParam)
-        {
-
-            ppx=cParam._ppx_;
-            ppy=cParam._ppy_;
-            focal=std::max(cParam._flen_x_,cParam._flen_y_);
-        } else{
-            ppx=width/2.0;
-            ppy=height/2.0;
-            if(exifReader->open( sImageFilename ))
-                focal = std::max ( width, height ) * exifReader->getFocal() / exifReader->getFocal();
-            else
-                focal=std::max(width,height);
-        }
-
-        std::shared_ptr<openMVG::cameras::IntrinsicBase> intrinsic(NULL);
-        if(focal>0&&ppx>0&& ppy&&height>0&&width>0)
-        {
-            //initial intrinsic
-            intrinsic = std::make_shared<openMVG::cameras::Pinhole_Intrinsic_Radial_K3>
-                    (width, height, focal, ppx, ppy, 0.0, 0.0, 0.0);  // setup no distortion as initial guess
-        }
-
-        if(bPos)
-        {
-            ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
-            // Add intrinsic related to the image (if any)
-            if (intrinsic == NULL)
-            {
-                v.id_intrinsic = openMVG::UndefinedIndexT;
-            }
-            else
-            {
-                intrinsics[v.id_intrinsic] = intrinsic;
-            }
-            views[v.id_view] = std::make_shared<ViewPriors>(v);
-        }
-        else
-        {
-
-            ViewPriors v(*iter_image, views.size(), views.size(), views.size(), width, height);
-            // Add intrinsic related to the image (if any)
-            if (intrinsic == NULL)
-            {
-                v.id_intrinsic = openMVG::UndefinedIndexT;
-            }
-            else
-            {
-                intrinsics[v.id_intrinsic] = intrinsic;
-            }
-            v.b_use_pose_center_ = true;
-            double x = iter->second.dL;
-            double y = iter->second.dB;
-            double z = iter->second.dH;
-            v.pose_center_ = openMVG::Vec3(x,y,z);
-            views[v.id_view] = std::make_shared<ViewPriors>(v);
-            iter++;
-        }
-    }
-     */
     for (std::vector<std::string>::const_iterator iter_image = vec_image.begin();
          iter_image != vec_image.end(); ++iter_image,++i)
     {
@@ -349,7 +277,9 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
             ppx=cParam._ppx_;
             ppy=cParam._ppy_;
             focal=std::max(cParam._flen_x_,cParam._flen_y_);
-        } else{
+        }
+        else
+        {
             ppx=width/2.0;
             ppy=height/2.0;
             std::unique_ptr<openMVG::exif::Exif_IO> exifPosReader(new openMVG::exif::Exif_IO_EasyExif);
@@ -400,6 +330,13 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string dImage, std::string pPos, U
             iter++;
         }
 
+    }
+
+    //group camera that share common properties
+    //make BS more stable and faster
+    if(group_camera_model)
+    {
+        openMVG::sfm::GroupSharedIntrinsics(sfm_data);
     }
 
     if (!Save(
