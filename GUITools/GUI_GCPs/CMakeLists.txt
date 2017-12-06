@@ -1,12 +1,10 @@
 # ==============================================================================
 # Generic CMake File for QTBased project
 # ==============================================================================
-#set(Qt5Widgets_DIR /usr/local/Qt-5.9.0/lib/cmake/Qt5Widgets)
+
 find_package( Qt5Widgets )
 
 if(Qt5Widgets_FOUND)
-    # CMake version control
-    CMAKE_MINIMUM_REQUIRED(VERSION 3.7)
     if(POLICY CMP0020)
         cmake_policy(SET CMP0020 OLD)
     endif(POLICY CMP0020)
