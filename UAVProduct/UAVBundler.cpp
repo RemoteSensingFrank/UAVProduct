@@ -7,7 +7,8 @@
 #include "UAVBundler.h"
 #include "UAVDMatch.h"
 
-UAVErr UAVProcessBundle::UAVProcessBundleGlobal(std::shared_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_out) {
+UAVErr UAVProcessBundle::UAVProcessBundleGlobal(std::shared_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_out) 
+{
     if(feats_ptr== nullptr)
         return 7;
     unique_ptr<openMVG::sfm::Features_Provider> feat_provider = feats_ptr->UAVProcessFeatsProvide();
@@ -15,7 +16,8 @@ UAVErr UAVProcessBundle::UAVProcessBundleGlobal(std::shared_ptr<UAVProcessFeatur
         return 7;
 
     openMVG::sfm::SfM_Data sfm_data;
-    if (!Load(sfm_data,sfm_in,  openMVG::sfm::ESfM_Data(openMVG::sfm::ALL))) {
+    if (!Load(sfm_data,sfm_in,  openMVG::sfm::ESfM_Data(openMVG::sfm::ALL))) 
+    {
         std::cerr << std::endl
                   << "The input SfM_Data file \""<< sfm_in << "\" cannot be read." << std::endl;
         return false;
@@ -30,7 +32,7 @@ UAVErr UAVProcessBundle::UAVProcessBundleGlobal(std::shared_ptr<UAVProcessFeatur
     }
 
     openMVG::system::Timer timer;
-    openMVG::sfm::SequentialSfMReconstructionEngine sfmEngine(
+    openMVG::sfm::GlobalSfMReconstructionEngine_RelativeMotions sfmEngine(
             sfm_data,
             stlplus::folder_part(sfm_out),
             stlplus::create_filespec(stlplus::folder_part(sfm_out), "Reconstruction_Report.html"));
@@ -38,19 +40,18 @@ UAVErr UAVProcessBundle::UAVProcessBundleGlobal(std::shared_ptr<UAVProcessFeatur
     // Configure the features_provider & the matches_provider
     sfmEngine.SetFeaturesProvider(feat_provider.get());
     sfmEngine.SetMatchesProvider(matches_provider.get());
-    bool b_use_motion_priors=true;
-    for(auto iter:sfm_data.GetViews()){
-        //b_use_motion_priors=b_use_motion_priors&&
-        const openMVG::sfm::View *viewT=iter.second.get();
-        int i=0;
-        b_use_motion_priors=b_use_motion_priors&((openMVG::sfm::ViewPriors*)viewT)->b_use_pose_center_;
 
-    }
+    bool b_use_motion_priors=true;
+    sfmEngine.Set_Use_Motion_Prior(b_use_motion_priors);
+
     // Configure reconstruction parameters
     const openMVG::cameras::Intrinsic_Parameter_Type intrinsic_refinement_options = openMVG::cameras::Intrinsic_Parameter_Type::ADJUST_ALL;
     sfmEngine.Set_Intrinsics_Refinement_Type(intrinsic_refinement_options);
-    sfmEngine.Set_Use_Motion_Prior(b_use_motion_priors);
-    sfmEngine.SetUnknownCameraType(openMVG::cameras::EINTRINSIC(openMVG::cameras::PINHOLE_CAMERA_RADIAL3));
+
+    sfmEngine.SetRotationAveragingMethod(
+        openMVG::sfm::ERotationAveragingMethod(int (openMVG::sfm::ROTATION_AVERAGING_L2)));
+    sfmEngine.SetTranslationAveragingMethod(
+        openMVG::sfm::ETranslationAveragingMethod(int (openMVG::sfm::TRANSLATION_AVERAGING_SOFTL1)));
 
     if (sfmEngine.Process())
     {
@@ -130,7 +131,7 @@ UAVErr UAVProcessBundle::UAVProcessBundleSquence(std::shared_ptr<UAVProcessFeatu
 
     if (sfmEngine.Process())
     {
-        std::cout << std::endl << " Total Ac-Global-Sfm took (s): " << timer.elapsed() << std::endl;
+        std::cout << std::endl << " Total Incremental-Sfm took (s): " << timer.elapsed() << std::endl;
 
         std::cout << "...Generating SfM_Report.html" << std::endl;
         Generate_SfM_Report(sfmEngine.Get_SfM_Data(),
