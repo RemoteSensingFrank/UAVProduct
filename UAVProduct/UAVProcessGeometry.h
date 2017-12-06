@@ -5,6 +5,7 @@
 #ifndef UAVPRODUCT_UAVPROCESSGEOMETRY_H
 #define UAVPRODUCT_UAVPROCESSGEOMETRY_H
 #include "UAVInterface.h"
+#include "openMVG/sfm/sfm.hpp"
 #include "gdal_priv.h"
 
 #define MINXBound -20037508
@@ -140,8 +141,13 @@ public:
     UAVErr UAVGeoCorrectDense(std::string sfm,std::string dGeo,std::string pDense);
 };
 
-class UAVProcessGeoMosaicGDAL:UAVProcessGeometry{
 
+class UAVProcessGCPs:UAVProcessGeometry{
+public:
+    virtual UAVErr UAVGeoGCPImport(std::string fgcp,CoordiListType coordiTp)=0;
+
+public:
+
+    openMVG::sfm::Landmarks m_Gcps;
 };
-
 #endif //UAVPRODUCT_UAVPROCESSGEOMETRY_H

@@ -14,7 +14,7 @@ public:
 class UAVProcessBundleGCPs:public UAVProcessBundle
 {
 public:
-	virtual UAVErr UAVProcessBindGCPs(std::string pGcps);
+	virtual UAVErr UAVProcessBindGCPs(std::string pGcps,CoordiListType cooridTp);
 
 public:
 	virtual UAVErr UAVProcessBundleGlobal(std::shared_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_dout);
@@ -22,5 +22,5 @@ public:
 	virtual UAVErr UAVProcessBundleSquence(std::shared_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_dout);
 
 private:
-	openMVG::sfm::Landmarks m_Gcps;
+
 };
