@@ -68,7 +68,7 @@ before_script:
 
   - mkdir build
   - cd build
-  - cmake -D OpenMVG_DIR=${TRAVIS_BUILD_DIR}/openMVG/install/share/openMVG/cmake -D OpenMVS_DIR=${TRAVIS_BUILD_DIR}/openMVS/install/lib/CMake/OpenMVS -D EXIF_LIBRARYI=${TRAVIS_BUILD_DIR}/openMVG/install/lib/libeasyexif.a -D SIFT_LIBRARYI=${TRAVIS_BUILD_DIR}/openMVG/install/lib/libvlsift.a . ${TRAVIS_BUILD_DIR}
+  - cmake -D OpenMVG_DIR=${TRAVIS_BUILD_DIR}/openMVG/install/share/openMVG/cmake -D OpenMVS_DIR=${TRAVIS_BUILD_DIR}/openMVS/install/lib/CMake/OpenMVS -D EXIF_LIBRARY=${TRAVIS_BUILD_DIR}/openMVG/install/lib/libeasyexif.a -D SIFT_LIBRARY=${TRAVIS_BUILD_DIR}/openMVG/install/lib/libvlsift.a . ${TRAVIS_BUILD_DIR}
 
 script:
 - make -j4 
