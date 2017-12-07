@@ -9,4 +9,4 @@ SiftGPU/
 *.cbp
 Makefile
 
-/.vscode
+.vscode/

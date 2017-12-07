@@ -1,9 +1,6 @@
 #pragma once
 
 #include"UAVInterface.h"
-#include <thread>
-#include <mutex>
-#include "UAVProcessThreadPool.h"
 #include "SiftGPU/SiftGPU.h"
 #include "openMVG/sfm/sfm.hpp"
 
@@ -99,55 +96,31 @@ class UAVProcessFeature:public UAVProcessMatches
 {
 	friend class UAVProcessBundle;
 public:
-	virtual UAVErr UAVProcessFeatList(std::string sfmList,std::string dFeats);
-	virtual UAVErr UAVProcessFeatExtract(bool bThread) = 0;
+	virtual UAVErr UAVProcessFeatList(std::string sfm_data_path,std::string feature_dir);
+	//later I will add some parameter to control the number of the sift feature number
+	virtual UAVErr UAVProcessFeatExtract() = 0;
 	virtual unique_ptr<openMVG::sfm::Features_Provider> UAVProcessFeatsProvide()=0;
 protected:
 	virtual UAVErr UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData)=0;
-	std::string pSfmList;
+	std::string sfm_data_path_;
 };
 
 class UAVProcessFeatureSIFT:public UAVProcessFeature
 {
 public:
-	virtual UAVErr UAVProcessFeatExtract(bool bThread){
-		if(feature.size()<=0)
-			return 5;
-
-		UAVErr err=0;
-        UAVProcessThreadPool threadPool(2);
-		if(!bThread)
-		{
-			for(const auto iter:feature){
-				err=err|UAVProcessFeatExtractEach(iter.second);
-			}
-		} else{
-            for(const auto iter:feature)
-			{
-                threadPool.UAVProcess_Enterqueue(&UAVProcessFeatureSIFT::UAVProcessFeatExtractEach,this,iter.second);
-			}
-		}
-        return 0;
-	}
+	virtual UAVErr UAVProcessFeatExtract();
 	virtual UAVErr UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData);
 	virtual unique_ptr<openMVG::sfm::Features_Provider> UAVProcessFeatsProvide();
-
-protected:
-	virtual UAVErr UAVProcessFeatExtractEach(FeatureParam fParam);
-    int threadProcNumber = 0;
-    std::mutex exportFile_lock;
 };
 
 class UAVProcessFeatureSIFTGpu:public UAVProcessFeature
 {
 public:
-	virtual UAVErr UAVProcessFeatExtract(bool bThread);
+	virtual UAVErr UAVProcessFeatExtract();
 	virtual UAVErr UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData);
 	virtual unique_ptr<openMVG::sfm::Features_Provider> UAVProcessFeatsProvide();
 protected:
 	virtual UAVErr UAVProcessExportFeatsToFile(std::string pathfeats,std::string pathdesc, std::vector<SiftKeypoint> feats, std::vector<float> desc);
-
 	bool UAVImportFeatsToFile(std::string pathdesc, std::vector<float> &desc);
-
 	bool UAVExportMatchesToFile(std::string path,int srcImg,int desImg,int matchnum,int (*matches)[2]);
 };

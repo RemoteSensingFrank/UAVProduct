@@ -39,23 +39,6 @@
 #define LOG( format, args... ) NULL;
 #endif
 
-struct UAVRegions_Provider:public openMVG::sfm::Regions_Provider{
-    void set_type(std::unique_ptr<openMVG::features::Regions>& region_type){
-        region_type_.reset(region_type->EmptyClone());
-    }
-
-    virtual bool load_pre(    const std::string features,
-                              const std::string describe,
-                              const int viewId,
-                              std::unique_ptr<openMVG::features::Regions>& region_type) {
-        std::unique_ptr<openMVG::features::Regions> regions_ptr(region_type->EmptyClone());
-        if (!regions_ptr->Load(features, describe))
-            return false;
-        cache_[viewId] = std::move(regions_ptr);
-        return true;
-    }
-};
-
 
 UAVErr UAVProcessPOS::UAVProcessPOSExtractXYZ(double &centerx, double &centery, double &centerz) {
     size_t size = posList.size();
@@ -283,8 +266,8 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string image_dir,std::string sfm_o
     }
   
     //check pos's number
-    if(!have_no_pose && pPorc->posList.size()!=vec_image.size())
-        return 1;
+    //if(!have_no_pose && pPorc->posList.size()!=vec_image.size())
+        //return 1;
 
     bool bCalibParam=IsUndefineCalibParam(cParam);
     double width,height,ppx,ppy,focal;
@@ -634,47 +617,47 @@ UAVErr UAVProcessMatches::UAVProcessMatchesImport(MatchesList &list, std::string
     return 0;
 }
 
-UAVErr UAVProcessFeature::UAVProcessFeatList(std::string sfmList, std::string dFeats) {
+UAVErr UAVProcessFeature::UAVProcessFeatList(std::string sfm_data_path,std::string feature_dir) 
+{
     //判断输入
-    if(!stlplus::file_exists(sfmList))
+    if(!stlplus::file_exists(sfm_data_path))
         return 1;
-    if(!stlplus::folder_exists(dFeats))
+    if(!stlplus::folder_exists(feature_dir))
     {
-        if(!stlplus::folder_create(dFeats))
+        if(!stlplus::folder_create(feature_dir))
             return 1;
     }
 
-    pSfmList = sfmList;
+    sfm_data_path_ = sfm_data_path;
+
     openMVG::sfm::SfM_Data sfm_data;
-    if (!Load(sfm_data, sfmList, openMVG::sfm::ESfM_Data(openMVG::sfm::VIEWS|openMVG::sfm::INTRINSICS)))
+    if (!Load(sfm_data, sfm_data_path, openMVG::sfm::ESfM_Data(openMVG::sfm::VIEWS|openMVG::sfm::INTRINSICS)))
     {
         std::cerr << std::endl
-                  << "The input SfM_Data file \"" << sfmList << "\" cannot be read." << std::endl;
+                  << "The input SfM_Data file \"" << sfm_data_path << "\" cannot be read." << std::endl;
         return 1;
     }
     LOG("Loaded a sfm_data scene with:\n#views: %d\n",sfm_data.GetViews().size());
 
-    std::string dImage = sfm_data.s_root_path;
     int i=0;
     for (const auto & viewIter : sfm_data.GetViews())
     {
         const openMVG::sfm::View * view = viewIter.second.get();
-        std::string img_name=view->s_Img_path;
         const std::string
                 sView_filename = stlplus::create_filespec(sfm_data.s_root_path, view->s_Img_path),
-                sFeat = stlplus::create_filespec(dFeats, stlplus::basename_part(sView_filename), "feat"),
-                sDesc = stlplus::create_filespec(dFeats, stlplus::basename_part(sView_filename), "desc");
+                sFeat = stlplus::create_filespec(feature_dir, stlplus::basename_part(sView_filename), "feat"),
+                sDesc = stlplus::create_filespec(feature_dir, stlplus::basename_part(sView_filename), "desc");
         FeatureParam featsParam;
         featsParam._image_in_ = sView_filename;
-        featsParam._feature_out_=sFeat;
-        featsParam._descs_out_=sDesc;
-        this->feature[i]=featsParam;
-        ++i;
+        featsParam._feature_out_= sFeat;
+        featsParam._descs_out_= sDesc;
+        this->feature[i++]=featsParam;
     }
     return 0;
 }
 
-UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData) {
+UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData) 
+{
     std::string pList = pMatchList;
     std::string pMatchDir = stlplus::folder_part(pMatchData);
 
@@ -682,13 +665,11 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
         return 1;
 
     //读取matchlist
-    ;
     std::unique_ptr<openMVG::features::Image_describer> image_describer;
     image_describer.reset(new openMVG::features::SIFT_Image_describer
                                   (openMVG::features::SIFT_Image_describer::Params(), true));
-    std::shared_ptr<UAVRegions_Provider> regions_provider;
-    const std::string sImage_describer="tmp.json";
-
+    
+    const std::string sImage_describer = stlplus::create_filespec(pMatchDir,"image_describer",".json");
     {
         std::ofstream stream(sImage_describer.c_str());
         if (!stream.is_open())
@@ -700,22 +681,19 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
     }
 
     std::unique_ptr<openMVG::features::Regions> regions_type_in = openMVG::features::Init_region_type_from_file(sImage_describer);
-    bool bContinue = true;
 
     openMVG::sfm::SfM_Data sfm_data;
-    if (!Load(sfm_data, pSfmList, openMVG::sfm::ESfM_Data(openMVG::sfm::VIEWS|openMVG::sfm::INTRINSICS))) {
+    if (!Load(sfm_data, sfm_data_path_, openMVG::sfm::ESfM_Data(openMVG::sfm::VIEWS|openMVG::sfm::INTRINSICS))) 
+    {
         std::cerr << std::endl
-                  << "The input SfM_Data file \""<< pSfmList << "\" cannot be read." << std::endl;
+                  << "The input SfM_Data file \""<< sfm_data_path_ << "\" cannot be read." << std::endl;
         return false;
     }
-    regions_provider = std::make_shared<UAVRegions_Provider>();
-    regions_provider->set_type(regions_type_in);
-    //regions_provider->load(sfm_data,stlplus::folder_part(feature[0]._feature_out_),regions_type_in);
-    //获取特征点
-    for (auto iter:feature)
-    {
-        regions_provider->load_pre(iter.second._feature_out_,iter.second._descs_out_,iter.first,regions_type_in);
-    }
+
+
+    std::shared_ptr<openMVG::sfm::Regions_Provider> regions_provider;
+    regions_provider = std::make_shared<openMVG::sfm::Regions_Provider>();
+    regions_provider->load(sfm_data,pMatchDir,regions_type_in);
 
     //进行匹配
     openMVG::matching::PairWiseMatches map_PutativesMatches;
@@ -725,13 +703,13 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
         if(openMVG::matching::Load(map_PutativesMatches,pMatchData))
             return 0;
     }
-    string tmp1=typeid(unsigned char).name();
-    string tmp2=regions_type_in->Type_id();
+
     //不存在则需要重新匹配 SIFT对应的不需要进行判断了
-    float fDistRatio=0.6f;
+    float fDistRatio=0.8f;
     std::unique_ptr<openMVG::matching_image_collection::Matcher> collectionMatcher;
     std::cout << "Using FAST_CASCADE_HASHING_L2 matcher" << std::endl;
     collectionMatcher.reset(new openMVG::matching_image_collection::Cascade_Hashing_Matcher_Regions(fDistRatio));
+
     openMVG::system::Timer timer;
     {
         // From matching mode compute the pair list that have to be matched:
@@ -754,7 +732,6 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
             return 5;
         }
 
-        //几何处理优化
         //-- export putative matches Adjacency matrix
         openMVG::matching::PairWiseMatchingToAdjacencyMatrixSVG(feature.size(),
                                              map_PutativesMatches,
@@ -843,50 +820,45 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
     return 0;
 }
 
-UAVErr UAVProcessFeatureSIFT::UAVProcessFeatExtractEach(FeatureParam fParam){
-    std::string img=fParam._image_in_;
-    std::string feats=fParam._feature_out_;
-    std::string descs=fParam._descs_out_;
-    openMVG::image::Image<unsigned char> imageGray;
+UAVErr UAVProcessFeatureSIFT::UAVProcessFeatExtract()
+{
+     //loop
+    UAVErr err=0;
 
-    if(!stlplus::file_exists(img))
+#pragma omp parallel for
+    for(int i=0;i<feature.size();i++)
     {
-        return 1;
-    }
-    {
+        const std::string image = feature[i]._image_in_,
+                feats = feature[i]._feature_out_,
+                descs = feature[i]._descs_out_;
+
         std::unique_ptr<openMVG::features::Image_describer> image_describer;
-        image_describer.reset(new openMVG::features::SIFT_Image_describer
-                                      (openMVG::features::SIFT_Image_describer::Params(), true));
-//
-//
-//    openMVG::features::Image_describer *image_describer = new openMVG::features::SIFT_Image_describer
-//                                      (openMVG::features::SIFT_Image_describer::Params());
+        image_describer.reset(new openMVG::features::SIFT_Image_describer(openMVG::features::SIFT_Image_describer::Params(), true));
 
-//        openMVG::features::SIFT_Image_describer image_describer(openMVG::features::SIFT_Image_describer::Params());
-        if (!image_describer) {
+        if (!image_describer) 
+        {
             std::cerr << "Cannot create the designed Image_describer:"
                       << "SIFT" << "." << std::endl;
-            return 5;
+            continue;
         }
 
-        if (!openMVG::image::ReadImage(img.c_str(), &imageGray))
-            return 1;
+        openMVG::image::Image<unsigned char> imageGray;
+        if (!openMVG::image::ReadImage(image.c_str(), &imageGray))
+            continue;
 
         openMVG::image::Image<unsigned char> *mask = nullptr;
         // Compute features and descriptors and export them to files
-        std::unique_ptr<openMVG::features::Regions> regions;
-        image_describer->Describe(imageGray, regions, mask);
-        //exportFile_lock.lock();
+        auto regions = image_describer->Describe(imageGray, mask);
         image_describer->Save(regions.get(), feats, descs);
 
         regions.release();
         image_describer.release();
     }
-    //threadProcNumber++;
-    //exportFile_lock.unlock();
-
-    //delete image_describer;
-    return 0;
+    
+    if(err==0)
+        return 0;
+    else
+        return 5;
 }
 
 unique_ptr<openMVG::sfm::Features_Provider> UAVProcessFeatureSIFT::UAVProcessFeatsProvide()
@@ -898,17 +870,19 @@ unique_ptr<openMVG::sfm::Features_Provider> UAVProcessFeatureSIFT::UAVProcessFea
     featprovide_ptr.reset(new Features_Provider_Cpu());
 
     bool res=true;
-    for(auto iter:feature){
+    for(auto iter:feature)
+    {
         res=res&&((Features_Provider_Cpu*)featprovide_ptr.get())->load_pre(iter.first,iter.second._feature_out_);
     }
     return featprovide_ptr;
 }
 
-UAVErr UAVProcessFeatureSIFTGpu::UAVProcessFeatExtract(bool bThread){
-    //GPU的算法不考虑多线程
+
+UAVErr UAVProcessFeatureSIFTGpu::UAVProcessFeatExtract()
+{
+    //check the number of the view
     if(feature.size()<=0)
         return 5;
-
 
     std::unique_ptr<SiftGPU>sift;
     sift.reset(new SiftGPU);
@@ -916,9 +890,10 @@ UAVErr UAVProcessFeatureSIFTGpu::UAVProcessFeatExtract(bool bThread){
     if (sift->CreateContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
         return 5;
 
-    //遍历
+    //loop
     UAVErr err=0;
-    for(auto iter:feature) {
+    for(auto iter:feature) 
+    {
         const std::string image = iter.second._image_in_,
                 feats = iter.second._feature_out_,
                 descs = iter.second._descs_out_;
@@ -926,7 +901,8 @@ UAVErr UAVProcessFeatureSIFTGpu::UAVProcessFeatExtract(bool bThread){
         vector<float> descriptor(1);
         vector<SiftGPU::SiftKeypoint> keys(1);
 
-        if (sift->RunSIFT(image.c_str())) {
+        if (sift->RunSIFT(image.c_str())) 
+        {
             //get feature count
             int num1 = sift->GetFeatureNum();
             //allocate memory
@@ -1070,9 +1046,9 @@ UAVErr UAVProcessFeatureSIFTGpu::UAVProcessMatchesExtract(std::string pMatchList
     int iMatchingVideoMode = -1;
 
     openMVG::sfm::SfM_Data sfm_data;
-    if (!Load(sfm_data, pSfmList, openMVG::sfm::ESfM_Data(openMVG::sfm::VIEWS|openMVG::sfm::INTRINSICS))) {
+    if (!Load(sfm_data, sfm_data_path_, openMVG::sfm::ESfM_Data(openMVG::sfm::VIEWS|openMVG::sfm::INTRINSICS))) {
         std::cerr << std::endl
-                  << "The input SfM_Data file \""<< pSfmList << "\" cannot be read." << std::endl;
+                  << "The input SfM_Data file \""<< sfm_data_path_ << "\" cannot be read." << std::endl;
         return false;
     }
 
