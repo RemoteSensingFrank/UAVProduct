@@ -144,10 +144,8 @@ public:
 
 class UAVProcessGCPs:UAVProcessGeometry{
 public:
-    virtual UAVErr UAVGeoGCPImport(std::string fgcp,CoordiListType coordiTp)=0;
-
-public:
-
-    openMVG::sfm::Landmarks m_Gcps;
+    virtual openMVG::sfm::Landmarks UAVGeoGCPImport(std::string fgcp,CoordiListType coordiTpIn,CoordiListType coordiTpOut)=0;
 };
+
+
 #endif //UAVPRODUCT_UAVPROCESSGEOMETRY_H

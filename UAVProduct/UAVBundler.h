@@ -1,5 +1,6 @@
 #pragma once
 #include"UAVPreProcess.h"
+class UAVProcessGCPs;
 
 class UAVProcessBundle:public UAV
 {
@@ -14,13 +15,14 @@ public:
 class UAVProcessBundleGCPs:public UAVProcessBundle
 {
 public:
-	virtual UAVErr UAVProcessBindGCPs(std::string pGcps,CoordiListType cooridTp);
+	virtual UAVErr UAVProcessBindGCPs(std::string pGcps,std::shared_ptr<UAVProcessGCPs> ptrGcps,CoordiListType cooridTpGcp,CoordiListType cooridTpPos);
 
-public:
 	virtual UAVErr UAVProcessBundleGlobal(std::shared_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_dout);
 
 	virtual UAVErr UAVProcessBundleSquence(std::shared_ptr<UAVProcessFeature> feats_ptr,std::string mathces,std::string sfm_in,std::string sfm_dout);
+private:
+    UAVErr UAVProcessBindGCPs(openMVG::sfm::SfM_Data &sfm_data);
 
 private:
-
+    openMVG::sfm::Landmarks m_gcps;
 };
