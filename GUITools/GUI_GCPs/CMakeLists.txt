@@ -1,7 +1,7 @@
 # ==============================================================================
 # Generic CMake File for QTBased project
 # ==============================================================================
-
+set(Qt5Widgets_DIR /usr/local/Qt-5.9.0/lib/cmake/Qt5Widgets)
 find_package( Qt5Widgets )
 
 if(Qt5Widgets_FOUND)
@@ -12,8 +12,8 @@ if(Qt5Widgets_FOUND)
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
     set(CMAKE_AUTOMOC ON)
     # The name of my project.
-    SET(ProjectName GUI_GCPs)
-
+    SET(ProjectName GUI_GCP)
+    cmake_minimum_required(VERSION 3.2)
     # All Source Files here
     SET(SourceFiles
             main.cpp

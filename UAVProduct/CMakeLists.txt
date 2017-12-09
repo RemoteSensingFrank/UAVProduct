@@ -1,5 +1,5 @@
-
 #openMP
+cmake_minimum_required(VERSION 3.7)
 find_package(OpenMP REQUIRED)
 if(OPENMP_FOUND)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -7,6 +7,9 @@ if(OPENMP_FOUND)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O1 -Wall")
+SET(CMAKE_CXX_FLAGS "-std=c++0x -fopenmp -msse4.1 -mavx2")
 
 find_package(OpenMVG REQUIRED)
 find_package(OpenMVS REQUIRED)
@@ -31,7 +34,8 @@ LINK_DIRECTORIES(SiftGPU)
 
 set(INTERFACE common_header.h common_header.cpp UAVInterface.h)
 set(WORKFLOW  UAVPreProcess.h UAVPreProcess.cpp UAVBundler.h UAVBundler.cpp UAVDMatch.h UAVDenseProcess.h UAVDenseProcess.cpp)
-set(GEOPROCESS UAVProcessGeometry.h UAVProcessGeometry.cpp UAVMapCalculate.cpp UAVGeoCorrection.cpp UAVProcessGeoMosaic.h UAVProcessGeoMosaic.cpp)
+set(GEOPROCESS UAVProcessGeometry.h UAVProcessGeometry.cpp UAVMapCalculate.cpp UAVGeoCorrection.cpp UAVProcessGeoMosaic.h UAVProcessGeoMosaic.cpp
+        UAVProcessGCP.h UAVProcessGCP.cpp)
 set(SOURCE_FILES ${SIFTLIST} ${INTERFACE} ${WORKFLOW} ${GEOPROCESS} UAVMain.cpp UAVProcessThreadPool.h)
 
 add_executable(UAVProcess ${SOURCE_FILES})

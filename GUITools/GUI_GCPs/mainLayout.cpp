@@ -186,6 +186,7 @@ static std::string string_pattern_replace
   return subject;
 }
 
+
 void MainWindow::registerProject()
 {
   if (m_doc.m_control_points.size() < 3)

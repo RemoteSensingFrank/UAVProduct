@@ -6,6 +6,11 @@
 #include<map>
 #include <types.hpp>
 
+//进度条函数，目前还没有使用
+typedef int (*UAVProgressFunc)(double dfComplete, const char *pszMessage, void *pProgressArg);
+//定义坐标转换函数指针
+typedef openMVG::Vec3  (*COORDITRANSFNC)(openMVG::Vec3,CoordiListType,CoordiListType);
+
 typedef std::map<int,UAVPOSSt> POSPair;
 typedef openMVG::Pair_Set MatchesList;
 #define UndefinedCalibParam(cParam)  (memset(&cParam,0,sizeof(UAVCalibParams)))

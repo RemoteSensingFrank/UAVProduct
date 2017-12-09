@@ -14,6 +14,7 @@
 #define MAXYBound 20037508.34
 #define MAPUNITSIZE 256
 
+
 const double Lods[20][3]={
         {0,156543.03392800014,591657527.591555},
         {1,78271.516963999937,295828763.79577702},
@@ -144,7 +145,15 @@ public:
 
 class UAVProcessGCPs:UAVProcessGeometry{
 public:
-    virtual openMVG::sfm::Landmarks UAVGeoGCPImport(std::string fgcp,CoordiListType coordiTpIn,CoordiListType coordiTpOut)=0;
+    /***
+     * 用类好像有点臃肿，对于不同的转换方式，使用函数指针的形式可能更加方便扩展
+     * @param fgcp
+     * @param coordiFunc
+     * @param coordiTpIn
+     * @param coordiTpOut
+     * @return
+     */
+    virtual openMVG::sfm::Landmarks UAVGeoGCPImport(std::string fgcp,COORDITRANSFNC coordiFunc,CoordiListType coordiTpIn,CoordiListType coordiTpOut)=0;
 };
 
 

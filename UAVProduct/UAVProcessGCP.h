@@ -9,7 +9,7 @@
 
 class UAVProcessGCPsGUI:public UAVProcessGCPs{
 public:
-    virtual openMVG::sfm::Landmarks UAVGeoGCPImport(std::string fgcp,CoordiListType coordiTpIn,CoordiListType coordiTpOut);
+    virtual openMVG::sfm::Landmarks UAVGeoGCPImport(std::string fgcp,COORDITRANSFNC coordiFunc,CoordiListType coordiTpIn,CoordiListType coordiTpOut);
 };
 
 #endif //UAVPRODUCT_UAVPROCESSGCP_H

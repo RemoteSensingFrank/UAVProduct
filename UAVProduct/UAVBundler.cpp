@@ -331,9 +331,9 @@ UAVErr UAVProcessBundle::UAVProcessBundleToMVS(std::string sfm, std::string mvs)
 
 }
 
-UAVErr UAVProcessBundleGCPs::UAVProcessBindGCPs(std::string pGcps,std::shared_ptr<UAVProcessGCPs> ptrGcps,CoordiListType cooridTpGcp,CoordiListType cooridTpPos)
+UAVErr UAVProcessBundleGCPs::UAVProcessBindGCPs(std::string pGcps,std::shared_ptr<UAVProcessGCPs> ptrGcps,COORDITRANSFNC coordiTransFnc,CoordiListType cooridTpGcp,CoordiListType cooridTpPos)
 {
-    m_gcps = ptrGcps->UAVGeoGCPImport(pGcps,cooridTpGcp,cooridTpPos);
+    m_gcps = ptrGcps->UAVGeoGCPImport(pGcps,coordiTransFnc,cooridTpGcp,cooridTpPos);
 }
 
 UAVErr UAVProcessBundleGCPs::UAVProcessBindGCPs(openMVG::sfm::SfM_Data &sfm_data)

@@ -97,4 +97,3 @@ public:
   /// Establish action-event connections
   void createConnections();
 };
-

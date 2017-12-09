@@ -74,8 +74,26 @@ struct Document
 
   bool saveData(const std::string & sFileName)
   {
-    //return Save(_sfm_data, sFileName, ESfM_Data(ALL));
-    //保存为什么格式还没有确定
-      return true;
+        //return Save(_sfm_data, sFileName, ESfM_Data(ALL));
+        //保存的格式为:
+        //GCPID Xs Ys Zs OnservationNumber
+        //ObsID x y
+        //...
+        FILE* fgcps=nullptr;
+        fgcps=fopen(sFileName.c_str(),"w+");
+        int num = m_control_points.size();
+        for(auto iterLandMark : m_control_points)
+        {
+            fprintf(fgcps,"%d %lf %lf %lf %d",iterLandMark.first,iterLandMark.second.X,
+                    iterLandMark.second.Y,iterLandMark.second.Z,iterLandMark.second.obs.size());
+            for(auto iterObs : iterLandMark.second.obs)
+            {
+                fprintf(fgcps,"%d %f %f",iterObs.first,iterObs.second.x,iterObs.second.y);
+            }
+            fprintf(fgcps,"\n");
+        }
+        fclose(fgcps);
+        fgcps= nullptr;
+        return true;
   }
 };
