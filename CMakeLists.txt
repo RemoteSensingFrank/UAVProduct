@@ -5,7 +5,7 @@ SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O1 -Wall")
 SET(CMAKE_CXX_FLAGS "-std=c++0x -fopenmp -msse4.1 -mavx2")
 project(UAVProduct)
 
-#set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 
 
 add_subdirectory(GUITools)
