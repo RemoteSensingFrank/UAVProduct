@@ -32,7 +32,7 @@ private:
     //图像是否具有Alpha通道
     int             bEnableDstAlpha, bEnableSrcAlpha;
 
-public:
+protected:
     UAVProcessGeoMosaicGDAL() :dfMinX(0.0), dfMinY(0.0), dfMaxX(0.0), dfMaxY(0.0), dfXRes(0.0), dfYRes(0.0),
                  nForceLines(0), nForcePixels(0), bEnableDstAlpha(FALSE), bEnableSrcAlpha(FALSE)
     {
@@ -146,8 +146,8 @@ public:
     long UAVGeoMosaic_LoadCutline(const char *pszCutlineDSName, const char *pszCLayer,
                               const char *pszCWHERE, const char *pszCSQL,
                               void **phCutlineRet);
-
-
+public:
+    //Interface
     //获取影像数据集
     void UAVGeoMosaic_GetMosaicVector(string pszImageDir,vector<string> &vStrSrcFiles);
 
@@ -173,5 +173,21 @@ public:
     // 色调调整的方法可以参考openMVG的色调调整方法
 };
 
+/***
+ * mosaic find seam,and the algorithm ref in openCV
+ * first,find the best seam of the images and construct a shapefile
+ * then take the shp as input to mosaic
+ */
+class UAVProcessGeoMosaicSeam:public UAVProcessGeoMosaicGDAL
+{
+    /**
+     *find seam line
+     * std::vector<std::string> vecStrSrcFiles:input imsages
+     * const char* pszShpFile:output shp file
+     **/
+    long UAVGeoMosaicSeam_SeamFinder(std::vector<std::string> vecStrSrcFiles,const char* pszShpFile);
+
+    
+};
 
 #endif //UAVPRODUCT_UAVGEOMOSAIC_H
