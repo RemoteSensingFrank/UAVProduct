@@ -28,6 +28,11 @@ find_library(EXIF_LIBRARYI libeasyexif.a ${OPENMVG_LIBRARIES})
 ADD_SUBDIRECTORY(SiftGPU)
 LINK_DIRECTORIES(SiftGPU)
 
+ADD_SUBDIRECTORY(UAVAlgorithm)
+LINK_DIRECTORIES(UAVAlgorithm)
+
+
+
 set(INTERFACE common_header.h common_header.cpp UAVInterface.h)
 set(WORKFLOW  UAVPreProcess.h UAVPreProcess.cpp UAVBundler.h UAVBundler.cpp UAVDMatch.h UAVDenseProcess.h UAVDenseProcess.cpp)
 set(GEOPROCESS UAVProcessGeometry.h UAVProcessGeometry.cpp UAVMapCalculate.cpp UAVGeoCorrection.cpp UAVProcessGeoMosaic.h UAVProcessGeoMosaic.cpp
@@ -47,6 +52,8 @@ target_link_libraries(UAVProcess ${ILU_LIBRARIES})
 target_link_libraries(UAVProcess ${ILUT_LIBRARIES})
 
 target_link_libraries(UAVProcess siftgpu)
+target_link_libraries(UAVProcess UAVAlgorithm)
+
 target_link_libraries(UAVProcess ${GDAL_LIBRARIES})
 target_link_libraries(UAVProcess ${SIFT_LIBRARYI})
 target_link_libraries(UAVProcess ${EXIF_LIBRARYI})
