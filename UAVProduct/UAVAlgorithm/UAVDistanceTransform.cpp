@@ -4,13 +4,14 @@
 
 #include "UAVDistanceTransform.h"
 #include <algorithm>
+#include <iostream>
 
 #ifndef INF
 #define INF 1E20
 #endif
 
 #ifndef square
-#define square(i) i*i
+#define square(i) (i)*(i)
 #endif
 
 #ifndef MAX
@@ -84,6 +85,14 @@
 //    delete [] z;
 //    return d;
 //}
+static void DistanceTransformOn(float* imgData,int width,int height,float dataOn){
+    for(int i=0;i<width*height;++i){
+        if(imgData[i]==dataOn){
+            imgData[i]=0;
+        }else
+            imgData[i]=INF;
+    }
+}
 static float *distancetransform1D(float *f, int n)
 {
     float *d = new float[n];
@@ -110,6 +119,7 @@ static float *distancetransform1D(float *f, int n)
         while (z[k+1] < q)
             k++;
         d[q] = square(q-v[k]) + f[v[k]];
+        int ttt=0;
     }
 
     delete [] v;
@@ -123,7 +133,7 @@ void DistanceTransform(unsigned char* imgData,int width,int height)
     float *outData = nullptr;
     try {
         outData = new float[width*height];
-        for(int i=0;i<width*height;++j)
+        for(int i=0;i<width*height;++i)
             outData[i]=imgData[i];
 
         //columns
@@ -136,7 +146,7 @@ void DistanceTransform(unsigned char* imgData,int width,int height)
             float *t = distancetransform1D(fData,height);
             for (int y = 0; y < height; ++y)
             {
-                outData[y*width+x] = fData[y];
+                outData[y*width+x] = t[y];
             }
             delete[]t;
         }
@@ -148,19 +158,19 @@ void DistanceTransform(unsigned char* imgData,int width,int height)
             float *t = distancetransform1D(fData,height);
             for (int x = 0; x < width; ++x)
             {
-                outData[y*width+x] = fData[x];
+                outData[y*width+x] = t[x];
             }
             delete[]t;
         }
         delete []fData;fData = NULL;
 
-        for(int i=0;i<width*height;++j)
+        for(int i=0;i<width*height;++i)
             imgData[i]=outData[i]>255?255:outData[i];
 
-        delete[]outData[i];
+        delete[]outData;
     }catch (std::bad_alloc e)
     {
-        std::cerr<<e.what()<<endl;
+        std::cerr<<e.what()<<std::endl;
     }
 }
 void DistanceTransform(int* imgData,int width,int height)
@@ -169,7 +179,7 @@ void DistanceTransform(int* imgData,int width,int height)
     float *outData = nullptr;
     try {
         outData = new float[width*height];
-        for(int i=0;i<width*height;++j)
+        for(int i=0;i<width*height;++i)
             outData[i]=imgData[i];
 
         //columns
@@ -182,7 +192,7 @@ void DistanceTransform(int* imgData,int width,int height)
             float *t = distancetransform1D(fData,height);
             for (int y = 0; y < height; ++y)
             {
-                outData[y*width+x] = fData[y];
+                outData[y*width+x] = t[y];
             }
             delete[]t;
         }
@@ -194,23 +204,24 @@ void DistanceTransform(int* imgData,int width,int height)
             float *t = distancetransform1D(fData,height);
             for (int x = 0; x < width; ++x)
             {
-                outData[y*width+x] = fData[x];
+                outData[y*width+x] = t[x];
             }
             delete[]t;
         }
         delete []fData;fData = NULL;
 
-        for(int i=0;i<width*height;++j)
+        for(int i=0;i<width*height;++i)
             imgData[i]=outData[i];
 
-        delete[]outData[i];
+        delete[]outData;
     }catch (std::bad_alloc e)
     {
-        std::cerr<<e.what()<<endl;
+        std::cerr<<e.what()<<std::endl;
     }
 }
 void DistanceTransform(float* imgData,int width,int height)
 {
+    DistanceTransformOn(imgData,width,height,0);
     float *fData = new float[MAX(width,height)];
     try {
         //columns
@@ -223,7 +234,7 @@ void DistanceTransform(float* imgData,int width,int height)
             float *t = distancetransform1D(fData,height);
             for (int y = 0; y < height; ++y)
             {
-                outData[y*width+x] = fData[y];
+                imgData[y*width+x] = t[y];
             }
             delete[]t;
         }
@@ -232,17 +243,18 @@ void DistanceTransform(float* imgData,int width,int height)
             for (int x = 0; x < width; ++x) {
                 fData[x] = imgData[y*width+x];
             }
-            float *t = distancetransform1D(fData,height);
+            float *t = distancetransform1D(fData,width);
             for (int x = 0; x < width; ++x)
             {
-                imgData[y*width+x] = fData[x];
+                imgData[y*width+x] = t[x];
             }
             delete[]t;
         }
         delete []fData;fData = NULL;
-
+        float num=imgData[10000];
     }catch (std::bad_alloc e)
     {
-        std::cerr<<e.what()<<endl;
+        std::cerr<<e.what()<<std::endl;
     }
 }
+

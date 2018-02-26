@@ -3,7 +3,6 @@
 //
 
 #include "UAVSeamFinder.h"
-#include <types.h>
 #include <unistd.h>
 
 #include "gdal_priv.h"
@@ -13,9 +12,48 @@
 #define uchar unsigned char
 #endif
 
+void Strecth(float* dataIn,uchar *dataStrech,int width,int height)
+{
+    float dmin=9999999,dmax=-9999999;
+    for(int i=0;i<width*height;++i)
+    {
+        dmin=dataIn[i]>dmin?dmin:dataIn[i];
+        dmax=dataIn[i]>dmax?dataIn[i]:dmax;
+    }
+    float rato = 255.0f/(dmax-dmin);
+
+    for(int i=0;i<width*height;++i)
+    {
+        dataStrech[i] = (dataIn[i]-dmin)*rato;
+    }
+
+
+}
+
+void UAVSeamFinder::UAVDistanceTransTest(const char* imgIn,const char* imgOut){
+    GDALAllRegister();
+    GDALDatasetH m_datasetIn = GDALOpen(imgIn,GA_ReadOnly);
+    int xsize = GDALGetRasterXSize(m_datasetIn);
+    int ysize = GDALGetRasterYSize(m_datasetIn);
+    GDALDatasetH m_datasetOut=GDALCreate(GDALGetDriverByName("GTiff"),imgOut,xsize,ysize,1,GDT_Byte,NULL);
+    float* data = new float[xsize*ysize];
+    uchar* datac= new uchar[xsize*ysize];
+    GDALRasterIO(GDALGetRasterBand(m_datasetIn,1),GF_Read,0,0,xsize,ysize,data,xsize,ysize,GDT_Float32,0,0);
+    DistanceTransform(data,xsize,ysize);
+    for(int i=0;i<xsize*ysize;++i){
+        data[i]=sqrt(data[i]);
+    }
+    Strecth(data,datac,xsize,ysize);
+    GDALRasterIO(GDALGetRasterBand(m_datasetOut,1),GF_Write,0,0,xsize,ysize,datac,xsize,ysize,GDT_Byte,0,0);
+    GDALClose(m_datasetIn);
+    GDALClose(m_datasetOut);
+    delete[]data;data= nullptr;
+    delete[]datac;datac= nullptr;
+}
+
 void UAVSeamVoronoiFinder::findInPair(SIZE_IMG size1, SIZE_IMG size2, openMVG::Vec2f lefttop1, openMVG::Vec2f lefttop2,
                                       int widthoverlap, int heightoverlap, std::string strMask1,
-                                      std::string stdMask2) {
+                                      std::string strMask2) {
 
     //10 pix buffer gap
     const int gap = 10;
@@ -29,10 +67,10 @@ void UAVSeamVoronoiFinder::findInPair(SIZE_IMG size1, SIZE_IMG size2, openMVG::V
         submask2 = new uchar[(widthoverlap+2*gap)*((heightoverlap+2*gap))];
 
         GDALDatasetH datasetMask1,datasetMask2;
-        if(access(strMask1,R_OK|W_OK)&&access(strMask2,R_OK|W_OK))
+        if(access(strMask1.c_str(),R_OK|W_OK)&&access(strMask2.c_str(),R_OK|W_OK))
         {
-            datasetMask1 = GDALOpen(strMask1,GA_Update);
-            datasetMask2 = GDALOpen(strMask2,GA_Update);
+            datasetMask1 = GDALOpen(strMask1.c_str(),GA_Update);
+            datasetMask2 = GDALOpen(strMask2.c_str(),GA_Update);
             mask1 = new uchar[size1.width*size1.height];
             mask2 = new uchar[size2.width*size2.height];
             GDALRasterIO(GDALGetRasterBand(datasetMask1,1),GF_Read,0,0,size1.width,size1.height,mask1,size1.width,size1.height,GDT_Byte,0,0);
@@ -98,9 +136,9 @@ void UAVSeamVoronoiFinder::findInPair(SIZE_IMG size1, SIZE_IMG size2, openMVG::V
             for (int k = 0; k < heightoverlap; ++k) {
                 if(unique1[(k+gap)*widthoverlap+(j+gap)]<unique2[(k+gap)*widthoverlap+(j+gap)])
                 {
-                    mask2[(heightoverlap-lefttop2(1)+k)*size2.width+widthoverlap-lefttop2(0)+j]=0;
+                    mask2[int((heightoverlap-lefttop2(1)+k)*size2.width+widthoverlap-lefttop2(0)+j)]=0;
                 } else{
-                    mask1[(heightoverlap-lefttop1(1)+k)*size1.width+widthoverlap-lefttop1(0)+j]=0;
+                    mask1[int((heightoverlap-lefttop1(1)+k)*size1.width+widthoverlap-lefttop1(0)+j)]=0;
                 }
             }
         }
@@ -117,4 +155,8 @@ void UAVSeamVoronoiFinder::findInPair(SIZE_IMG size1, SIZE_IMG size2, openMVG::V
     }
 
 
+}
+
+void UAVSeamVoronoiFinder::UAVSeamConstruct(std::vector<std::string> vecImgs,std::vector<std::string> vecMasks,std::vector<openMVG::Vec2f> corner){
+    return ;
 }

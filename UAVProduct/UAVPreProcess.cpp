@@ -693,7 +693,7 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
 
     std::shared_ptr<openMVG::sfm::Regions_Provider> regions_provider;
     regions_provider = std::make_shared<openMVG::sfm::Regions_Provider>();
-    regions_provider->load(sfm_data,pMatchDir,regions_type_in);
+    bool loaded = regions_provider->load(sfm_data,pMatchDir,regions_type_in);
 
     //进行匹配
     openMVG::matching::PairWiseMatches map_PutativesMatches;

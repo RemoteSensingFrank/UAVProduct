@@ -30,6 +30,11 @@ public:
      */
     void UAVSeamMaskToShp(std::vector<std::string> imgMasks,std::string shpFile);
 
+    /**
+     * algorithm test function
+     */
+    void UAVDistanceTransTest(const char* imgIn,const char* imgOut);
+
 protected:
     /**
       * get overlap of two images
@@ -72,7 +77,7 @@ private:
      * @param stdMask2 :mask2 output path
      */
     void findInPair(SIZE_IMG size1,SIZE_IMG size2,openMVG::Vec2f lefttop1,openMVG::Vec2f lefttop2,
-                    int widthoverlap,int heightoverlap,std::string strMask1,std::string stdMask2);
+                    int widthoverlap,int heightoverlap,std::string strMask1,std::string strMask2);
 };
 
 

@@ -36,7 +36,7 @@ LINK_DIRECTORIES(UAVAlgorithm)
 set(INTERFACE common_header.h common_header.cpp UAVInterface.h)
 set(WORKFLOW  UAVPreProcess.h UAVPreProcess.cpp UAVBundler.h UAVBundler.cpp UAVDMatch.h UAVDenseProcess.h UAVDenseProcess.cpp)
 set(GEOPROCESS UAVProcessGeometry.h UAVProcessGeometry.cpp UAVMapCalculate.cpp UAVGeoCorrection.cpp UAVProcessGeoMosaic.h UAVProcessGeoMosaic.cpp
-        UAVProcessGCP.h UAVProcessGCP.cpp)
+        UAVProcessGCP.h UAVProcessGCP.cpp UAVSeamFinder.h UAVSeamFinder.cpp)
 set(SOURCE_FILES ${SIFTLIST} ${INTERFACE} ${WORKFLOW} ${GEOPROCESS} UAVMain.cpp UAVProcessThreadPool.h)
 
 add_executable(UAVProcess ${SOURCE_FILES})

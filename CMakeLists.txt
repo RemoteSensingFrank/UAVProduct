@@ -8,5 +8,5 @@ project(UAVProduct)
 set(CMAKE_CXX_STANDARD 11)
 
 
-add_subdirectory(GUITools)
+#add_subdirectory(GUITools)
 add_subdirectory(UAVProduct)

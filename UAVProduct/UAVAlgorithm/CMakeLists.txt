@@ -1,4 +1,4 @@
- cmake_minimum_required(VERSION 3.7)
+ cmake_minimum_required(VERSION 3.5)
  project(UAVAlgorithm)
 
  find_package(OpenGL REQUIRED)
