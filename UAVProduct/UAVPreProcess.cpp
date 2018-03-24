@@ -85,8 +85,6 @@ UAVErr UAVProcessPOS::UAVProcessPOSExtractUTM(double &centerx, double &centery, 
     centery/=double(size);
     centerz/=double(size);
 
-
-
     return 0;
 }
 
@@ -122,7 +120,7 @@ UAVErr UAVProcessPOS::UAVProcessPOSExtractLocal(double &centerx, double &centery
     return 0;
 }
 
-UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps) 
+UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps)
 {
     UAVErr err = 0;
     //整理数据获取影像数和POS数据行数
@@ -149,7 +147,7 @@ UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps)
                     tmpPos.dB=latitude;tmpPos.dL=longitude;tmpPos.dH=altitude;
                     tmpPos.dRoll=tmpPos.dPitch=tmpPos.dHeading=0;
                     posList.insert(std::make_pair(i+1,tmpPos));
-                } 
+                }
                 else
                 {
                     return 1;
@@ -159,7 +157,7 @@ UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps)
                 return 1;
         }
         return 0;
-    } 
+    }
     else
     {
         if(!stlplus::file_exists(file))
@@ -190,14 +188,14 @@ UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps)
 
 //TODO:
 //POS数据导出的功能暂时先不做
-UAVErr UAVProcessPOSSimple::UAVProcessExport(std::string file, bool rLoc) 
+UAVErr UAVProcessPOSSimple::UAVProcessExport(std::string file, bool rLoc)
 {
     return 0;
 }
 
 UAVErr UAVProcessList::UAVProcessListGet(std::string image_dir,std::string sfm_out,
                                          UAVCalibParams &cParam,EINTRINSIC camera_model_type,bool group_camera_model,
-                                         std::string pos_file, UAVProcessPOS *pPorc, CoordiListType typeCoordi) 
+                                         std::string pos_file, UAVProcessPOS *pPorc, CoordiListType typeCoordi)
 {
     //检查数据
     //特征点解算列表
@@ -240,7 +238,7 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string image_dir,std::string sfm_o
     {
         //get pos from file
         have_no_pose=pPorc->UAVPorcessPOSGet(pos_file,true);
-    } 
+    }
     else
     {
         //get pos from image
@@ -264,7 +262,7 @@ UAVErr UAVProcessList::UAVProcessListGet(std::string image_dir,std::string sfm_o
                 have_no_pose=true;
         }
     }
-  
+
     //check pos's number
     //if(!have_no_pose && pPorc->posList.size()!=vec_image.size())
         //return 1;
@@ -617,7 +615,7 @@ UAVErr UAVProcessMatches::UAVProcessMatchesImport(MatchesList &list, std::string
     return 0;
 }
 
-UAVErr UAVProcessFeature::UAVProcessFeatList(std::string sfm_data_path,std::string feature_dir) 
+UAVErr UAVProcessFeature::UAVProcessFeatList(std::string sfm_data_path,std::string feature_dir)
 {
     //判断输入
     if(!stlplus::file_exists(sfm_data_path))
@@ -656,7 +654,7 @@ UAVErr UAVProcessFeature::UAVProcessFeatList(std::string sfm_data_path,std::stri
     return 0;
 }
 
-UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData) 
+UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData)
 {
     std::string pList = pMatchList;
     std::string pMatchDir = stlplus::folder_part(pMatchData);
@@ -668,7 +666,7 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
     std::unique_ptr<openMVG::features::Image_describer> image_describer;
     image_describer.reset(new openMVG::features::SIFT_Image_describer
                                   (openMVG::features::SIFT_Image_describer::Params(), true));
-    
+
     const std::string sImage_describer = stlplus::create_filespec(pMatchDir,"image_describer",".json");
     {
         std::ofstream stream(sImage_describer.c_str());
@@ -683,7 +681,7 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessMatchesExtract(std::string pMatchList,st
     std::unique_ptr<openMVG::features::Regions> regions_type_in = openMVG::features::Init_region_type_from_file(sImage_describer);
 
     openMVG::sfm::SfM_Data sfm_data;
-    if (!Load(sfm_data, sfm_data_path_, openMVG::sfm::ESfM_Data(openMVG::sfm::VIEWS|openMVG::sfm::INTRINSICS))) 
+    if (!Load(sfm_data, sfm_data_path_, openMVG::sfm::ESfM_Data(openMVG::sfm::VIEWS|openMVG::sfm::INTRINSICS)))
     {
         std::cerr << std::endl
                   << "The input SfM_Data file \""<< sfm_data_path_ << "\" cannot be read." << std::endl;
@@ -835,7 +833,7 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessFeatExtract()
         std::unique_ptr<openMVG::features::Image_describer> image_describer;
         image_describer.reset(new openMVG::features::SIFT_Image_describer(openMVG::features::SIFT_Image_describer::Params(), true));
 
-        if (!image_describer) 
+        if (!image_describer)
         {
             std::cerr << "Cannot create the designed Image_describer:"
                       << "SIFT" << "." << std::endl;
@@ -854,7 +852,7 @@ UAVErr UAVProcessFeatureSIFT::UAVProcessFeatExtract()
         regions.release();
         image_describer.release();
     }
-    
+
     if(err==0)
         return 0;
     else
@@ -892,7 +890,7 @@ UAVErr UAVProcessFeatureSIFTGpu::UAVProcessFeatExtract()
 
     //loop
     UAVErr err=0;
-    for(auto iter:feature) 
+    for(auto iter:feature)
     {
         const std::string image = iter.second._image_in_,
                 feats = iter.second._feature_out_,
@@ -901,7 +899,7 @@ UAVErr UAVProcessFeatureSIFTGpu::UAVProcessFeatExtract()
         vector<float> descriptor(1);
         vector<SiftGPU::SiftKeypoint> keys(1);
 
-        if (sift->RunSIFT(image.c_str())) 
+        if (sift->RunSIFT(image.c_str()))
         {
             //get feature count
             int num1 = sift->GetFeatureNum();

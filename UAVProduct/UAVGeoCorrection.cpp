@@ -248,7 +248,6 @@ UAVErr UAVProcessGeoCorrect::UAVGeoCorrectExterior(std::string pathImg, openMVG:
     GDALDatasetH m_dataset = GDALOpen(pathImg.c_str(),GA_ReadOnly);
     if(m_dataset==NULL)
         return 1;
-
     int xsize = GDALGetRasterXSize(m_dataset);
     int ysize = GDALGetRasterYSize(m_dataset);
 
@@ -259,6 +258,7 @@ UAVErr UAVProcessGeoCorrect::UAVGeoCorrectExterior(std::string pathImg, openMVG:
     GDAL_GCP gcp[gcp_number];
 
     for (int i = 0; i < 5; ++i) {
+      
         Eigen::MatrixXd pa(2,1);
         Eigen::MatrixXd mat1(2,2);
         mat1(0,0) = P(2,0)*x[i]-P(0,0);mat1(0,1) = P(2,1)*x[i]-P(0,1);

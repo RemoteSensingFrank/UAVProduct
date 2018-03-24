@@ -14,10 +14,7 @@ int sample_odm_data_aukerman() {
         std::string bunder_out = "/home/wuwei/Data/Proc/odm_data_aukerman/bunder.bin";
         std::string trans_mvs = "/home/wuwei/Data/Proc/odm_data_aukerman/trans.mvs";
         std::string densemvs = "/home/wuwei/Data/Proc/odm_data_aukerman/dense.ply";
-
-
         UAVErr err=0;
-
         UAVProcessList* list=new UAVProcessList();
         UAVProcessPOSSimple* posSimple = new UAVProcessPOSSimple();
         std::shared_ptr< UAVProcessFeatureSIFT> feats=std::make_shared<UAVProcessFeatureSIFT>();
@@ -52,4 +49,3 @@ int main(int argc,char* argv[])
     //testing::InitGoogleTest(&argc, argv);
     //return RUN_ALL_TESTS();
 }
-
