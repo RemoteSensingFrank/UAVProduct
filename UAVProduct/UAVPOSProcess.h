@@ -9,10 +9,17 @@ public:
     long UAVPOSProc_ExtractToP(std::vector<openMVG::Mat34> &vec_P,std::vector<UAVCalibParams> instricParam);
 
 private:
-    long GeoPOSProc_EOMatrixTurn(Vec3f placementAngle,Vec3f placementVec,&openMVG::Mat34 P);
+    /**
+     * extract rotation matrix
+     * @param placementAngle
+     * @param placementVec
+     * @param P
+     * @return
+     */
+    long UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,Vec3f placementVec,openMVG::Mat34 &P);
 
     /*
       get Quadrant according to the direction of the POS
     */
-    int GeoPOSProcess::GeoPOSProc_EOQuadrant(int idxPOS);
+    int UAVPOSProc_EOQuadrant(int idxPOS);
 }
