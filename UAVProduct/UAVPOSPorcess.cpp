@@ -1,11 +1,16 @@
 #include "UAVPOSProcess.h"
+using namespace Eigen;
+
+#ifndef PI
+#define PI 3.1415926534
+#endif
 
 long UAVPOSProcessExtract::UAVPOSProc_ExtractToP(std::vector<openMVG::Mat34> &vec_P,std::vector<UAVCalibParams> instricParam)
 {
     
 }
 
-long UAVPOSProcessExtract::GeoPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,Vec3f placementVec,openMVG::Mat34 &P)
+long UAVPOSProcessExtract::UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,Vec3f placementVec,UAVCalibParams instric,openMVG::Mat34 &P)
 {
     long lError = 0;
     double dB, dL, dH;
@@ -27,7 +32,7 @@ long UAVPOSProcessExtract::GeoPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,
 
     //coordinate trans from BLH to XYZ
     Vec3 XYZPnt=UAVProcessGeometry::UAVProcessGeoBLHToXYZ(dB,dL,0);
-    int nQuandNum = GeoPOSProc_EOQuadrant(m_perpos, EMMatrix, XYZPnt);
+    int nQuandNum = UAVPOSProc_EOQuadrant(idx);
 
     //rotate matrix
     MatrixXd EGMatrix(3,3);	//
@@ -87,8 +92,8 @@ long UAVPOSProcessExtract::GeoPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,
     double dPhi, dOmega, dKappa;
 
     dPhi = asin(-IMMatrix(0,2));
-    dOmega = atan(-IMMatrix[5] / IMMatrix(2,2));
-    if (nQuadNum == 1 || nQuadNum == 2)
+    dOmega = atan(-IMMatrix(1,2) / IMMatrix(2,2));
+    if (nQuandNum == 1 || nQuandNum == 2)
     {
         dKappa = abs(atan(-IMMatrix(0,1) / IMMatrix(0,0)));
     }
@@ -100,9 +105,9 @@ long UAVPOSProcessExtract::GeoPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,
     //get sensor center pos in the
     Vec3 curPoint;
     curPoint = UAVProcessGeometry::UAVProcessGeoBLHToXYZ(dB,dL,dH);
-    double dXs = (curPoint(0) - XYZPoint(0))*EMMatrix(0,0) + (curPoint(1) - XYZPoint(1))*EMMatrix(0,1) + (curPoint(2) - XYZPoint(2))*EMMatrix(0,2);
-    double dYs = (curPoint(0) - XYZPoint(0))*EMMatrix(1,0) + (curPoint(1) - XYZPoint(1))*EMMatrix(1,1) + (curPoint(2) - XYZPoint(2))*EMMatrix(1,2);
-    double dZs = (curPoint(0) - XYZPoint(0))*EMMatrix(2,0) + (curPoint(1) - XYZPoint(1))*EMMatrix(2,1) + (curPoint(2) - XYZPoint(2))*EMMatrix(2,2);
+    double dXs = (curPoint(0) - XYZPnt(0))*EMMatrix(0,0) + (curPoint(1) - XYZPnt(1))*EMMatrix(0,1) + (curPoint(2) - XYZPnt(2))*EMMatrix(0,2);
+    double dYs = (curPoint(0) - XYZPnt(0))*EMMatrix(1,0) + (curPoint(1) - XYZPnt(1))*EMMatrix(1,1) + (curPoint(2) - XYZPnt(2))*EMMatrix(1,2);
+    double dZs = (curPoint(0) - XYZPnt(0))*EMMatrix(2,0) + (curPoint(1) - XYZPnt(1))*EMMatrix(2,1) + (curPoint(2) - XYZPnt(2))*EMMatrix(2,2);
 
     // calculate the placement vector
     MatrixXd transMatrix(3,3);
@@ -111,6 +116,18 @@ long UAVPOSProcessExtract::GeoPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,
     double dYl = transMatrix(1,0) * placementVec(0) + transMatrix(1,1) * placementVec(1) + transMatrix(1,2) * placementVec(2);
     double dZl = transMatrix(2,0) * placementVec(0) + transMatrix(2,1) * placementVec(1) + transMatrix(2,2) * placementVec(2);
 
+    //rotation matrix
+    MatrixXd rotationMatrix(3,3);
+    Eigen::AngleAxisd romega(dOmega, Eigen::Vector3d::UnitZ());
+    Eigen::AngleAxisd rpitch(dPhi, Eigen::Vector3d::UnitY());
+    Eigen::AngleAxisd rkappa(dKappa, Eigen::Vector3d::UnitX());
+    Eigen::Quaternion<double> q = romega * rpitch * rkappa;
+
+    rotationMatrix = q.matrix();
+    MatrixXd instricMatrix=Eigen::Matrix3d::Identity();
+
+
+    return 0;
 //    pdfEO.m_dX = dXs + dXl;
 //    pdfEO.m_dY = dYs + dYl;
 //    pdfEO.m_dZ = dZs + dZl;
@@ -119,13 +136,10 @@ long UAVPOSProcessExtract::GeoPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,
 //    pdfEO.m_kappa = dKappa;
 
     //caculate matrix P
-
-
-
 }
 
 
-int GeoPOSProcess::GeoPOSProc_EOQuadrant(int idxPOS)
+int UAVPOSProcessExtract::UAVPOSProc_EOQuadrant(int idxPOS)
 {
     double yaw = this->posList[idxPOS].dHeading;
     long nFlag = 0;

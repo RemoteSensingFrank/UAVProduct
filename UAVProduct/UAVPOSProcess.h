@@ -1,5 +1,6 @@
 #include "UAVPreProcess.h"
 
+using namespace openMVG;
 class UAVPOSProcessExtract: public UAVProcessPOSSimple
 {
 public:
@@ -16,10 +17,10 @@ private:
      * @param P
      * @return
      */
-    long UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,Vec3f placementVec,openMVG::Mat34 &P);
+    long UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,Vec3f placementVec,UAVCalibParams instric,openMVG::Mat34 &P);
 
     /*
       get Quadrant according to the direction of the POS
     */
     int UAVPOSProc_EOQuadrant(int idxPOS);
-}
+};
