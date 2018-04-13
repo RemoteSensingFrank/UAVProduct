@@ -30,7 +30,7 @@
 #include "openMVG/graph/graph.hpp"
 
 #include "openMVG/matching_image_collection/GeometricFilter.hpp"
-
+#include "UAVProcessGeometry.h"
 
 
 #ifdef _DEBUG
@@ -49,7 +49,7 @@ UAVErr UAVProcessPOS::UAVProcessPOSExtractXYZ(double &centerx, double &centery, 
     centerx=centery=centerz=0;
     for( iter=posList.begin(); iter!=posList.end(); iter++)
     {
-        openMVG::Vec3 xyz=UAVProcessGeometry::UAVProcessGeoBLHToXYZ(iter->second.dB, iter->second.dL, iter->second.dH);
+        openMVG::Vec3 xyz=UAVProcessGeometry::UAVProcessGeoLatLonToXYZ(iter->second.dB, iter->second.dL, iter->second.dH);
         iter->second.dB=xyz(0);
         iter->second.dL=xyz(1);
         iter->second.dH=xyz(2);

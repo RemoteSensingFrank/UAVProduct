@@ -39,6 +39,7 @@ using namespace std;
 #include "GLTexImage.h" 
 #include "FrameBufferObject.h"
 #include "ShaderMan.h"
+#include"gdal_priv.h"
 
 
 //#define SIFTGPU_NO_DEVIL
@@ -1117,14 +1118,44 @@ int GLTexInput::LoadImageFile(char *imagepath, int &w, int &h )
 
 	}else
 	{
-		std::cerr<<"Unable to open image [code = "<<ilGetError()<<"]\n";
-		done = 0;
+        std::cout<<"Unable to open image use DevIL [code = "<<ilGetError()<<"]\n";
+        std::cout<<"Use GDAL open image\n";
+
+        //open image with GDAL
+        GDALAllRegister();
+        GDALDatasetH dataset = GDALOpen(imagepath,GA_ReadOnly);
+        w = GDALGetRasterXSize(dataset);
+        h = GDALGetRasterYSize(dataset);
+        int bands= GDALGetRasterCount(dataset);
+        unsigned char * data = new unsigned char[w * h];
+        unsigned char * pixels = data;
+
+        if(bands==1){
+            GDALRasterIO(GDALGetRasterBand(dataset,1),GF_Read,0,0,w,h,data,w,h,GDT_Byte,0,0);
+        }else if(bands==3){
+            unsigned char* buf[3];
+            for(int i=0;i<3;++i){
+                buf[i] = new unsigned char[w*h];
+                GDALRasterIO(GDALGetRasterBand(dataset,i+1),GF_Read,0,0,w,h,buf[i],w,h,GDT_Byte,0,0);
+            }
+            for(int i=0;i<w*h;++i){
+                *pixels++=int(0.10454f* buf[2][i]+0.60581f* buf[2][i]+0.28965f* buf[2][i]);
+            }
+            delete[]buf[0];
+            delete[]buf[1];
+            delete[]buf[2];
+        }
+        SetImageData(w, h, data, GL_LUMINANCE, GL_UNSIGNED_BYTE);
+        if(GlobalUtil::_verbose && done) std::cout<< "Image loaded :\t" << imagepath << "\n";
+            done=1;
+        delete[]data;data= nullptr;
+        GDALClose(dataset);
 	}
 
-	ilDeleteImages(1, &imID); 
-
-	return done;
+	ilDeleteImages(1, &imID);
+    return done;
 #else
+
 
 	FILE * file = fopen(imagepath, "rb"); if (file ==NULL) return 0;
 

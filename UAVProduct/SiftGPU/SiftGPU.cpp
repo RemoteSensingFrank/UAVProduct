@@ -410,15 +410,15 @@ void SiftGPU::SetVerbose(int verbose)
 
 SiftParam::SiftParam()
 {
+    _edge_threshold = 0;
+    _dog_threshold =  0;
 
-	_level_min = -1;
-	_dog_level_num  = 3;
-	_level_max = 0;
+    _level_min = -1;
+    _dog_level_num  = 3;
+    _level_max = 0;
+
 	_sigma0 = 0;
 	_sigman = 0;
-	_edge_threshold = 0;
-	_dog_threshold =  0;
-
 
 }
 

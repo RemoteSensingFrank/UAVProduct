@@ -5,9 +5,15 @@ using namespace Eigen;
 #define PI 3.1415926534
 #endif
 
-long UAVPOSProcessExtract::UAVPOSProc_ExtractToP(std::vector<openMVG::Mat34> &vec_P,std::vector<UAVCalibParams> instricParam)
+long UAVPOSProcessExtract::UAVPOSProc_ExtractToP(std::vector<openMVG::Mat34> &vec_P,UAVCalibParams instricParam)
 {
-    
+    for(auto iter : this->posList){
+        Vec3f plA(0,0,0),plV(0,0,0);
+        openMVG::Mat34 P;
+        UAVPOSProc_EOMatrixTurn(iter.first,plA,plV,instricParam,P);
+        vec_P.push_back(P);
+    }
+    return 0;
 }
 
 long UAVPOSProcessExtract::UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,Vec3f placementVec,UAVCalibParams instric,openMVG::Mat34 &P)
@@ -29,7 +35,7 @@ long UAVPOSProcessExtract::UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,
     EMMatrix(2,0) = cos(dB)*cos(dL);
     EMMatrix(2,1) = cos(dB)*sin(dL);
     EMMatrix(2,2) = sin(dB);
-
+    std::cout<<EMMatrix<<endl;
     //coordinate trans from BLH to XYZ
     Vec3 XYZPnt=UAVProcessGeometry::UAVProcessGeoBLHToXYZ(dB,dL,0);
     int nQuandNum = UAVPOSProc_EOQuadrant(idx);
@@ -78,16 +84,8 @@ long UAVPOSProcessExtract::UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,
     ICMatrix(1,0) = -1;	ICMatrix(1,1) = 0;	ICMatrix(1,2) = 0;
     ICMatrix(2,0) = 0;	ICMatrix(2,1) = 0;	ICMatrix(2,2) = -1;
 
-//    double IMMatrix[9];
-//    double M1[9], M2[9], M3[9];
-//    double pVector[] = { 0,0,0 };
-
     MatrixXd IMMatrix(3,3);
     IMMatrix = EMMatrix*EGMatrix*GIMatrix*CIMatrix*ICMatrix;
-//    MatrixMuti(EMMatrix, 3, 3, 3, EGMatrix, M1);
-//    MatrixMuti(M1, 3, 3, 3, GIMatrix, M2);
-//    MatrixMuti(M2, 3, 3, 3, CIMatrix, M3);
-//    MatrixMuti(M3, 3, 3, 3, ICMatrix, IMMatrix);
 
     double dPhi, dOmega, dKappa;
 
@@ -125,19 +123,22 @@ long UAVPOSProcessExtract::UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,
 
     rotationMatrix = q.matrix();
     MatrixXd instricMatrix=Eigen::Matrix3d::Identity();
-
-
+    instricMatrix(0,0) = instric._flen_x_;
+    instricMatrix(0,2) = instric._ppx_;
+    instricMatrix(1,1) = instric._flen_y_;
+    instricMatrix(1,2) = instric._ppy_;
+    instricMatrix(2,2) = 1;
+    openMVG::Mat34 Rt;
+    for(int i=0;i<3;++i)
+    {
+        Rt(i,0)=rotationMatrix(i,0);
+        Rt(i,1)=rotationMatrix(i,1);
+        Rt(i,2)=rotationMatrix(i,2);
+    }
+    Rt(0,3)=dXs+dXl;Rt(1,3)=dYs+dYl;Rt(2,3)=dYs+dYl;
+    P=instricMatrix*Rt;
     return 0;
-//    pdfEO.m_dX = dXs + dXl;
-//    pdfEO.m_dY = dYs + dYl;
-//    pdfEO.m_dZ = dZs + dZl;
-//    pdfEO.m_phia = dPhi;
-//    pdfEO.m_omega = dOmega;
-//    pdfEO.m_kappa = dKappa;
-
-    //caculate matrix P
 }
-
 
 int UAVPOSProcessExtract::UAVPOSProc_EOQuadrant(int idxPOS)
 {

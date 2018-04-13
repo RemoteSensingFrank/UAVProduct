@@ -8,12 +8,15 @@
 #include "openMVG/sfm/sfm.hpp"
 #include "nonFree/sift/SIFT_describer.hpp"
 #include "openMVG/stl/stl.hpp"
-
+#include "openMVG/matching/regions_matcher.hpp"
 #include "third_party/progress/progress.hpp"
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
+#include "openMVG/image/image_io.hpp"
 
 #ifdef OPENMVG_USE_OPENMP
 #include <omp.h>
+#include <matching/matcher_type.hpp>
+
 #endif
 
 using namespace openMVG;
@@ -48,7 +51,7 @@ bool UAVICPExtract::UAVICPExtractMatchesEnvi(string img1,string img2,string  mat
         const SIFT_Regions* regionsR = dynamic_cast<SIFT_Regions*>(regions_perImage.at(1).get());
 
         //-- Perform matching -> find Nearest neighbor, filtered with Distance ratio
-        std::vector<IndMatch> vec_PutativeMatches;
+        std::vector<matching::IndMatch> vec_PutativeMatches;
         {
             // Find corresponding points
             matching::DistanceRatioMatch(

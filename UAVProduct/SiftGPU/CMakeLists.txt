@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.2)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(GDAL REQUIRED)
+
 
 SET(SIFTGPU_ENABLE_OPENCL FALSE)
 SET(SIFTGPU_ENABLE_CUDA FALSE)
@@ -45,5 +47,5 @@ set(SIFTLIST FrameBufferObject.cpp GlobalUtil.cpp GLTexImage.cpp ProgramGLSL.cpp
         ProgramGPU.cpp ShaderMan.cpp SiftGPU.cpp SiftPyramid.cpp PyramidGL.cpp SiftMatch.cpp)
 ADD_LIBRARY(siftgpu SHARED ${SIFTLIST})
 
-TARGET_LINK_LIBRARIES(siftgpu ${LIBS_SIFTGPU} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${OPENGL_LIBRARIES} )
+TARGET_LINK_LIBRARIES(siftgpu ${LIBS_SIFTGPU} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${OPENGL_LIBRARIES} ${GDAL_LIBRARIES})
 

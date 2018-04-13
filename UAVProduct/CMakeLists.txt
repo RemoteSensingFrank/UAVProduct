@@ -31,13 +31,12 @@ LINK_DIRECTORIES(SiftGPU)
 ADD_SUBDIRECTORY(UAVAlgorithm)
 LINK_DIRECTORIES(UAVAlgorithm)
 
-
-
 set(INTERFACE common_header.h common_header.cpp UAVInterface.h)
 set(WORKFLOW  UAVPreProcess.h UAVPreProcess.cpp UAVBundler.h UAVBundler.cpp UAVDMatch.h UAVDenseProcess.h UAVDenseProcess.cpp)
-set(GEOPROCESS UAVProcessGeometry.h UAVProcessGeometry.cpp UAVMapCalculate.cpp UAVGeoCorrection.cpp UAVProcessGeoMosaic.h UAVProcessGeoMosaic.cpp
-        UAVProcessGCP.h UAVProcessGCP.cpp UAVSeamFinder.h UAVSeamFinder.cpp UAVPOSProcess.h UAVPOSPorcess.cpp)
-set(SOURCE_FILES ${SIFTLIST} ${INTERFACE} ${WORKFLOW} ${GEOPROCESS} UAVMain.cpp UAVProcessThreadPool.h)
+set(GEOPROCESS UAVProcessGeometry.h UAVProcessGeometry.cpp UAVMapCalculate.cpp UAVGeoCorrection.cpp UAVProcessGeoMosaic.h
+        UAVProcessGeoMosaic.cpp UAVProcessGCP.h UAVProcessGCP.cpp UAVSeamFinder.h UAVSeamFinder.cpp UAVPOSProcess.h UAVPOSPorcess.cpp
+        UAVICPProc.h UAVICPProc.cpp)
+set(SOURCE_FILES ${SIFTLIST} ${WORKFLOW} ${INTERFACE} ${GEOPROCESS} UAVMain.cpp UAVProcessThreadPool.h)
 
 add_executable(UAVProcess ${SOURCE_FILES})
 
@@ -46,7 +45,6 @@ target_link_libraries(UAVProcess ${OPENMVG_LIBRARIES})
 target_link_libraries(UAVProcess ${OpenMVS_LIBRARIES})
 target_link_libraries(UAVProcess ${GTEST_LIBRARIES})
 target_link_libraries(UAVProcess ${LIBKML_LIBRARIES})
-
 target_link_libraries(UAVProcess ${IL_LIBRARIES})
 target_link_libraries(UAVProcess ${ILU_LIBRARIES})
 target_link_libraries(UAVProcess ${ILUT_LIBRARIES})

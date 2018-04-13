@@ -111,6 +111,7 @@ public:
 	virtual UAVErr UAVProcessFeatExtract();
 	virtual UAVErr UAVProcessMatchesExtract(std::string pMatchList,std::string pMatchData);
 	virtual unique_ptr<openMVG::sfm::Features_Provider> UAVProcessFeatsProvide();
+
 };
 
 class UAVProcessFeatureSIFTGpu:public UAVProcessFeature
@@ -121,6 +122,22 @@ public:
 	virtual unique_ptr<openMVG::sfm::Features_Provider> UAVProcessFeatsProvide();
 protected:
 	virtual UAVErr UAVProcessExportFeatsToFile(std::string pathfeats,std::string pathdesc, std::vector<SiftKeypoint> feats, std::vector<float> desc);
+
+    /**
+     * export feature and describe file to file
+     * @param pathdesc
+     * @param desc
+     * @return
+     */
 	bool UAVImportFeatsToFile(std::string pathdesc, std::vector<float> &desc);
+    /**
+     * export matches to file
+     * @param path
+     * @param srcImg
+     * @param desImg
+     * @param matchnum
+     * @param matches
+     * @return
+     */
 	bool UAVExportMatchesToFile(std::string path,int srcImg,int desImg,int matchnum,int (*matches)[2]);
 };

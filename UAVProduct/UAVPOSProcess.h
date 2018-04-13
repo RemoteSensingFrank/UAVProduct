@@ -6,10 +6,11 @@ class UAVPOSProcessExtract: public UAVProcessPOSSimple
 public:
     /*
         Extract POS to matrix P
+        use the same camera
     */
-    long UAVPOSProc_ExtractToP(std::vector<openMVG::Mat34> &vec_P,std::vector<UAVCalibParams> instricParam);
+    long UAVPOSProc_ExtractToP(std::vector<openMVG::Mat34> &vec_P,UAVCalibParams instricParam);
 
-private:
+public:
     /**
      * extract rotation matrix
      * @param placementAngle
