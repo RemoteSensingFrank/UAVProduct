@@ -1,5 +1,6 @@
 #include<stdlib.h>
 #include<stdio.h>
+#include <gdal.h>
 
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 #include "UAVProcessGeometry.h"
@@ -120,6 +121,7 @@ int main(int argc,char* argv[])
     //mapCalculate.UAVMapUnitCombie(mapUnits,"/home/wuwei/Data/satellite/combine.tif");
     GDAL_GCP gcp[5];
     mapCalculate.UAVMapUnitGCPs(mapUnits[0],256,256,gcp);
+    //
     geoCorrect.UAVGeoCorrectGcps(mapUnits[0].unit_save,gcp,5,"/home/wuwei/Data/satellite/test.tif",0.2,115,38);
     return 0;
 }

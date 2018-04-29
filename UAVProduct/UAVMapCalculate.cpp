@@ -80,7 +80,8 @@ bool UAVMapCalculate::UAVMapUnitGCPs(MAPUNIT unitMap,int xsize,int ysize,GDAL_GC
         openMVG::Vec3 latlng = UAVProcessGeometry::UAVProcessGeoUTMToLatLonWMT(wMectorx,wMectory,0);
         openMVG::Vec3 UTM    = UAVProcessGeoLatLonToUTM(latlng(1),latlng(0),latlng(2));
         std::string temp_str=std::to_string(i);
-        gcps[i].pszId= "1";
+        gcps[i].pszId = "";
+        gcps[i].pszInfo = "";
         gcps[i].dfGCPPixel = x[i];
         gcps[i].dfGCPLine  = y[i];
         gcps[i].dfGCPX     = UTM(0);
