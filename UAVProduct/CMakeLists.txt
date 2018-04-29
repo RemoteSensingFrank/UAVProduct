@@ -8,7 +8,7 @@ if(OPENMP_FOUND)
 endif()
 
 find_package(OpenMVG REQUIRED)
-find_package(OpenMVS REQUIRED)
+#find_package(OpenMVS REQUIRED)
 #find_package(LibKML REQUIRED)
 find_package(GTest REQUIRED)
 find_package(DevIL REQUIRED)
@@ -32,17 +32,17 @@ ADD_SUBDIRECTORY(UAVAlgorithm)
 LINK_DIRECTORIES(UAVAlgorithm)
 
 set(INTERFACE common_header.h common_header.cpp UAVInterface.h)
-set(WORKFLOW  UAVPreProcess.h UAVPreProcess.cpp UAVBundler.h UAVBundler.cpp UAVDMatch.h UAVDenseProcess.h UAVDenseProcess.cpp)
+set(WORKFLOW  UAVPreProcess.h UAVPreProcess.cpp UAVBundler.h UAVBundler.cpp )
 set(GEOPROCESS UAVProcessGeometry.h UAVProcessGeometry.cpp UAVMapCalculate.cpp UAVGeoCorrection.cpp UAVProcessGeoMosaic.h
         UAVProcessGeoMosaic.cpp UAVProcessGCP.h UAVProcessGCP.cpp UAVSeamFinder.h UAVSeamFinder.cpp UAVPOSProcess.h UAVPOSPorcess.cpp
-        UAVICPProc.h UAVICPProc.cpp)
+        UAVICPProc.h UAVICPProc.cpp UAVMapCalculateTools.h UAVMapCalculateTools.cpp)
 set(SOURCE_FILES ${SIFTLIST} ${WORKFLOW} ${INTERFACE} ${GEOPROCESS} UAVMain.cpp UAVProcessThreadPool.h)
 
 add_executable(UAVProcess ${SOURCE_FILES})
 
 
 target_link_libraries(UAVProcess ${OPENMVG_LIBRARIES})
-target_link_libraries(UAVProcess ${OpenMVS_LIBRARIES})
+#target_link_libraries(UAVProcess ${OpenMVS_LIBRARIES})
 target_link_libraries(UAVProcess ${GTEST_LIBRARIES})
 target_link_libraries(UAVProcess ${LIBKML_LIBRARIES})
 target_link_libraries(UAVProcess ${IL_LIBRARIES})

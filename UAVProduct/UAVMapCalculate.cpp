@@ -1,4 +1,5 @@
 
+#include <gdal.h>
 #include "openMVG/sfm/sfm.hpp"
 #include "gdal_priv.h"
 #include "Python.h"
@@ -66,6 +67,27 @@ bool UAVMapCalculate::UAVMapUnitCorner(MAPUNIT unitMap,double &cornerx,double &c
       cornery = MINYBound+Lods[unitMap.level][1]*unitMap.col*MAPUNITSIZE;
 
       return true;
+}
+bool UAVMapCalculate::UAVMapUnitGCPs(MAPUNIT unitMap,int xsize,int ysize,GDAL_GCP *gcps)
+{
+    double x[5] = {0,xsize,0,xsize,xsize/2};
+    double y[5] = {0,ysize,ysize,0,ysize/2};
+
+    for(int i=0;i<5;++i){
+        double wMectorx = MINXBound+Lods[unitMap.level][1]*(unitMap.row*MAPUNITSIZE+x[i]);
+        double wMectory = MAXYBound-Lods[unitMap.level][1]*(unitMap.col*MAPUNITSIZE+y[i]);
+
+        openMVG::Vec3 latlng = UAVProcessGeometry::UAVProcessGeoUTMToLatLonWMT(wMectorx,wMectory,0);
+        openMVG::Vec3 UTM    = UAVProcessGeoLatLonToUTM(latlng(1),latlng(0),latlng(2));
+        std::string temp_str=std::to_string(i);
+        gcps[i].pszId= "1";
+        gcps[i].dfGCPPixel = x[i];
+        gcps[i].dfGCPLine  = y[i];
+        gcps[i].dfGCPX     = UTM(0);
+        gcps[i].dfGCPY     = UTM(1);
+        gcps[i].dfGCPZ     = UTM(2);
+    }
+    return true;
 }
 
 bool UAVMapCalculate::UAVMapUnitCombie(MapCalculateUnits units,std::string dest)

@@ -57,6 +57,16 @@ public:
     //对于单个切片计算其角点坐标
     bool UAVMapUnitCorner(MAPUNIT unitMap,double &cornerx,double &cornery);
 
+    /**
+     * get gcps
+     * @param unitMap
+     * @param xsize
+     * @param ysize
+     * @param gcps
+     * @return
+     */
+    bool UAVMapUnitGCPs(MAPUNIT unitMap,int xsize,int ysize,GDAL_GCP *gcps);
+
     // 将切片数据组装一下
     bool UAVMapUnitCombie(MapCalculateUnits units,std::string dest);
 

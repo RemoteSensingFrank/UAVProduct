@@ -169,6 +169,7 @@ openMVG::Vec3 UAVProcessGeometry::UAVProcessGeoUTMToLatLonWMT(double x,double y,
 {
     double xt = x/20037508.34*180;
     double yt = y/20037508.34*180;
+    //180/M_PI*(2*atan(exp(y*M_PI/180))-M_PI/2);
     yt= 180/M_PI*(2*atan(exp(yt*M_PI/180))-M_PI/2);
     openMVG::Vec3 latlon;
     latlon(0)=xt;latlon(1)=yt;latlon(2)=z;
