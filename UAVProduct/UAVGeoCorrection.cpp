@@ -258,8 +258,11 @@ UAVErr UAVProcessGeoCorrect::UAVGeoCorrectExterior(std::string pathImg, openMVG:
     double y[]={0,ysize/2,ysize,ysize,0};
     GDAL_GCP gcp[gcp_number];
 
+
+    //这个算法在使用平均高程计算过程中由于高程的偏差可能会出现极大的误差
     for (int i = 0; i < 5; ++i)
     {
+        /*algorithm have some problem to extract P from POS data
         Eigen::MatrixXd pa(2,1);
         Eigen::MatrixXd mat1(2,2);
         mat1(0,0) = P(2,0)*x[i]-P(0,0);mat1(0,1) = P(2,1)*x[i]-P(0,1);
@@ -269,8 +272,9 @@ UAVErr UAVProcessGeoCorrect::UAVGeoCorrectExterior(std::string pathImg, openMVG:
         pa(1,0)=P(1,2)*avgHeight+P(1,3)-y[i]*(P(2,2)*avgHeight+P(2,3));
 
         Eigen::MatrixXd XYZ(2,1);
-        XYZ=mat1.inverse()*pa;
-
+        XYZ=mat1.inverse()*pa  ;
+         */
+        std::cout<<XYZ<<endl;
         gcp[i].dfGCPX = XYZ(0,0);
         gcp[i].dfGCPY = XYZ(1,0);
         gcp[i].dfGCPZ = avgHeight;

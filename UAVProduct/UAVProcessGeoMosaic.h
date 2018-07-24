@@ -19,6 +19,10 @@
 
 using namespace std;
 
+/*
+ * authuor:
+ * email  :
+ * */
 class UAVProcessGeoMosaicGDAL: public UAVProcessGeometry
 {
 private:

@@ -170,10 +170,9 @@ UAVErr UAVProcessPOSSimple::UAVPorcessPOSGet(std::string file, bool bGps)
                 return 1;
             char posline[2048];
             int num=1;
-            while(!feof(ptrfile))
+            while(fgets(posline,2048,ptrfile))
             {
                 UAVPOSSt tmpPos;
-                fgets(posline,2048,ptrfile);
                 sscanf(posline,"%lf%lf%lf%lf%lf%lf",&tmpPos.dL,&tmpPos.dB,&tmpPos.dH,&tmpPos.dRoll,&tmpPos.dPitch,&tmpPos.dHeading);
                 posList.insert(std::make_pair(num,tmpPos));
                 num++;

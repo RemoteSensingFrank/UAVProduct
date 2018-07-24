@@ -5,6 +5,7 @@
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 #include "UAVProcessGeometry.h"
 #include "UAVMapCalculateTools.h"
+#include "UAVPOSProcess.h"
 
 //int sample_odm_data_aukerman() {
 //        std::string image_dir="/home/wuwei/Data/Raw/odm_data_aukerman/images/";
@@ -113,15 +114,18 @@
 
 int main(int argc,char* argv[])
 {
+    UAVPOSProcessExtract extractPos;
+    UAVProcessGeoCorrect correctGeo;
+    vector<openMVG::Mat34> matrixP;
+    UAVCalibParams calibCameras;
+    calibCameras._ppx_ = 7360/2;
+    calibCameras._ppy_ = 4912/2;
+    calibCameras._flen_x_=7360;
+    calibCameras._flen_y_=7360;
+    calibCameras._ccd_size_=1;
 
-    MapCalculateUnits mapUnits;
-    GetMapUnitsFromDirectory("/home/wuwei/Data/satellite",mapUnits);
-    UAVMapCalculateGoogle mapCalculate;
-    UAVProcessGeoCorrect geoCorrect;
-    //mapCalculate.UAVMapUnitCombie(mapUnits,"/home/wuwei/Data/satellite/combine.tif");
-    GDAL_GCP gcp[5];
-    mapCalculate.UAVMapUnitGCPs(mapUnits[0],256,256,gcp);
-    //
-    geoCorrect.UAVGeoCorrectGcps(mapUnits[0].unit_save,gcp,5,"/home/wuwei/Data/satellite/test.tif",0.2,115,38);
+    extractPos.UAVPorcessPOSGet("/home/wuwei/data/POS.txt",true);
+    extractPos.UAVPOSProc_ExtractToP(matrixP,calibCameras);
+    correctGeo.UAVGeoCorrectExterior("/home/wuwei/data/DSC00006.JPG",matrixP[0],0,"/home/wuwei/data/DSC00006.tif",0.5,113,29);
     return 0;
 }
