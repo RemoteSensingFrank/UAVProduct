@@ -125,7 +125,9 @@ int main(int argc,char* argv[])
     calibCameras._ccd_size_=1;
 
     extractPos.UAVPorcessPOSGet("/home/wuwei/data/POS.txt",true);
-    extractPos.UAVPOSProc_ExtractToP(matrixP,calibCameras);
-    correctGeo.UAVGeoCorrectExterior("/home/wuwei/data/DSC00006.JPG",matrixP[0],0,"/home/wuwei/data/DSC00006.tif",0.5,113,29);
+    extractPos.UAVPOSProc_ExtractToP(matrixP);
+    correctGeo.UAVGeoCorrectExterior("/home/wuwei/data/DSC00006.JPG",matrixP[0],calibCameras,30,"/home/wuwei/data/DSC00006.tif",0.2,113.2410581,29.1668276);
+    correctGeo.UAVGeoCorrectExterior("/home/wuwei/data/DSC00007.JPG",matrixP[1],calibCameras,30,"/home/wuwei/data/DSC00007.tif",0.2,113.2427,29.1671);
+    correctGeo.UAVGeoCorrectExterior("/home/wuwei/data/DSC00008.JPG",matrixP[2],calibCameras,30,"/home/wuwei/data/DSC00008.tif",0.2,113.2445,29.1674);
     return 0;
 }

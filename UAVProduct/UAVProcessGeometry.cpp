@@ -148,7 +148,9 @@ openMVG::Vec3 UAVProcessGeometry::UAVProcessGeoLatLonToUTM(double lat,double lon
     const double N = N0 + k0 * A * (xi + a1*sin(2*1*xi)*cosh(2*1*eta) + a2*sin(2*2*xi)*cosh(2*2*eta) + a3*sin(2*3*xi)*cosh(2*3*eta) + a4*sin(2*4*xi)*cosh(2*4*eta) + a5*sin(2*5*xi)*cosh(2*5*eta) + a6*sin(2*6*xi)*cosh(2*6*eta) + a7*sin(2*7*xi)*cosh(2*7*eta) + a8*sin(2*8*xi)*cosh(2*8*eta) + a9*sin(2*9*xi)*cosh(2*9*eta) + a10*sin(2*10*xi)*cosh(2*10*eta));
 
     // Scale E,N from kilometers to meters
-    return openMVG::Vec3(E * 1000, N * 1000, alt);
+    double tmp1 = E * 1000;
+    double tmp2 = N * 1000;
+    return openMVG::Vec3(tmp1, tmp2, alt);
 }
 openMVG::Vec3 UAVProcessGeometry::UAVProcessGeoXYZToLatLon(double x,double y,double z)
 {

@@ -241,7 +241,7 @@ UAVErr UAVProcessGeoCorrect::UAVGeoCorrectGcps(std::string pathImg, GDAL_GCP *gc
  * @param pathGeo
  * @return
  */
-UAVErr UAVProcessGeoCorrect::UAVGeoCorrectExterior(std::string pathImg, openMVG::Mat34 P,
+UAVErr UAVProcessGeoCorrect::UAVGeoCorrectExterior(std::string pathImg, openMVG::Mat34 P,UAVCalibParams instric,
                                                    double avgHeight, std::string pathGeo,
                                                    double dGroundSize,double dL,double dB) {
     GDALAllRegister();
@@ -257,26 +257,51 @@ UAVErr UAVProcessGeoCorrect::UAVGeoCorrectExterior(std::string pathImg, openMVG:
     double x[]={0,xsize/2,xsize,0,xsize};
     double y[]={0,ysize/2,ysize,ysize,0};
     GDAL_GCP gcp[gcp_number];
+    //openMVG::Vec3 XYZPnt=UAVProcessGeometry::UAVProcessGeoBLHToXYZ(dB,dL,avgHeight);
+    //openMVG::Vec3 XYZPnt=UAVProcessGeometry::UAVProcessGeoLatLonToUTM(dB,dL,avgHeight);
+    Eigen::MatrixXd rotat(3,3);
+    Eigen::MatrixXd trans(3,1);
+    for(int i=0;i<3;++i)
+    {
+        rotat(i,0)=P(i,0);
+        rotat(i,1)=P(i,1);
+        rotat(i,2)=P(i,2);
+        trans(i,0)=P(i,3);
+    }
 
 
     //这个算法在使用平均高程计算过程中由于高程的偏差可能会出现极大的误差
     for (int i = 0; i < 5; ++i)
     {
-        /*algorithm have some problem to extract P from POS data
-        Eigen::MatrixXd pa(2,1);
-        Eigen::MatrixXd mat1(2,2);
-        mat1(0,0) = P(2,0)*x[i]-P(0,0);mat1(0,1) = P(2,1)*x[i]-P(0,1);
-        mat1(1,0) = P(2,0)*y[i]-P(1,0);mat1(1,1) = P(2,1)*y[i]-P(1,1);
+        Eigen::MatrixXd pt1(3,1);
+        pt1(0,0) = xsize/2 - x[i];
+        pt1(1,0) = y[i] - ysize/2;
+        pt1(2,0) = -instric._flen_x_;
 
-        pa(0,0)=P(0,2)*avgHeight+P(0,3)-x[i]*(P(2,2)*avgHeight+P(2,3));
-        pa(1,0)=P(1,2)*avgHeight+P(1,3)-y[i]*(P(2,2)*avgHeight+P(2,3));
+        Eigen::MatrixXd ptw(3,1);
+        ptw = rotat*pt1;
+//        std::cout<<rotat<<endl;
+//        std::cout<<ptw<<endl;
+//        std::cout<<trans<<endl;
+        double tx = trans(0,0)+(avgHeight-trans(2,0))*ptw(0)/ptw(2);
+        double ty = trans(1,0)+(avgHeight-trans(2,0))*ptw(1)/ptw(2);
 
-        Eigen::MatrixXd XYZ(2,1);
-        XYZ=mat1.inverse()*pa  ;
-         */
-        std::cout<<XYZ<<endl;
-        gcp[i].dfGCPX = XYZ(0,0);
-        gcp[i].dfGCPY = XYZ(1,0);
+        //algorithm have some problem to extract P from POS data
+//        Eigen::MatrixXd pa(2,1);
+//        Eigen::MatrixXd mat1(2,2);
+//        mat1(0,0) = P(2,0)*x[i]-P(0,0);mat1(0,1) = P(2,1)*x[i]-P(0,1);
+//        mat1(1,0) = P(2,0)*y[i]-P(1,0);mat1(1,1) = P(2,1)*y[i]-P(1,1);
+//
+//        pa(0,0)=P(0,2)*XYZPnt(2)+P(0,3)-x[i]*(P(2,2)*XYZPnt(2)+P(2,3));
+//        pa(1,0)=P(1,2)*XYZPnt(2)+P(1,3)-y[i]*(P(2,2)*XYZPnt(2)+P(2,3));
+//
+//        Eigen::MatrixXd XYZ(2,1);
+//        XYZ=mat1.inverse()*pa  ;
+//        std::cout<<XYZ<<endl;
+        gcp[i].pszId="";
+        gcp[i].pszInfo="";
+        gcp[i].dfGCPX = tx;
+        gcp[i].dfGCPY = ty;
         gcp[i].dfGCPZ = avgHeight;
         gcp[i].dfGCPPixel = x[i];
         gcp[i].dfGCPLine  = y[i];
