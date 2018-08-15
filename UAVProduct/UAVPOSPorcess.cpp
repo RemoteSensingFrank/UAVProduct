@@ -122,13 +122,6 @@ long UAVPOSProcessExtract::UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,
     MatrixXd rotationMatrix(3,3);
     MatrixXd inMatrix(3,3);
 
-//    Eigen::AngleAxisd romega(dOmega, Eigen::Vector3d::UnitZ());
-//    Eigen::AngleAxisd rpitch(dPhi, Eigen::Vector3d::UnitY());
-//    Eigen::AngleAxisd rkappa(dKappa, Eigen::Vector3d::UnitX());
-//    Eigen::Quaternion<double> q = romega * rpitch * rkappa;
-    //std::cout<<IMMatrix<<endl;
-    //std::cout<<q.matrix()<<endl;
-
     inMatrix(0,0)=-1;inMatrix(0,1)=0;inMatrix(0,2)=instric._ppx_;
     inMatrix(1,0)=1;inMatrix(1,1)=1;inMatrix(1,2)=-instric._ppy_;
     inMatrix(2,0)=0;inMatrix(2,1)=0;inMatrix(2,2)=-instric._flen_x_;

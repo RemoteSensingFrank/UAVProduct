@@ -111,6 +111,40 @@ public:
 
 protected:
     /***
+     * 正向计算，直接根据世界坐标系下的三维坐标计算在像平面坐标系下的像素坐标
+     * @param pntWord :世界坐标系下的坐标
+     * @param P ：P矩阵
+     * @param pntImg ：像平面坐标系下的坐标
+     * @return
+     */
+    UAVErr UAVGeoPntCalculateForward(openMVG::Vec3 pntWorld,openMVG::Mat34 P,openMVG::Vec3 &pntImg);
+
+
+    /***
+     * 反向计算，根据像平面坐标系下的坐标和高程计算世界坐标系下的坐标
+     * @param pntImg ：像平面坐标系下的坐标
+     * @param P ：P矩阵
+     * @param elevation：高程数据
+     * @param pntWorld ：世界坐标系下的坐标
+     * @return
+     */
+    UAVErr UAVGeoPntCalculateBackward(openMVG::Vec3 pntImg,openMVG::Mat34 P,float elevation,openMVG::Vec3 &pntWorld);
+
+    /**
+     * 对于一个点的迭代计算
+     * @param pntImg ：输入影像点
+     * @param P ：P矩阵
+     * @param elevationData：高程数据
+     * @param xsize ：高程数据xsize
+     * @param ysize ：高程数据ysize
+     * @param adfGeotransform ：高程数据的左上脚点坐标
+     * @param pntWorld ：世界坐标系下的坐标
+     * @return
+     */
+    UAVErr UAVIteratorPerPoint(openMVG::Vec3 pntImg,openMVG::Mat34 P,float *elevationData,int xsize,int ysize,double adfGeotransform[6],openMVG::Vec3 &pntWorld);
+
+
+    /***
      * unsigned char* pDataSrc:输入影像数据
      * xMap：ｘ映射
      * yMap：ｙ映射
