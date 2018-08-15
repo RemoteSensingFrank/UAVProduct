@@ -103,9 +103,10 @@ public:
 
     //还是只计算五个点，而不是所有点都计算，所有点都计算存在两个问题：１．效率太低；２．不同的像素有不同的偏差
     //另外这里的P矩阵和计算机视觉中的P矩阵有点不同，直接就是旋转加上平移
-    UAVErr UAVGeoCorrectExterior(std::string pathImg, openMVG::Mat34 P,UAVCalibParams instric, double avgHeight, std::string pathGeo,
+    UAVErr UAVGeoCorrectExterior(std::string pathImg, openMVG::Mat34 P, double avgHeight, std::string pathGeo,
                                             double dGroundSize,double dL,double dB);
 
+    //根据DEM数据和外方位元素进行几何精校正
     UAVErr UAVGeoCorrectDEM(std::string pathGeo, openMVG::Mat34 P, std::string pathDEM, std::string pathGeoAccur);
 
 protected:

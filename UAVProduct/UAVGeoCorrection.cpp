@@ -241,7 +241,7 @@ UAVErr UAVProcessGeoCorrect::UAVGeoCorrectGcps(std::string pathImg, GDAL_GCP *gc
  * @param pathGeo
  * @return
  */
-UAVErr UAVProcessGeoCorrect::UAVGeoCorrectExterior(std::string pathImg, openMVG::Mat34 P,UAVCalibParams instric,
+UAVErr UAVProcessGeoCorrect::UAVGeoCorrectExterior(std::string pathImg, openMVG::Mat34 P,
                                                    double avgHeight, std::string pathGeo,
                                                    double dGroundSize,double dL,double dB) {
     GDALAllRegister();
@@ -273,10 +273,18 @@ UAVErr UAVProcessGeoCorrect::UAVGeoCorrectExterior(std::string pathImg, openMVG:
     //这个算法在使用平均高程计算过程中由于高程的偏差可能会出现极大的误差
     for (int i = 0; i < 5; ++i)
     {
+
+//    Eigen::AngleAxisd romega(dOmega, Eigen::Vector3d::UnitZ());
+//    Eigen::AngleAxisd rpitch(dPhi, Eigen::Vector3d::UnitY());
+//    Eigen::AngleAxisd rkappa(dKappa, Eigen::Vector3d::UnitX());
+//    Eigen::Quaternion<double> q = romega * rpitch * rkappa;
+        //std::cout<<IMMatrix<<endl;
+        //std::cout<<q.matrix()<<endl;
+
         Eigen::MatrixXd pt1(3,1);
-        pt1(0,0) = xsize/2 - x[i];
-        pt1(1,0) = y[i] - ysize/2;
-        pt1(2,0) = -instric._flen_x_;
+        pt1(0,0) = x[i];
+        pt1(1,0) = y[i];
+        pt1(2,0) = 1;
 
         Eigen::MatrixXd ptw(3,1);
         ptw = rotat*pt1;

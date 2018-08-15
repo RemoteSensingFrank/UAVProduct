@@ -5,19 +5,19 @@ using namespace Eigen;
 #define PI 3.1415926534
 #endif
 
-long UAVPOSProcessExtract::UAVPOSProc_ExtractToP(std::vector<openMVG::Mat34> &vec_P)
+long UAVPOSProcessExtract::UAVPOSProc_ExtractToP(std::vector<openMVG::Mat34> &vec_P,UAVCalibParams instric)
 {
     //直接根据POS得到P矩阵并根据P矩阵进行校正
     for(auto iter : this->posList){
         Vec3f plA(0,0,0),plV(0,0,0);
         openMVG::Mat34 P;
-        UAVPOSProc_EOMatrixTurn(iter.first,plA,plV,P);
+        UAVPOSProc_EOMatrixTurn(iter.first,plA,plV,P,instric);
         vec_P.push_back(P);
     }
     return 0;
 }
 
-long UAVPOSProcessExtract::UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,Vec3f placementVec,openMVG::Mat34 &P)
+long UAVPOSProcessExtract::UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,Vec3f placementVec,openMVG::Mat34 &P,UAVCalibParams instric)
 {
     long lError = 0;
     double dB, dL, dH;
@@ -120,6 +120,8 @@ long UAVPOSProcessExtract::UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,
     //rotation matrix
 
     MatrixXd rotationMatrix(3,3);
+    MatrixXd inMatrix(3,3);
+
 //    Eigen::AngleAxisd romega(dOmega, Eigen::Vector3d::UnitZ());
 //    Eigen::AngleAxisd rpitch(dPhi, Eigen::Vector3d::UnitY());
 //    Eigen::AngleAxisd rkappa(dKappa, Eigen::Vector3d::UnitX());
@@ -127,7 +129,11 @@ long UAVPOSProcessExtract::UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,
     //std::cout<<IMMatrix<<endl;
     //std::cout<<q.matrix()<<endl;
 
-    rotationMatrix = IMMatrix;
+    inMatrix(0,0)=-1;inMatrix(0,1)=0;inMatrix(0,2)=instric._ppx_;
+    inMatrix(1,0)=1;inMatrix(1,1)=1;inMatrix(1,2)=-instric._ppy_;
+    inMatrix(2,0)=0;inMatrix(2,1)=0;inMatrix(2,2)=-instric._flen_x_;
+    rotationMatrix = IMMatrix*inMatrix;
+
     //debug
     //std::cout<<rotationMatrix<<endl;
 
@@ -138,7 +144,7 @@ long UAVPOSProcessExtract::UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,
         Rt(i,1)=rotationMatrix(i,1);
         Rt(i,2)=rotationMatrix(i,2);
     }
-    openMVG::Vec3 pw=UAVProcessGeometry::UAVProcessGeoLatLonToUTM(dB,dL,dH);
+    openMVG::Vec3 pw=UAVProcessGeometry::UAVProcessGeoLatLonToUTM(openMVG::R2D(dB),openMVG::R2D(dL),dH);
     Rt(0,3)=dXs+dXl+pw(0);Rt(1,3)=dYs+dYl+pw(1);Rt(2,3)=dZs+dZl+pw(2);
     P=Rt;
     return 0;

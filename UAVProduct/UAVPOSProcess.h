@@ -8,7 +8,7 @@ public:
         Extract POS to matrix P
         use the same camera
     */
-    long UAVPOSProc_ExtractToP(std::vector<openMVG::Mat34> &vec_P);
+    long UAVPOSProc_ExtractToP(std::vector<openMVG::Mat34> &vec_P,UAVCalibParams instric);
 
 public:
     /**
@@ -18,7 +18,7 @@ public:
      * @param P
      * @return
      */
-    long UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,Vec3f placementVec,openMVG::Mat34 &P);
+    long UAVPOSProc_EOMatrixTurn(int idx,Vec3f placementAngle,Vec3f placementVec,openMVG::Mat34 &P,UAVCalibParams instric);
 
     /*
       get Quadrant according to the direction of the POS
