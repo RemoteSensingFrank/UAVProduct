@@ -125,16 +125,16 @@ and make sure you build the release version
 #！/bin/bash
 mkdir env && cd env
 sudo apt-get install git
-git clone –recursive https://github.com/openMVG/openMVG
+git clone --recursive https://github.com/openMVG/openMVG
 
 #openMVG
 mkdir openMVG_Build && cd openMVG_Build
 cmake -DCMAKE_BUILD_TYPE=RELEASE . ../openMVG/src/
-make &&sudo make install
+make && sudo make install
 
 #openMVS
 sudo apt-get update -qq && sudo apt-get install -qq
-sudo apt-get -y install git mercurial cmake libpng-dev libjpeg-dev libtiff-d    ev libglu1-mesa-dev
+sudo apt-get -y install git mercurial cmake libpng-dev libjpeg-dev libtiff-dev libglu1-mesa-dev
 
 cur_path=`pwd`
 echo $cur_path
